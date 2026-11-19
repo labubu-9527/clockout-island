@@ -117,7 +117,7 @@ function Fixture() {
       material="classic" nativeGlassState="disabled" agentVisualState="idle" agentStatusLabel="AI Agent 空闲或已完成"
       mediaState={UNAVAILABLE_MEDIA}
       features={{ todo: true, music: true, clipboard: true, shelf: true, qq: true, wechat: true, qqMail: true, agents: agentsEnabled, translation: false }}
-      shelfCount={null}
+      shelfCount={null} systemStatus={{ cpuPercent: null, memoryPercent: 0, updatedAt: 0 }} compactCollapsed={false}
       onOpenPage={(page) => { openedPage = page; }} onOpenMessages={(source) => { openedPage = source; }}
       onPageChange={() => {}} onWindowDragStart={() => {}} onCollapse={() => setMode("collapsed")}
       onResetPosition={() => {}} minimizesToTray onMinimize={() => {}} onOpenSettings={() => {}} onOpenTranslator={() => {}} onTuck={() => setTucked(true)} onReveal={() => setTucked(false)}>

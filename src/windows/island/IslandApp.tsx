@@ -13,6 +13,7 @@ import { useClipboardHistory } from "../../features/clipboard/useClipboardHistor
 // Imported after the page panels so its CSS keeps its place in the cascade.
 import { IslandShell } from "./IslandShell";
 import { useMediaState } from "../../features/media/useMediaState";
+import { useSystemStatus } from "../../features/system-status/useSystemStatus";
 import type { TodoItem } from "../../features/todos/types";
 import { useIslandWindow } from "./useIslandWindow";
 import { getExpandedIslandHeight } from "./expandedHeight";
@@ -66,6 +67,8 @@ export function IslandApp() {
   const { qqNotifications, wechatReminders, qqMail, preview, hasMessagePreview } = notices;
   // The output level shows only on the collapsed island (its waveform).
   const media = useMediaState(settings.musicEnabled, mode === "collapsed");
+  // Only the collapsed bar shows the reading, so only poll while it can be seen.
+  const systemStatus = useSystemStatus(mode === "collapsed");
   const { agentStatus, agentSessions, listedAgentSessions, activeAgentSessionCount, unseenAgentSessions, agentRemoval, agentSession, agentUsages, alertUsages } =
     useIslandAgents(settings);
   const quotaAlert = useQuotaAlert(alertUsages, settings.agentStatusEnabled ? settings.agentQuotaAlertPercent : 0, {
@@ -243,6 +246,8 @@ export function IslandApp() {
         agentStatusLabel={agentStatusLabel}
         features={features}
         shelfCount={settings.shelfEnabled && settings.shelfShowCount ? fileShelf.items.length : null}
+        systemStatus={systemStatus}
+        compactCollapsed={!settings.collapsedAutoWidth && settings.collapsedWidth <= 280}
         quotaAlert={quotaAlert}
         onOpenPage={openEnabledPage}
         onWindowDragStart={startIslandDrag}

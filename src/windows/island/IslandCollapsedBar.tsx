@@ -7,6 +7,7 @@ import type { AgentSession } from "../../features/agent-status/session";
 import type { AgentVisualState } from "../../features/agent-status/status";
 import type { CollapsedItem, CollapsedSlot } from "../../features/appearance/types";
 import type { MediaState } from "../../features/media/api";
+import type { SystemStatus } from "../../features/system-status/api";
 import { CollapsedLyric } from "../../features/media/CollapsedLyric";
 import type { LyricsSettings } from "../../features/media/lyrics/useLyrics";
 import { CollapsedMessageContent } from "../../features/messages/CollapsedMessageContent";
@@ -64,6 +65,10 @@ type IslandCollapsedBarProps = {
   showMusic: boolean;
   /** Files on the shelf, or null when the count is not shown. */
   shelfCount: number | null;
+  /** CPU and memory usage for the status slot; the first CPU sample may be null. */
+  systemStatus: SystemStatus;
+  /** A fixed narrow island has no room for the badge beside a long todo and its countdown. */
+  compactCollapsed: boolean;
   /** Claude's or Codex's usage reaching the alert level, or resetting; it takes the place of the text while shown. */
   quotaAlert?: QuotaAlert | null;
   /** A todo round reaching its reminder before the end; it takes the place of the text while shown. */
@@ -102,6 +107,8 @@ export function IslandCollapsedBar({
   mediaState,
   showMusic,
   shelfCount,
+  systemStatus,
+  compactCollapsed,
   quotaAlert = null,
   agentVisualState,
   onOpenPage,
@@ -273,6 +280,17 @@ export function IslandCollapsedBar({
         {agentSessionCount}
       </button>
       ) : null,
+    system: !compactCollapsed && (
+      <span
+        className="island-system-status"
+        role="img"
+        aria-label={t.island.systemStatus(systemStatus.cpuPercent, systemStatus.memoryPercent)}
+      >
+        <span>CPU {systemStatus.cpuPercent === null ? "--" : systemStatus.cpuPercent}%</span>
+        <span className="island-system-status__separator" aria-hidden="true">·</span>
+        <span>MEM {systemStatus.memoryPercent}%</span>
+      </span>
+    ),
   };
 
   return (

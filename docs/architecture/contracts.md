@@ -182,6 +182,8 @@ Codex 会话摘要（2026-11-15）：`list_agent_sessions` 可选返回 `lastCom
   - 应用数据目录新增 `clipboard-location.json`（`{ "directory": "<绝对路径>" }`）：存在且可用时剪贴板历史（`clipboard-history.json` 与 `clipboard-images/`）放在该目录；文件缺失、损坏或目录不可用时回到应用数据目录（不删除该文件）。迁移先复制、写指针，全部成功后才删除旧文件。
   - `clipboard-history.json` 的条目新增可选字段 `files: string[]`（资源管理器复制的文件，CF_HDROP）。这类条目 `kind` 仍是 `"text"`、`text` 为每行一个路径，旧版本照常读取并把路径当文本粘贴；没有文件的条目不写这个字段。
 
+- 收起岛状态位（2026-11-19）：`focusd-island-settings.collapsedLayout` 的 `CollapsedSlot` 新增可选项 `"system"`，显示 CPU 与内存占用。旧数据缺它时由 `normalizeOrder` 补在末尾，旧版本读到它会当未知项丢掉，其余 slot 不受影响。新增自有命令 `get_system_status()` 返回 `{ cpuPercent: number | null, memoryPercent: number, updatedAt: number }`；首次采样没有上一轮基准时 `cpuPercent` 为 null。无新增事件、localStorage key 或权限。
+
 ## 插件 API v1
 
 - 新目录：`src-tauri/src/plugin_host/`、`src/features/plugins/`、`plugins/<id>/`（独立 crate）、`plugins/sdk/`、`docs/plugins/`。

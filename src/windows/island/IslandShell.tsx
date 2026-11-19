@@ -5,6 +5,7 @@ import type { QuotaAlert } from "../../features/agent-status/quotaAlerts";
 import type { AgentVisualState } from "../../features/agent-status/status";
 import type { CollapsedItem, CollapsedSlot, Material, PageButtonStyle, PageDot, TuckStyle } from "../../features/appearance/types";
 import type { MediaState } from "../../features/media/api";
+import type { SystemStatus } from "../../features/system-status/api";
 import type { MessagePreview, MessageSource } from "../../features/messages/messagePreview";
 import type { MailController } from "../../features/messages/mail/MailPanel";
 import type { QQNotificationsController } from "../../features/messages/qq-notifications/QQNotifications";
@@ -77,6 +78,10 @@ type IslandShellProps = {
   features: IslandFeatures;
   /** Files on the shelf for the collapsed bar, or null when it does not show them. */
   shelfCount: number | null;
+  /** CPU and memory usage for the collapsed bar's status slot. */
+  systemStatus: SystemStatus;
+  /** Hide the badge on a fixed narrow island so a long todo and its countdown still fit. */
+  compactCollapsed: boolean;
   /** Claude's or Codex's usage reaching the alert level, or resetting. */
   quotaAlert?: QuotaAlert | null;
   onOpenPage: (page: IslandPage) => void;
@@ -134,6 +139,8 @@ export function IslandShell({
   agentStatusLabel,
   features,
   shelfCount,
+  systemStatus,
+  compactCollapsed,
   quotaAlert = null,
   onOpenPage,
   onWindowDragStart,
@@ -242,6 +249,8 @@ export function IslandShell({
           mediaState={mediaState}
           showMusic={features.music}
           shelfCount={shelfCount}
+          systemStatus={systemStatus}
+          compactCollapsed={compactCollapsed}
           quotaAlert={quotaAlert}
           agentVisualState={agentVisualState}
           onOpenPage={onOpenPage}

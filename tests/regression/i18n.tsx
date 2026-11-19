@@ -52,6 +52,7 @@ mockIPC((command, payload) => {
     // Same values as MediaState::empty() in src-tauri/src/media_control/session.rs.
     case "get_media_state": return { available: false, audioActive: false, audioPeak: 0, playbackStatus: "unavailable", title: null, artist: null, album: null, thumbnail: null, positionMs: 0, durationMs: 0, canSeek: false, canNext: false, canPrevious: false, shuffleActive: null, canShuffle: false, repeatMode: "unknown", canRepeat: false, volume: -1, sourceApp: null, activeSessionId: null, sessions: [], updatedAt: 0 };
     case "get_audio_level": return { active: false, peak: 0, updatedAt: 0 };
+    case "get_system_status": return { cpuPercent: 12, memoryPercent: 58, updatedAt: Date.now() };
     case "get_foreground_fullscreen": return { active: false, onIslandMonitor: false };
     case "set_island_interaction": return "disabled";
     case "set_qq_notifications_enabled": return { revision: ++revision, enabled: args.enabled, status: args.enabled ? "listening" : "disabled", items: [], error: null };

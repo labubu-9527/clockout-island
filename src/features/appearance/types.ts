@@ -49,7 +49,7 @@ export type CollapsedItem = "agent" | "lyrics" | "todo";
  * the new-mail badge, files on the shelf, the music waveform, running Agent sessions (or the tuck
  * dot). Icons before the text sit on its left.
  */
-export type CollapsedSlot = "text" | "mail" | "shelf" | "music" | "agents";
+export type CollapsedSlot = "text" | "mail" | "shelf" | "music" | "agents" | "system";
 /** The page dots in the expanded island's header, which the user can drag into any order. */
 export type PageDot = "todo" | "music" | "clipboard" | "shelf" | "translation";
 

@@ -1,5 +1,5 @@
 import { useCallback, type KeyboardEvent, type ReactNode } from "react";
-import { AudioLines, Inbox, Mail } from "lucide-react";
+import { AudioLines, Cpu, Inbox, Mail } from "lucide-react";
 import { usePointerReorder } from "../../components/reorder/usePointerReorder";
 import { SettingsGroup } from "../../components/settings/SettingsGroup";
 import { SettingsLinkButton } from "../../components/settings/SettingsLinkButton";
@@ -17,6 +17,7 @@ function slotsOn(settings: IslandSettings): Record<CollapsedSlot, boolean> {
     shelf: settings.shelfEnabled && settings.shelfShowCount,
     music: settings.musicEnabled,
     agents: true,
+    system: true,
   };
 }
 
@@ -60,6 +61,7 @@ export function CollapsedLayoutEditor({
     shelf: <><Inbox size={13} strokeWidth={1.6} absoluteStrokeWidth />2</>,
     music: <AudioLines size={15} strokeWidth={1.6} absoluteStrokeWidth />,
     agents: settings.agentStatusEnabled ? "1" : null,
+    system: <><Cpu size={12} strokeWidth={1.6} absoluteStrokeWidth />12%</>,
   };
 
   return (

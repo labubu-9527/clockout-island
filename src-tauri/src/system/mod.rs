@@ -5,6 +5,7 @@ pub(crate) mod folder_dialog;
 pub(crate) mod fullscreen;
 pub(crate) mod theme_file;
 pub(crate) mod startup;
+pub(crate) mod status;
 pub(crate) mod todo_export;
 pub(crate) mod update_channel;
 pub(crate) mod updater;
@@ -41,6 +42,7 @@ macro_rules! tauri_commands {
             crate::system::fullscreen::get_foreground_fullscreen,
             crate::system::startup::get_launch_at_startup,
             crate::system::startup::set_launch_at_startup,
+            crate::system::status::get_system_status,
             crate::system::updater::get_updater_proxy,
             crate::system::updater::updater_configured,
             crate::system::update_channel::updater_check,

@@ -43,6 +43,7 @@ mockIPC((command, payload) => {
     case "list_agent_sessions": case "agent_sessions_in_front": case "agent_approval_pending": case "get_qq_mail_state": return [];
     case "get_agent_status": return { codex: { phase: "idle", updatedAt: 0 }, claudeCode: { phase: "idle", updatedAt: 0 }, updatedAt: 0, statusPath: "" };
     case "get_media_state": return DEFAULT_MEDIA_STATE;
+    case "get_system_status": return { cpuPercent: 12, memoryPercent: 58, updatedAt: Date.now() };
     case "get_foreground_fullscreen": return { active: false, onIslandMonitor: false };
     case "set_island_interaction": return "disabled";
     case "get_island_top_attachment": return true;

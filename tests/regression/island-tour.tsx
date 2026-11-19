@@ -98,6 +98,7 @@ mockIPC((command, payload) => {
     case "media_next":
     case "media_previous": return tourMediaState(empty ? "none" : media);
     case "get_audio_level": return { active: media !== "paused" && media !== "none" && !empty, peak: 0.4 + Math.random() * 0.4, updatedAt: Date.now() };
+    case "get_system_status": return { cpuPercent: empty ? null : 12, memoryPercent: empty ? 0 : 58, updatedAt: Date.now() };
     case "get_lyrics": return (args.query as { title?: string } | undefined)?.title === "晴天" ? { source: "lrclib", lrc: TOUR_LRC } : null;
     case "get_foreground_fullscreen": return { active: false, onIslandMonitor: false };
     case "set_island_interaction": interaction = args; return "disabled";
@@ -353,7 +354,7 @@ if (!automated) {
       });
     }
     const savedLayout = JSON.parse(localStorage.getItem("focusd-island-settings") ?? "{}").collapsedLayout as string[] | undefined;
-    check(savedLayout?.join() === "music,text,mail,shelf,agents" && barOrder().startsWith("music-wave-button,island__text-slot"),
+    check(savedLayout?.join() === "music,text,mail,shelf,agents,system" && barOrder().startsWith("music-wave-button,island__text-slot"),
       `岛上的排列：音乐波形移到文字左边，收起的岛也跟着变（${barOrder()}）`);
     await click(".settings-sidebar__item[data-category='general']");
     const lockSwitch = () => [...document.querySelectorAll<HTMLElement>(".settings-row")]

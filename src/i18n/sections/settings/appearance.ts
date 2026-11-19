@@ -63,7 +63,7 @@ export type SettingsAppearanceText = {
       title: string;
       footer: string;
       reset: string;
-      slots: Record<"text" | "mail" | "shelf" | "music" | "agents", string>;
+      slots: Record<"text" | "mail" | "shelf" | "music" | "agents" | "system", string>;
       textSample: string;
       moveLabel: (name: string) => string;
     };
@@ -127,7 +127,7 @@ export const zhCN: SettingsAppearanceText = {
       title: "岛上的排列",
       footer: "按住图标左右拖动，放在文字左边的会显示在岛的左侧。灰色的是还没打开的功能，位置会保留。",
       reset: "恢复默认",
-      slots: { text: "文字", mail: "新邮件", shelf: "置物架文件数", music: "音乐波形", agents: "Agent 会话数" },
+      slots: { text: "文字", mail: "新邮件", shelf: "置物架文件数", music: "音乐波形", agents: "Agent 会话数", system: "CPU 与内存" },
       textSample: "收起时的文字",
       moveLabel: (name) => `移动"${name}"，可以拖动或按左右方向键`,
     },
@@ -191,7 +191,7 @@ export const en: SettingsAppearanceText = {
       title: "On the island",
       footer: "Hold an icon and drag it left or right; icons left of the text sit on the island's left. Grey ones are switched off and keep their place.",
       reset: "Reset",
-      slots: { text: "Text", mail: "New mail", shelf: "Shelf files", music: "Music waveform", agents: "Agent sessions" },
+      slots: { text: "Text", mail: "New mail", shelf: "Shelf files", music: "Music waveform", agents: "Agent sessions", system: "CPU and memory" },
       textSample: "Collapsed text",
       moveLabel: (name) => `Move "${name}": drag, or press the left and right arrow keys`,
     },

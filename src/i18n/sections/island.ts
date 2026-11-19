@@ -24,6 +24,8 @@ export type IslandText = {
   agentPage: string;
   calendar: string;
   shelfCount: (count: number) => string;
+  /** Accessible label for the CPU / memory badge on the collapsed island. */
+  systemStatus: (cpu: number | null, memory: number) => string;
   layoutEditor: string;
 };
 
@@ -50,6 +52,7 @@ export const zhCN: IslandText = {
   agentPage: "AI Agent",
   calendar: "日历",
   shelfCount: (count) => `文件中转里有 ${count} 个文件`,
+  systemStatus: (cpu, memory) => `系统状态：CPU ${cpu ?? "未知"}%，内存 ${memory}%`,
   layoutEditor: "布局编辑",
 };
 
@@ -76,5 +79,6 @@ export const en: IslandText = {
   agentPage: "AI Agent",
   calendar: "Calendar",
   shelfCount: (count) => (count === 1 ? "1 file on the shelf" : `${count} files on the shelf`),
+  systemStatus: (cpu, memory) => `System status: CPU ${cpu ?? "unknown"}%, memory ${memory}%`,
   layoutEditor: "Layout editor",
 };
