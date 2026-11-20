@@ -1,0 +1,5 @@
+.device-notice { display: flex; align-items: center; justify-content: center; gap: 12px; width: 100%; min-width: 0; height: 100%; color: var(--text-1); font-size: calc(13px * var(--island-font-scale, 1)); }
+.device-notice__icon { display: grid; place-items: center; flex: 0 0 30px; width: 30px; height: 30px; border-radius: 10px; background: rgba(var(--overlay-rgb), .08); }
+.device-notice__icon--muted { color: var(--color-danger, #f29199); }
+.device-notice__name { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; }
+.device-notice__state { flex: 0 0 auto; color: var(--text-2); white-space: nowrap; }

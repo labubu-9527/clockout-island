@@ -21,6 +21,7 @@ import { useClipboardHistory } from "../../features/clipboard/useClipboardHistor
 import { IslandShell } from "./IslandShell";
 import { useMediaState } from "../../features/media/useMediaState";
 import { useSystemStatus } from "../../features/system-status/useSystemStatus";
+import { useIslandDeviceNotice } from "./useIslandDeviceNotice";
 import type { TodoItem } from "../../features/todos/types";
 import { useIslandWindow } from "./useIslandWindow";
 import { getExpandedIslandHeight } from "./expandedHeight";
@@ -85,6 +86,7 @@ export function IslandApp() {
     canPopUp: !game.quiet && mode === "collapsed" && !isTucked,
   });
   const { todos, activeTodoId, activeTodoIds, timer, timers, todoPageMode, todoListHeight, notebookProps } = useIslandTodos({ settings, navigation, quiet: game.quiet });
+  const deviceNotice = useIslandDeviceNotice(settings, mode !== "collapsed" || game.quiet || game.tuck || Boolean(preview || quotaAlert));
 
   const songPlaying = settings.musicEnabled && media.mediaState.playbackStatus === "playing" && Boolean(media.mediaState.title);
   const cover = settings.collapsedShowCover && songPlaying ? media.mediaState.thumbnail : null;
@@ -104,7 +106,7 @@ export function IslandApp() {
   useIslandTucking({
     settings,
     navigation,
-    hasMessagePreview,
+    hasMessagePreview: hasMessagePreview || Boolean(deviceNotice),
     activity: { agentVisualState, collapsedItem, songPlaying, activeTodoId, timer },
     gameHolds: game.quiet || game.tuck,
   });
@@ -184,8 +186,8 @@ export function IslandApp() {
   const scheme = useDocumentTheme(settings);
   const colors = useMemo(() => resolveSchemeColors(settings, scheme), [settings, scheme]);
   const stageStyle = useMemo(
-    () => getIslandStageStyle(settings, colors, notice.size?.width ?? visibleCollapsedWidth, expandedIslandHeight, notice.size?.height),
-    [visibleCollapsedWidth, colors, expandedIslandHeight, settings, notice.size],
+    () => getIslandStageStyle(settings, colors, deviceNotice?.size.width ?? notice.size?.width ?? visibleCollapsedWidth, expandedIslandHeight, deviceNotice?.size.height ?? notice.size?.height),
+    [visibleCollapsedWidth, colors, expandedIslandHeight, settings, notice.size, deviceNotice],
   );
 
 
@@ -203,7 +205,7 @@ export function IslandApp() {
     expandedIslandHeight,
     collapsedIslandWidth: visibleCollapsedWidth,
     messageRailCount: messageItems.length,
-    notice: notice.nativeNotice,
+    notice: deviceNotice?.native ?? notice.nativeNotice,
     onCollapse: collapseIsland,
   });
 
@@ -211,7 +213,7 @@ export function IslandApp() {
     settings,
     navigation,
     quiet: game.quiet,
-    hasMessagePreview,
+    hasMessagePreview: hasMessagePreview || Boolean(deviceNotice),
     namesAgent: Boolean(agentSession),
     openEnabledPage,
   });
@@ -243,6 +245,7 @@ export function IslandApp() {
   return (
     <main className={`stage stage--font-${settings.fontFamily}`} data-tone={colors.tone} style={stageStyle}>
       <IslandShell
+        deviceNotice={deviceNotice?.content}
         slotVisibility={settings.collapsedSlotVisibility}
         messageItems={messageItems}
         qqMail={qqMail}
@@ -250,7 +253,7 @@ export function IslandApp() {
         wechatReminders={wechatReminders}
         onOpenMessages={openMessages}
         preview={preview}
-        notice={notice.size}
+        notice={deviceNotice?.size ?? notice.size}
         mode={mode}
         page={page}
         expandedHeight={expandedIslandHeight}

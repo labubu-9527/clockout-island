@@ -34,6 +34,7 @@ import { useTuckMorph } from "./useTuckMorph";
 import { usePendingOfficeSource } from "../../features/messages/office-im/useOfficeIm";
 
 type IslandShellProps = {
+  deviceNotice?: ReactNode;
   slotVisibility?: Partial<Record<CollapsedSlot, boolean>>;
   messageItems?: readonly MessageRailItem[];
   qqMail: MailController;
@@ -116,6 +117,7 @@ type IslandShellProps = {
 };
 
 export function IslandShell({
+  deviceNotice,
   slotVisibility,
   messageItems = [],
   qqMail,
@@ -252,6 +254,7 @@ export function IslandShell({
         {/* Outside .island__glass, whose top fades out when attached (IslandTopEdge.css). */}
         {glass && <IslandGlassLayers liquid={isLiquidGlass} />}
         <IslandCollapsedBar
+          deviceNotice={deviceNotice}
           qqMail={qqMail}
           qqNotifications={qqNotifications}
           wechatReminders={wechatReminders}

@@ -24,6 +24,7 @@ export const PAGES = [
   "weather-location.html",
   "message-rail.html",
   "weather-system-indicators.html",
+  "device-notices.html",
   "weatherSettings.html",
   "agent-alert-card.html",
   "agent-alerts.html",

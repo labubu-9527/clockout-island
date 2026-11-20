@@ -22,6 +22,7 @@ src/
 │   ├── appearance/          # 外观设置、布局编辑器、预设；岛屿设置（focusd-island-settings）的范围在 settingsLimits.ts、首次启动值在 settingsDefaults.ts、读取按领域在 normalizeLayout / Agent / BehaviorSettings.ts，新设置加在这几个文件里，settings.ts 只做入口
 │   ├── weather/             # 天气：类型化 IPC、配置/预报缓存、自动位置缓存与同步、请求 hook、设置、紧凑面板/七日曲线/徽章
 │   ├── clock/               # 本地时间格式、可见时的叶子更新与通用页时间格式设置
+│   ├── device-notices/      # 锁定键、麦克风及受支持触控板的变化差分、两秒提醒与独立偏好
 │   ├── island-pet/          # 岛仔状态优先级、原始表情序列与矢量姿态动画；不监听原生系统状态
 │   ├── translation/         # 快捷翻译：服务与模型设置、凭据、快捷键的类型化封装，请求与自动翻译 hook，岛内翻译页
 │   └── updater/             # 自动更新

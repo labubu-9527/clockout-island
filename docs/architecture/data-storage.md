@@ -4,8 +4,8 @@
 | --- | --- |
 | 文档名称 | 数据存放位置 |
 | 制作人 | XiaoZhu |
-| 日期 | 2026-11-19 |
-| 版本号 | v1.0.0 |
+| 日期 | 2026-11-20 |
+| 版本号 | v1.1.0 |
 
 | 数据 | 位置 | 负责方 |
 |---|---|---|
@@ -50,6 +50,8 @@
 `focusd-island-weather-cache` 保存 `{ cityKey, fetchedAt, forecast }`，Open-Meteo 城市键为 `id:latitude:longitude`，和风为 `qweather:host:id:latitude:longitude`，获取时间为 Unix 毫秒，天气时间为 Unix 秒；完整 DTO 见 [contracts.md](contracts.md)。匹配来源、Host、城市且年龄小于 15 分钟时复用；过期有效缓存先展示再刷新，失败保留成功结果。切换来源或城市忽略旧响应，关闭停止定时请求并保留数据。设置通过 storage 与同窗口领域事件同步，读取持久化数据时再次校验。
 
 CPU 与内存开关保存在既有 focusd-island-settings.cpuEnabled / memoryEnabled，默认均开启；旧 system 排列读取时原位迁移为 cpu、memory，不另设迁移键。采样值只在内存，get_system_status 格式不变。
+
+系统设备提醒（2026-11-20）：`features/device-notices/storage.ts` 通过安全存储工具维护 `focusd-island-device-notice-settings`，四个布尔字段为 capsLock、numLock、microphoneMuted、touchpadEnabled。各字段默认 true，显式 false 保留；配置缺失、损坏或字段非法安全回退。设置位于外观页的系统状态提醒分组，独立于常驻图标和外观预设；同窗口与跨窗口实时同步。快照、前一有效基线及两秒提醒仅保存在内存，不存键盘历史、录音或原始输入。禁用再启用重新建立基线，不补弹历史状态。
 
 歌词缓存仍在应用数据目录 `lyrics-cache/*.json`，增加可缺省的 `schemaVersion`。旧缓存可作为在线升级查询失败的后备，新的行级缓存与未找到结果一周后重试逐字来源；新键附加原始歌名、播放器 AUMID 和歌曲 ID，防止不同版本混用。酷狗客户端 INI / KRC、汽水 `SodaMusic/LunaCacheV2/entries.db` 只读，不创建数据库锁或写入第三方文件；限制见 [歌词源说明](../lyrics-sources.md)。
 

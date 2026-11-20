@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { DeviceNoticeSettings } from "../../features/device-notices/DeviceNoticeSettings";
 import { SettingsGroup } from "../../components/settings/SettingsGroup";
 import { useTranslation } from "../../i18n";
 import { CollapsedDimensionRows } from "../../features/appearance/CollapsedDimensionRows";
@@ -70,6 +71,7 @@ export function AppearanceSettingsPage({
       <CollapsedLayoutEditor {...rows}>
         <PageButtonsRow {...rows} />
       </CollapsedLayoutEditor>
+      <DeviceNoticeSettings />
       <CollapsedIslandSection {...rows} />
       <SettingsGroup title={t.settings.expand.tuckTitle}>
         <TuckLookRows {...rows} onPreviewTuck={() => requestPanelPreview("tucked")} />

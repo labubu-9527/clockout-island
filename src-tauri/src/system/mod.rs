@@ -1,6 +1,7 @@
 //! Windows integration: launch at startup, updater proxy and config, todo Markdown
 //! export, folder picker, full-screen app detection, settings backups.
 
+pub(crate) mod device_status;
 pub(crate) mod folder_dialog;
 pub(crate) mod fullscreen;
 pub(crate) mod theme_file;
@@ -43,6 +44,8 @@ macro_rules! tauri_commands {
             crate::system::startup::get_launch_at_startup,
             crate::system::startup::set_launch_at_startup,
             crate::system::status::get_system_status,
+            crate::system::device_status::get_device_status,
+            crate::system::device_status::set_device_notices_enabled,
             crate::system::updater::get_updater_proxy,
             crate::system::updater::updater_configured,
             crate::system::update_channel::updater_check,

@@ -4,8 +4,8 @@
 | --- | --- |
 | 文档名称 | 架构总览 |
 | 制作人 | XiaoZhu |
-| 日期 | 2026-11-19 |
-| 版本号 | v1.0.0 |
+| 日期 | 2026-11-20 |
+| 版本号 | v1.1.0 |
 
 形状与消息入口（2026-11-19）：appearance 归一化保存形状和可见性映射，messages/messageRailItems.ts 根据已启用来源、可见性与未处理状态生成固定顺序入口，MessageRail 渲染收起横排或展开侧栏。窗口层组合现有消息控制器，不新增消息服务。原生 island 状态兼容接收形状和侧栏数量，几何层负责胶囊偏移、侧栏边界，passthrough 只让实际圆角区域接收点击。
 
@@ -16,6 +16,8 @@
 时间与岛仔：`features/clock/` 负责本地时间格式、叶子定时刷新与通用设置组；`features/island-pet/` 负责状态优先级、参考原始表情序列与矢量姿态动画。窗口层组合现有业务状态并传入组件，IslandShell / IslandCollapsedBar 只接收插槽；岛仔固定替代前导状态圆点，旧排序项兼容保留但不重复渲染。不可见时停止时间更新与表情动画，不增加原生监听。
 
 本文描述 FocuSD Island 的运行时架构、目标代码结构、从现有文件到目标位置的迁移映射，以及对外契约清单。编码规则见 [AGENTS.md](../../AGENTS.md)、[src/AGENTS.md](../../src/AGENTS.md) 和 [src-tauri/AGENTS.md](../../src-tauri/AGENTS.md)，迁移步骤见 [refactor-plan.md](refactor-plan.md)，插件 API v1 架构见 [plugins.md](plugins.md)（进程树清理由 `win32/process_job.rs` 封装）。
+
+系统状态提醒（2026-11-20）：`features/device-notices/` 封装类型化快照、独立偏好、变化差分与两秒提示；`useIslandDeviceNotice` 在窗口层组合优先级、内容插槽与临时尺寸。Rust `system/device_status.rs` 提供采样与监听启停命令，Windows 键盘观察、麦克风只读 COM 查询及受支持触控板检测封装在 `win32/`；不新增窗口，不改变 CPU/MEM 数据链路。
 
 ## 运行时架构
 

@@ -109,7 +109,8 @@ if (!automated) {
       if (category === "todos") await checkTodoRotation(panel, check);
       // Appearance 16 -> 19: the page text colour row and the whole-look presets (empty state + name row).
       // General: v3.2.6 adds Ctrl + wheel and game mode's "still show notifications"; appearance +3 open and collapsed corners; clipboard +1 storage folder.
-      const maxRows = category === "agents" ? 13 : category === "general" ? 20 : category === "appearance" ? 40 : category === "clipboard" ? 9 : 8;
+      // Appearance includes the four independently requested system-device reminder switches.
+      const maxRows = category === "agents" ? 13 : category === "general" ? 20 : category === "appearance" ? 44 : category === "clipboard" ? 9 : 8;
       if (category === "appearance") {
         const row = [...panel.querySelectorAll<HTMLElement>(".settings-row")].find((item) => item.textContent?.includes("贴边圆角"))!;
         const toggle = row.querySelector<HTMLInputElement>("[role='switch']")!;

@@ -7,7 +7,7 @@ use windows::{
     core::Result,
     Win32::{
         Media::Audio::{
-            eMultimedia, eRender, ERole,
+            eCapture, eMultimedia, eRender, ERole,
             Endpoints::{IAudioEndpointVolume, IAudioMeterInformation},
             IMMDevice, IMMDeviceEnumerator, MMDeviceEnumerator,
         },
@@ -37,6 +37,15 @@ impl AudioDevices {
         // SAFETY: MMDeviceEnumerator is a valid class id, there is no outer
         // object, and the returned interface is reference counted by the wrapper.
         unsafe { CoCreateInstance(&MMDeviceEnumerator, None, CLSCTX_ALL) }.map(Self)
+    }
+
+    pub(crate) fn default_microphone_muted(&self) -> Result<bool> {
+        // SAFETY: the enumerator is live and capture/multimedia are valid enum values.
+        let device = unsafe { self.0.GetDefaultAudioEndpoint(eCapture, eMultimedia) }?;
+        // SAFETY: the owned device is live; no activation parameters are supplied.
+        let volume = unsafe { device.Activate::<IAudioEndpointVolume>(CLSCTX_ALL, None) }?;
+        // SAFETY: the live interface owns its returned boolean; this only reads mute.
+        unsafe { volume.GetMute() }.map(|muted| muted.as_bool())
     }
 
     /// Default render (output) device for `role`.

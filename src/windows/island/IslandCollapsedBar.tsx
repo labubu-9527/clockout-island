@@ -31,6 +31,7 @@ import { visibleCollapsedSlots } from "./collapsedPresentation";
 import "./IslandCollapsedBar.css";
 
 type IslandCollapsedBarProps = {
+  deviceNotice?: ReactNode;
   qqMail: MailController;
   qqNotifications: QQNotificationsController;
   wechatReminders: WeChatRemindersController;
@@ -90,6 +91,7 @@ type IslandCollapsedBarProps = {
 
 /** The collapsed island: agent pulse, todo or message summary, mail badge, music button and tuck handle. */
 export function IslandCollapsedBar({
+  deviceNotice,
   qqMail,
   qqNotifications,
   wechatReminders,
@@ -168,6 +170,8 @@ export function IslandCollapsedBar({
         if (event.detail === 0 || !didDragRef.current) onOpenPage("agents");
       }}>{petIndicator}</button>
   ) : null;
+
+  if (deviceNotice && !isExpanded && !isTucked) return <div className="island__collapsed">{deviceNotice}</div>;
 
   if (noticeReader && preview && !isExpanded && !isTucked) return (
     <div className="island__collapsed island__collapsed--notice">

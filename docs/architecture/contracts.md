@@ -5,9 +5,15 @@
 | 文档名称 | 对外契约清单 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-20 |
-| 版本号 | v1.1.0 |
+| 版本号 | v1.2.0 |
 
 2026-11-20 兼容补充：已有 `collapsedLayout` 的 `pet` 值继续容错读取与保留，展示改为固定前导位置，设置中只保留其显示开关。`messageSourceVisibility` 增加 `dingtalk`、`feishu`、`wecom`，旧配置缺失时默认显示；不改变已有来源开关。远端 `islandShape: "capsule"` 兼容读取为本地 `"pill"`，原生统一负责 6px 间距。`set_island_interaction` 折叠宽度允许最小 96px，以支持按实际可见内容收缩；手动设置仍至少 240px，通知预览仍至少 240px。
+
+## 系统设备状态提醒（2026-11-20）
+
+新增异步命令 `set_device_notices_enabled({ enabled: boolean })` 启停主消息线程上的只读锁定键监听，关闭释放全局 hook，不修改、吞掉或注入按键；前端对启停串行化，防止卸载/重挂竞态。新增异步命令 `get_device_status()` 返回 `{ capsLock: boolean | null, numLock: boolean | null, microphoneMuted: boolean | null, touchpadEnabled: boolean | null }`。`null` 表示未监听、设备不存在、不支持或读取失败，不能当作关闭。麦克风指默认多媒体输入端点的系统静音，不代表各应用内部静音；触控板只支持已识别的精确式触控板及合法的系统开关值，启动时已关闭可能保持未知。旧 `get_system_status` CPU/MEM 契约保持不变。
+
+`focusd-island-device-notice-settings` 保存 `{ capsLock: boolean, numLock: boolean, microphoneMuted: boolean, touchpadEnabled: boolean }`，缺失/非法字段默认 true，显式 false 保留。同窗口通过 DOM 事件 `focusd-device-notice-settings-changed` 同步，跨窗口通过 storage 事件同步。所有开关关闭后停止采样；锁定键开关均关闭时停止键盘监听。前端约 200ms 防重入采样，只比较连续有效布尔值，初始/恢复读取不提醒；变化展示约两秒并由新变化替换，不积压历史。展开页、免打扰、消息和额度提醒优先，期间变化只更新基线。
 
 ## 天气与独立指标（2026-11-19）
 

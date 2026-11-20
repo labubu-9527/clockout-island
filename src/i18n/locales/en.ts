@@ -1,4 +1,5 @@
 import * as clock from "../sections/clock.ts";
+import * as deviceNotices from "../sections/deviceNotices.ts";
 import * as islandPet from "../sections/islandPet.ts";
 import * as weather from "../sections/weather.ts";
 import type { Translations } from "../types";
@@ -19,6 +20,7 @@ import * as fileShelf from "../sections/fileShelf.ts";
 import * as settings from "../sections/settings/index.ts";
 
 const en: Translations = {
+  deviceNotices: deviceNotices.en,
   clock: clock.en,
   islandPet: islandPet.en,
   localeLabel: "English",

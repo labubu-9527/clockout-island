@@ -1,4 +1,5 @@
 import type { ClockText } from "./sections/clock";
+import type { DeviceNoticesText } from "./sections/deviceNotices";
 import type { IslandPetText } from "./sections/islandPet";
 import type { WeatherText } from "./sections/weather";
 import type { CommonText } from "./sections/common";
@@ -20,6 +21,7 @@ import type { SettingsText } from "./sections/settings/index";
 export type LocaleCode = "zh-CN" | "en";
 
 export type Translations = {
+  deviceNotices: DeviceNoticesText;
   clock: ClockText;
   islandPet: IslandPetText;
   /** Native language name shown in the locale picker. */

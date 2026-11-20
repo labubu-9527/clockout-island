@@ -5,7 +5,7 @@ import { MAIL_OTP_ENABLED } from "../../src/features/releaseFlags.ts";
 
 const GROUPS: Record<string, string[]> = {
   general: ["启动与语言", "时间格式", "展开与收起", "位置", "贴边隐藏", "游戏模式"],
-  appearance: ["主题", "颜色", "文字", "大小", "圆角", "岛上的排列", "岛屿展示优先级", "贴边隐藏", "外观预设"],
+  appearance: ["主题", "颜色", "文字", "大小", "圆角", "岛上的排列", "系统状态提醒", "岛屿展示优先级", "贴边隐藏", "外观预设"],
   todos: ["任务", "番茄钟", "折叠岛屿", "保存路径"],
   clipboard: ["记录内容", "显示与窗口", "快捷键", "存储位置", "文件中转"],
 };
@@ -59,6 +59,7 @@ export async function checkGroups(category: string, panel: HTMLElement, check: (
     // The island shape row joins the front of the corners group once the capsule ships (islandShape.ts).
     check(titles(rowsOf(panel, "圆角")).join() === "展开圆角,收起圆角,圆角形状,贴边圆角", "Appearance: every corner setting is in one group");
     check(titles(rowsOf(panel, "岛上的排列")).includes("页面按钮"), "Appearance: page buttons sit with the island's arrangement");
+    check(titles(rowsOf(panel, "系统状态提醒")).join() === "大写锁定,小键盘锁定,麦克风,触控板", "Appearance: four device reminders have their own group");
     const size = () => rowsOf(panel, "大小");
     check(titles(size()).join() === "收起时的大小,展开后的大小,自动宽度,高度", "Appearance: every size is in one group; manual width hidden while automatic");
     const auto = size()[2].querySelector<HTMLInputElement>("[role='switch']")!;

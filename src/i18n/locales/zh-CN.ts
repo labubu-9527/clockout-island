@@ -1,4 +1,5 @@
 import * as clock from "../sections/clock.ts";
+import * as deviceNotices from "../sections/deviceNotices.ts";
 import * as islandPet from "../sections/islandPet.ts";
 import * as weather from "../sections/weather.ts";
 import type { Translations } from "../types";
@@ -19,6 +20,7 @@ import * as fileShelf from "../sections/fileShelf.ts";
 import * as settings from "../sections/settings/index.ts";
 
 const zhCN: Translations = {
+  deviceNotices: deviceNotices.zhCN,
   clock: clock.zhCN,
   islandPet: islandPet.zhCN,
   localeLabel: "简体中文",
