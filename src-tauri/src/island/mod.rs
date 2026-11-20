@@ -90,6 +90,8 @@ pub fn set_island_interaction(
     notice_width: Option<f64>,
     notice_height: Option<f64>,
     click_through: Option<bool>,
+    island_shape: Option<String>,
+    message_rail_count: Option<u32>,
 ) -> Result<String, String> {
     let window = main_window(&app)?;
     let mode = IslandMode::from_value(&mode)?;
@@ -109,6 +111,8 @@ pub fn set_island_interaction(
     });
     let state = mutate_window_state(|state| {
         state.mode = mode;
+        state.island_shape = state::IslandShape::from_value(island_shape.as_deref());
+        state.message_rail_count = message_rail_count.unwrap_or(0).min(7);
         state.is_tucked = is_tucked.unwrap_or(false);
         state.tuck_style = state::TuckStyle::from_value(tuck_style.as_deref());
         if let Some(height) = tuck_edge_height.filter(|height| height.is_finite()) {

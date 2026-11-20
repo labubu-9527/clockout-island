@@ -17,10 +17,12 @@ pub(crate) fn is_attached() -> bool {
 
 /// Recomputes the attachment once the stage geometry has resolved the window position.
 /// `top` is the physical y of the monitor top, below a top-docked Windows taskbar.
-pub(crate) fn sync_from_stage(window: &WebviewWindow, state: IslandWindowState, top: i32) {
+pub(crate) fn sync_from_stage(window: &WebviewWindow, state: IslandWindowState, top: i32, dpi: f64) {
+    // Saved custom coordinates use the floating capsule anchor even while the stage tucks.
+    let anchor = top + shape_snap_offset(IslandWindowState { is_tucked: false, ..state }, dpi);
     set_attached(
         window,
-        is_top_attached(state.custom_position, state.margin_y, top),
+        is_top_attached(state.custom_position, state.margin_y, anchor),
     );
 }
 
@@ -30,7 +32,8 @@ pub(crate) fn snap_to_top(window: &WebviewWindow, position: IslandPosition) -> I
         set_attached(window, false);
         return position;
     };
-    let top = monitor.position().y + monitor_top_inset(&monitor);
+    let top = monitor.position().y + monitor_top_inset(&monitor)
+        + shape_snap_offset(read_window_state(), monitor.scale_factor());
     let snap_distance = (SNAP_DISTANCE * monitor.scale_factor()).round() as i32;
     let snapped = IslandPosition {
         x: position.x,
@@ -71,6 +74,12 @@ fn is_top_attached(custom_position: Option<IslandPosition>, margin_y: f64, top: 
     }
 }
 
+fn shape_snap_offset(state: IslandWindowState, dpi: f64) -> i32 {
+    if state.island_shape == super::state::IslandShape::Pill && !state.is_tucked {
+        (6.0 * dpi).round() as i32
+    } else { 0 }
+}
+
 fn snapped_y(y: i32, top: i32, snap_distance: i32) -> i32 {
     if (y - top).abs() <= snap_distance {
         top
@@ -100,6 +109,21 @@ mod tests {
         assert!(!is_top_attached(at(1), 0.0, 0));
         assert!(!is_top_attached(at(180), 0.0, 0));
         assert!(!is_top_attached(at(0), 0.0, 48));
+    }
+
+    #[test]
+    fn pill_drops_snap_to_the_floating_anchor_at_each_dpi() {
+        let mut state = IslandWindowState {
+            island_shape: super::super::state::IslandShape::Pill,
+            ..IslandWindowState::default()
+        };
+        for dpi in [1.0, 1.25, 1.5, 2.0] {
+            let offset = shape_snap_offset(state, dpi);
+            assert_eq!(offset, (6.0_f64 * dpi).round() as i32);
+            assert_eq!(snapped_y(48, 48 + offset, (16.0 * dpi) as i32), 48 + offset);
+        }
+        state.is_tucked = true;
+        assert_eq!(shape_snap_offset(state, 1.5), 0);
     }
 
     #[test]

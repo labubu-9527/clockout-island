@@ -1,5 +1,6 @@
 // Reading saved settings, part 3 (normalizeSettings in settings.ts): behaviour and modules.
 import { normalizeLyricsSettings } from "../media/lyrics/lyricsSettings.ts";
+import { legacyDisplayFlags, normalizeVisibilitySettings } from "./visibilitySettings.ts";
 import { DEFAULT_SETTINGS } from "./settingsDefaults.ts";
 import { normalizeOrder } from "../../utils/order.ts";
 import { AUTO_COLLAPSE_SECONDS, TUCK_DELAY_SECONDS, TUCK_EDGE_HEIGHT, COLLAPSED_ITEMS, COLLAPSED_SLOTS, PAGE_DOTS, SHELF_CLEANUP_DAYS, oneOf } from "./settingsLimits.ts";
@@ -9,7 +10,10 @@ import { TODO_ROTATION_SECONDS, TODO_SCROLL_SPEED, MESSAGE_PREVIEW_SECONDS, MESS
 /** Todos, tucking and opening, module switches, the file shelf and lyrics. */
 export function normalizeBehaviorSettings(settings: LegacyIslandSettings | null | undefined) {
   const autoTuck = typeof settings?.autoTuck === "boolean" ? settings.autoTuck : DEFAULT_SETTINGS.autoTuck;
+  const visibility = normalizeVisibilitySettings(settings);
   return {
+    islandShape: oneOf(["notch", "pill"] as const, settings?.islandShape === "capsule" ? "pill" : settings?.islandShape, "notch"),
+    ...visibility,
     positionLocked: settings?.positionLocked === true,
     rotateTodos: settings?.rotateTodos === true,
     showIdleTodoCount: settings?.showIdleTodoCount !== false,
@@ -49,6 +53,10 @@ export function normalizeBehaviorSettings(settings: LegacyIslandSettings | null 
     ctrlWheelPages: settings?.ctrlWheelPages === true,
     expandTrigger: settings?.expandTrigger === "hover" ? "hover" : "click",
     // Module switches: anything but an explicit false keeps the module on.
+    clockHour12: settings?.clockHour12 === true,
+    clockPeriod: oneOf(["none", "ampm", "detailed"] as const, settings?.clockPeriod, "none"),
+    clockShowSeconds: settings?.clockShowSeconds === true,
+    ...legacyDisplayFlags(visibility.collapsedSlotVisibility),
     todoEnabled: settings?.todoEnabled !== false,
     musicEnabled: settings?.musicEnabled !== false,
     agentStatusEnabled: settings?.agentStatusEnabled !== false,
@@ -61,7 +69,9 @@ export function normalizeBehaviorSettings(settings: LegacyIslandSettings | null 
     autoCopyOtp: typeof settings?.autoCopyOtp === "boolean" ? settings.autoCopyOtp : DEFAULT_SETTINGS.autoCopyOtp,
     collapsedPriority: normalizeOrder(settings?.collapsedPriority, COLLAPSED_ITEMS),
     collapsedShowCover: settings?.collapsedShowCover !== false,
-    collapsedLayout: normalizeOrder(settings?.collapsedLayout, COLLAPSED_SLOTS),
+    collapsedLayout: normalizeOrder(Array.isArray(settings?.collapsedLayout)
+      ? settings.collapsedLayout.flatMap((slot: unknown) => slot === "system" ? ["cpu", "memory"] : [slot])
+      : undefined, COLLAPSED_SLOTS),
     pageOrder: normalizeOrder(settings?.pageOrder, PAGE_DOTS),
     // Selected activities pause automatic tucking only with an explicit boolean setting.
     keepVisibleWhileAgentRunning: typeof settings?.keepVisibleWhileAgentRunning === "boolean"

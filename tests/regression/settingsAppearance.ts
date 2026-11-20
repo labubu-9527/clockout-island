@@ -149,6 +149,14 @@ export async function checkAppearance(check: (condition: unknown, message: strin
     const storedSettings = () => JSON.parse(localStorage.getItem("focusd-island-settings") ?? "{}") as Partial<typeof DEFAULT_SETTINGS>;
     check(!document.querySelector(".appearance-reset"), "Reset appearance is not offered outside the appearance page");
     await openPage("appearance");
+    const layout = element<HTMLElement>(".collapsed-layout");
+    const cpuSlot = element<HTMLElement>(".collapsed-layout__slot--cpu");
+    await act(async () => cpuSlot.dispatchEvent(new KeyboardEvent("keydown", { key: "ArrowLeft", bubbles: true })));
+    const resetLayout = layout.closest(".settings-group")!.querySelector<HTMLButtonElement>(".settings-link-button")!;
+    await act(async () => resetLayout.click());
+    const order = storedSettings().collapsedLayout!;
+    check(order.filter(slot => slot === "pet").length === 1 && order.length === new Set(order).size && resetLayout.disabled,
+      "Resetting arrangement retains exactly one fixed pet and returns to the default order");
     await checkColorInputs(check);
     const colorsBeforeReset = storedColors();
     // Expanded size: a slider from 0.85x to 1.2x, stored as the scale once the thumb is let go,
@@ -192,7 +200,7 @@ export async function checkAppearance(check: (condition: unknown, message: strin
       const label = [...document.querySelectorAll<HTMLLabelElement>("label")].find((item) => item.textContent === name);
       return label ? document.getElementById(label.htmlFor) as HTMLInputElement | null : null;
     };
-    const fontSlider = inputNamed("岛屿字号")!;
+    const fontSlider = inputNamed("字号")!;
     const collapsedSample = element<HTMLElement>(".island-preview__island--collapsed");
     const expandedSample = element<HTMLElement>(".agent-page-preview__title");
     const getSize = (sample: HTMLElement) => parseFloat(getComputedStyle(sample).fontSize);
@@ -203,10 +211,10 @@ export async function checkAppearance(check: (condition: unknown, message: strin
     await act(async () => window.dispatchEvent(new PointerEvent("pointerup")));
     check(storedSettings().islandFontPercent === 120, "Releasing the font slider saves the new size");
     const autoWidth = inputNamed("自动宽度")!;
-    check(autoWidth.checked && !inputNamed("刘海宽度"), "The notch uses automatic width by default");
+    check(autoWidth.checked && !inputNamed("宽度"), "The notch uses automatic width by default");
     await act(async () => autoWidth.click());
-    const widthInput = inputNamed("刘海宽度")!;
-    const heightInput = inputNamed("刘海高度")!;
+    const widthInput = inputNamed("宽度")!;
+    const heightInput = inputNamed("高度")!;
     // DOMRect subtracts translated coordinates; compare at Chromium's layout precision
     // so a 0.000004px subtraction error does not look like an independent size change.
     const notchSize = () => {

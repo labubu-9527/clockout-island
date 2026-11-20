@@ -23,8 +23,8 @@ localStorage.setItem(LOCALE_STORAGE_KEY, params.get("lang") === "en" ? "en" : "z
 let settings = { messageAutoExpand: true, messageExpandMaxWidth: 520, messageExpandMaxHeight: 160,
   messageExpandSeconds: 60, gameShowNotices: false, gameDoNotDisturb: true, gameAutoTuck: true,
   autoTuck: false, autoCollapseSeconds: 0, revealOnMessage: false, agentStatusEnabled: false,
-  musicEnabled: false, shelfEnabled: false, colorScheme: params.get("theme") ?? "dark",
-  collapsedScale: Number(params.get("scale") ?? 1), islandFontPercent: 120 };
+  musicEnabled: false, shelfEnabled: false, petEnabled: false, colorScheme: params.get("theme") ?? "dark",
+  collapsedScale: Number(params.get("scale") ?? 1), islandFontPercent: 120, autoCopyOtp: false };
 localStorage.setItem("focusd-island-settings", JSON.stringify(settings));
 let revision = 0;
 const calls: { command: string; args: Record<string, unknown> }[] = [];
@@ -70,8 +70,8 @@ const configure = (patch: Partial<typeof settings>) => act(async () => {
 const qq = async (text: string) => act(async () => {
   await emit("qq-notifications-changed", { snapshot: { revision: ++revision, enabled: true, status: "listening", items: [{ id: String(revision), title: "项目组", body: text, createdAt: Date.now() }], error: null }, newestId: String(revision), windowVisible: true });
 });
-const arrive = async (id: string) => act(async () => {
-  mail = { ...mail, revision: ++revision, unreadCount: 1, items: [{ id, uid: revision, sender: "订单团队", subject: `订单确认 ${id}`, unread: true, receivedAt: Date.now() }] };
+const arrive = async (id: string, otpCode?: string) => act(async () => {
+  mail = { ...mail, revision: ++revision, unreadCount: 1, items: [{ id, uid: revision, sender: "订单团队", subject: `订单确认 ${id}`, unread: true, receivedAt: Date.now(), otpCode }] };
   await emit("qq-mail-changed", { snapshot: mail, newestId: id, windowVisible: true });
 });
 const settle = async () => {
@@ -85,7 +85,7 @@ const settle = async () => {
 try {
   await act(async () => root.render(<StrictMode><I18nProvider><IslandApp /></I18nProvider></StrictMode>));
   await configure({ pulseColor: "#FF3366" } as Partial<typeof settings>);
-  check(getComputedStyle(document.querySelector(".island__pulse")!).backgroundColor === "rgb(255, 51, 102)", "亮点颜色跟随设置并实时生效");
+  check(getComputedStyle(document.querySelector(".island")!).getPropertyValue("--island-pulse-color").trim().toUpperCase() === "#FF3366", "状态颜色跟随设置并实时生效");
   await qq("好的");
   check(body() && !body().closest("button") && getComputedStyle(body()).userSelect === "text" && native().noticeWidth !== null,
     "短消息（微信 / QQ）也用可选中的阅读器，不再是一点就跳转的按钮");
@@ -94,6 +94,17 @@ try {
   await configure({ musicEnabled: true, shelfEnabled: true, agentStatusEnabled: true });
   await qq("好的");
   await settle();
+  const readerBar = document.querySelector<HTMLElement>(".island__collapsed--notice")!;
+  check(Boolean(readerBar.querySelector('.message-rail [data-source="qq"]')) && readerBar.scrollWidth <= readerBar.clientWidth + 1,
+    "adaptive reader keeps message source entries at its end without horizontal overflow");
+  await configure({ petEnabled: true });
+  await qq("明天下午三点开会请带好电脑");
+  await settle();
+  check(body().scrollHeight <= body().clientHeight + 1, "pet and source rail are included in reader height before reaching its limit");
+  await configure({ messageExpandMaxHeight: 80 });
+  await settle();
+  check(native().noticeHeight! <= 80, "lowering the height limit resets an existing reader measurement");
+  await configure({ messageExpandMaxHeight: 160 });
   const baseWidth = document.querySelector<HTMLElement>(".island")!.getBoundingClientRect().width;
   await qq("明天下午三点在三楼会议室开项目评审会，请准备材料");
   await settle();
@@ -110,8 +121,20 @@ try {
   check(Math.abs(island.width - native().noticeWidth! * settings.collapsedScale) < 1 && Math.abs(island.height - native().noticeHeight! * settings.collapsedScale) < 1,
     "实际显示尺寸与原生命中区一致");
   check(body().scrollHeight > body().clientHeight && getComputedStyle(body()).overflowY === "auto", "超出上限滚动阅读");
-  await arrive("one");
+  await arrive("one", "834921");
   check(body().textContent?.includes("A-123456 & 发布安排") && !body().textContent?.includes("unsafe text") && !body().querySelector("img, script"), "邮件通知加载正文并清理主动内容和图片");
+  check(!calls.some((call) => call.command === "copy_mail_otp"), "关闭自动复制时到信仍显示验证码而不改写剪贴板");
+  const otp = document.querySelector<HTMLButtonElement>(".message-notice .mail-otp-code");
+  check(otp?.textContent?.includes("834921"), "自适应邮件通知在标题栏显示可复制验证码");
+  const beforeCopy = calls.length;
+  await act(async () => {
+    otp!.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, button: 0 }));
+    otp!.click();
+  });
+  check(calls.slice(beforeCopy).filter((call) => call.command === "copy_mail_otp" && call.args.code === "834921").length === 1
+    && otp!.dataset.copied === "true" && native().mode === "collapsed"
+    && !calls.slice(beforeCopy).some((call) => ["read_qq_mail", "mark_qq_mail_read", "start_island_drag"].includes(call.command)),
+    "通知验证码点击只复制并反馈成功，不拖动、不打开或标为已读");
   const reads = calls.filter((call) => call.command === "read_qq_mail").length;
   const drags = calls.filter((call) => call.command === "start_island_drag").length;
   const range = document.createRange();
@@ -149,7 +172,30 @@ try {
   await configure({ gameShowNotices: false });
   check(!document.querySelector(".message-notice") && native().noticeWidth === null, "关闭游戏通知立即撤去预览并恢复尺寸");
   await act(async () => emit("foreground-fullscreen-changed", { active: false, onIslandMonitor: false }));
-  if (params.has("view")) { await configure({ gameShowNotices: false }); await arrive("preview"); await settle(); }
+  await configure({ petEnabled: true, messageExpandMaxWidth: 320 });
+  read = async (id) => ({ id, content: "验证码 834921", contentType: "text/plain", attachments: [] });
+  await arrive("short-otp", "834921");
+  await settle();
+  const shortBar = document.querySelector<HTMLElement>(".island__collapsed--notice")!;
+  check(shortBar.querySelector(".island-pet") && shortBar.querySelector(".mail-otp-code") && shortBar.querySelector(".message-rail")
+    && shortBar.scrollWidth <= shortBar.clientWidth + 1 && body().scrollHeight <= body().clientHeight + 1,
+    "narrow OTP notice fits pet, copy action, source rail and full short body");
+  await qq("未读消息");
+  const beforeQQ = calls.length;
+  await click('.message-rail [data-source="qq"]');
+  check(calls.slice(beforeQQ).some(call => call.command === "open_qq") && native().mode === "collapsed", "QQ notification icon directly activates QQ without opening an island panel");
+  check(!document.querySelector('.message-rail [data-source="qq"]'), "successfully opening QQ acknowledges current reminders without retaining a stale unread icon");
+  await qq("另一条新消息");
+  check(document.querySelector('.message-rail [data-source="qq"]'), "new QQ arrivals reappear after acknowledging the previous batch");
+  await act(async () => emit("wechat-reminder-changed", { snapshot: { revision: ++revision, enabled: true, status: "listening", pending: true,
+    lastAttentionAt: revision, error: null, previewEnabled: false, previewStatus: "off", messages: [] }, windowVisible: false }));
+  const beforeWechat = calls.length;
+  await click('.message-rail [data-source="wechat"]');
+  check(calls.slice(beforeWechat).some(call => call.command === "open_wechat") && native().mode === "collapsed", "WeChat notification icon directly activates WeChat");
+  await act(async () => emit("wechat-reminder-changed", { snapshot: { revision: ++revision, enabled: true, status: "listening", pending: false,
+    lastAttentionAt: null, error: null, previewEnabled: false, previewStatus: "off", messages: [] }, windowVisible: false }));
+  check(!document.querySelector('.message-rail [data-source="wechat"]'), "cleared unread state removes its notification icon");
+  if (params.has("view")) { await configure({ gameShowNotices: false }); await arrive("preview", "834921"); await settle(); }
   document.documentElement.dataset.testResult = "passed";
 } catch (error) {
   checks.push(`FAIL ${String(error)}`);

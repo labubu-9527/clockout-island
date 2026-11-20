@@ -23,9 +23,18 @@
   height: 100%;
 }
 
+/* A scrollable message rail yields before the running countdown gets clipped. */
+.island__text-slot:has(.island__timer-pill) {
+  min-width: 76px;
+}
+
 /* The adaptive message preview fills the grown island top to bottom (MessageNoticeReader). */
 .island__collapsed--notice {
   align-items: stretch;
+}
+
+.island__collapsed--notice .message-rail {
+  max-width: 80px;
 }
 
 .island__open-button {
@@ -76,10 +85,6 @@
 .island__pulse--agent-attention {
   background: var(--color-warning);
   box-shadow: 0 0 14px rgba(255, 209, 102, 0.72);
-}
-
-.island--title-hidden .island__open-button {
-  padding-left: 8px;
 }
 
 .island__brand {
@@ -298,4 +303,27 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  align-self: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  touch-action: none;
+}
+
+.island__agent-light:focus-visible {
+  outline: 2px solid var(--color-focus-ring-soft);
+  outline-offset: 2px;
+}
+
+.island__agent-light:empty {
+  display: none;
+}
+
+.island__collapsed--music .collapsed-lyric {
+  text-align: center;
+}
+
+.island__collapsed--music .island__open-button {
+  padding-left: 0;
 }

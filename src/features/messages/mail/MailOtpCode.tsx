@@ -12,7 +12,9 @@ export function MailOtpCode({ code, copied, onCopy }: {
   if (!MAIL_OTP_ENABLED) return null;
   const label = copied ? t.mail.otpCopied : t.mail.copyOtp(code);
   return <button type="button" className="message-action mail-otp-code" aria-label={label} title={label}
-    data-copied={copied || undefined} onClick={(event) => { event.stopPropagation(); void onCopy(code); }}>
+    data-copied={copied || undefined} data-window-drag="false"
+    onPointerDown={(event) => event.stopPropagation()}
+    onClick={(event) => { event.stopPropagation(); void onCopy(code); }}>
     <span>{code}</span>
     {copied ? <Check size={14} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
       : <Copy size={14} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />}

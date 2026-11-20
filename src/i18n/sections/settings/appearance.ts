@@ -19,15 +19,26 @@ export type SettingsAppearanceText = {
   schemeDark: string;
   schemeLight: string;
   schemeSystem: string;
-  /** Group titles: the scheme and material; the font and sizes; the notch size; the corners and top-edge curves. */
+  /** Group titles, one kind of setting each (2026-11-19, docs/design/settings.md): the scheme and
+      material; the font; every size; every corner. */
   themeTitle: string;
+  notch: string;
+  pill: string;
   textSizeTitle: string;
+  sizeTitle: string;
+  cornersTitle: string;
+  /** The collapsed and the open island's overall size, two sliders. */
+  collapsedScale: string;
+  expandedScale: string;
   pageButtons: string;
   capsules: string;
   icons: string;
-  notchTitle: string;
-  shapeTitle: string;
+  /** Notch (flush with the top edge) or capsule (a floating pill, islandShape.ts). */
+  islandShape: string;
+  islandShapeHint: string;
+  islandShapes: { notch: string; capsule: string };
   topEdgeShoulders: string;
+  topEdgeShouldersHint: string;
   topEdgeShoulderSize: string;
   /** The open island's corner radius and shape; the collapsed bar's corners follow. */
   cornerRadius: string;
@@ -63,7 +74,13 @@ export type SettingsAppearanceText = {
       title: string;
       footer: string;
       reset: string;
-      slots: Record<"text" | "mail" | "shelf" | "music" | "agents" | "system", string>;
+      slots: Record<"text" | "mail" | "shelf" | "music" | "agents" | "cpu" | "memory" | "weather", string>;
+      cpuUsage: string;
+      memoryUsage: string;
+      systemHint: string;
+      visibilityHint: string;
+      messageSources: Record<"qq" | "wechat" | "plugin" | "dingtalk" | "feishu" | "wecom", string>;
+      petPositionHint: string;
       textSample: string;
       moveLabel: (name: string) => string;
     };
@@ -71,10 +88,12 @@ export type SettingsAppearanceText = {
 };
 
 export const zhCN: SettingsAppearanceText = {
+  notch: "刘海",
+  pill: "胶囊",
   font: "字体",
   fontLabel: "岛屿字体",
-  fontSize: "岛屿字号",
-  collapsedDimensions: { autoWidth: "自动宽度", width: "刘海宽度", height: "刘海高度", unit: "px", hint: "宽高会随收起时的整体大小一起缩放。" },
+  fontSize: "字号",
+  collapsedDimensions: { autoWidth: "自动宽度", width: "宽度", height: "高度", unit: "px", hint: "宽度和高度指收起时的岛，会随收起时的大小一起缩放。" },
   systemFont: "默认字体",
   pixelFont: "像素字体",
   material: "质感",
@@ -89,13 +108,19 @@ export const zhCN: SettingsAppearanceText = {
   schemeLight: "浅色",
   schemeSystem: "跟随系统",
   themeTitle: "主题",
-  textSizeTitle: "字体与大小",
+  textSizeTitle: "文字",
+  sizeTitle: "大小",
+  cornersTitle: "圆角",
+  collapsedScale: "收起时的大小",
+  expandedScale: "展开后的大小",
   pageButtons: "页面按钮",
   capsules: "胶囊",
   icons: "图标",
-  notchTitle: "刘海尺寸",
-  shapeTitle: "圆角",
+  islandShape: "岛屿外形",
+  islandShapeHint: "胶囊悬在屏幕顶端下方，收起时是一颗完整的药丸",
+  islandShapes: { notch: "刘海", capsule: "胶囊" },
   topEdgeShoulders: "贴边圆角",
+  topEdgeShouldersHint: "贴在屏幕顶端时，两侧圆滑地连到屏幕边上",
   topEdgeShoulderSize: "圆角大小",
   cornerRadius: "展开圆角",
   cornerRadiusHint: "展开后岛屿与内层面板的圆角",
@@ -122,12 +147,18 @@ export const zhCN: SettingsAppearanceText = {
     },
     moveLabel: (name) => `调整"${name}"的顺序，可以拖动或按上下方向键`,
     showCover: "显示歌曲封面",
-    showCoverHint: "收起的岛显示歌词时，在歌词前显示这首歌的封面；排在歌词前面的内容显示时，封面也一起让开。",
+    showCoverHint: "显示歌词时，在歌词前面放这首歌的封面",
     layout: {
       title: "岛上的排列",
-      footer: "按住图标左右拖动，放在文字左边的会显示在岛的左侧。灰色的是还没打开的功能，位置会保留。",
+      footer: "拖动调整左右顺序。灰色表示隐藏或功能未启用，位置会保留；消息图标统一显示在末端，展开后显示在右侧。",
+      visibilityHint: "控制普通文字；播放中的歌词与重要消息仍会独立显示，不关闭后台功能。",
+      messageSources: { qq: "QQ 消息", wechat: "微信消息", plugin: "插件消息", dingtalk: "钉钉消息", feishu: "飞书消息", wecom: "企业微信消息" },
+      petPositionHint: "固定在文字左侧，替代状态圆点；关闭文字仍可显示岛仔。",
       reset: "恢复默认",
-      slots: { text: "文字", mail: "新邮件", shelf: "置物架文件数", music: "音乐波形", agents: "Agent 会话数", system: "CPU 与内存" },
+      cpuUsage: "CPU 使用率",
+      memoryUsage: "内存使用率",
+      systemHint: "窄岛可能自动隐藏系统指标与天气，排列顺序不会改变。",
+      slots: { text: "文字", mail: "新邮件", shelf: "置物架文件数", music: "音乐波形", agents: "Agent 会话数", cpu: "CPU", memory: "内存", weather: "天气" },
       textSample: "收起时的文字",
       moveLabel: (name) => `移动"${name}"，可以拖动或按左右方向键`,
     },
@@ -135,10 +166,12 @@ export const zhCN: SettingsAppearanceText = {
 };
 
 export const en: SettingsAppearanceText = {
+  notch: "Notch",
+  pill: "Pill",
   font: "Font",
   fontLabel: "Island font",
-  fontSize: "Island font size",
-  collapsedDimensions: { autoWidth: "Automatic width", width: "Collapsed width", height: "Collapsed height", unit: "px", hint: "Width and height follow the overall collapsed size." },
+  fontSize: "Font size",
+  collapsedDimensions: { autoWidth: "Automatic width", width: "Width", height: "Height", unit: "px", hint: "Width and height are the collapsed island's, and follow the collapsed size." },
   systemFont: "System",
   pixelFont: "Pixel",
   material: "Material",
@@ -153,13 +186,19 @@ export const en: SettingsAppearanceText = {
   schemeLight: "Light",
   schemeSystem: "System",
   themeTitle: "Theme",
-  textSizeTitle: "Text & size",
+  textSizeTitle: "Text",
+  sizeTitle: "Size",
+  cornersTitle: "Corners",
+  collapsedScale: "Collapsed size",
+  expandedScale: "Expanded size",
   pageButtons: "Page buttons",
   capsules: "Capsules",
   icons: "Icons",
-  notchTitle: "Notch size",
-  shapeTitle: "Corners",
+  islandShape: "Island shape",
+  islandShapeHint: "The capsule floats just below the top of the screen and collapses to a full pill",
+  islandShapes: { notch: "Notch", capsule: "Capsule" },
   topEdgeShoulders: "Top edge curves",
+  topEdgeShouldersHint: "At the top of the screen, the island's sides curve into the screen edge",
   topEdgeShoulderSize: "Curve size",
   cornerRadius: "Open corners",
   cornerRadiusHint: "The open island and the panels inside it",
@@ -186,12 +225,18 @@ export const en: SettingsAppearanceText = {
     },
     moveLabel: (name) => `Reorder "${name}": drag, or press the up and down arrow keys`,
     showCover: "Show the song's cover",
-    showCoverHint: "Beside the lyric line on the collapsed island; when something ranked above lyrics shows, the cover gives way too.",
+    showCoverHint: "The song's cover in front of the lyric line",
     layout: {
       title: "On the island",
-      footer: "Hold an icon and drag it left or right; icons left of the text sit on the island's left. Grey ones are switched off and keep their place.",
+      footer: "Drag to reorder. Grey items are hidden or unavailable and keep their place. Messages appear at the end, or on the right when expanded.",
+      visibilityHint: "Controls ordinary text. Playing lyrics and important messages remain independent; background features keep running.",
+      messageSources: { qq: "QQ messages", wechat: "WeChat messages", plugin: "Plugin messages", dingtalk: "DingTalk messages", feishu: "Lark messages", wecom: "WeCom messages" },
+      petPositionHint: "Replaces the status dot to the left of the text, and stays visible when text is off.",
       reset: "Reset",
-      slots: { text: "Text", mail: "New mail", shelf: "Shelf files", music: "Music waveform", agents: "Agent sessions", system: "CPU and memory" },
+      cpuUsage: "CPU usage",
+      memoryUsage: "Memory usage",
+      systemHint: "Narrow islands may hide system readings and weather without changing their order.",
+      slots: { text: "Text", mail: "New mail", shelf: "Shelf files", music: "Music waveform", agents: "Agent sessions", cpu: "CPU", memory: "Memory", weather: "Weather" },
       textSample: "Collapsed text",
       moveLabel: (name) => `Move "${name}": drag, or press the left and right arrow keys`,
     },

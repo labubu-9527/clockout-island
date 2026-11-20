@@ -1,3 +1,6 @@
+import type { ClockText } from "./sections/clock";
+import type { IslandPetText } from "./sections/islandPet";
+import type { WeatherText } from "./sections/weather";
 import type { CommonText } from "./sections/common";
 import type { MessagesText } from "./sections/messages";
 import type { QqText } from "./sections/qq";
@@ -17,11 +20,14 @@ import type { SettingsText } from "./sections/settings/index";
 export type LocaleCode = "zh-CN" | "en";
 
 export type Translations = {
+  clock: ClockText;
+  islandPet: IslandPetText;
   /** Native language name shown in the locale picker. */
   localeLabel: string;
   /** BCP-47 tag handed to Intl for dates and numbers. */
   localeTag: string;
 
+  weather: WeatherText;
   common: CommonText;
   messages: MessagesText;
   qq: QqText;

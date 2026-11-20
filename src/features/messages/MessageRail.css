@@ -1,0 +1,8 @@
+.message-rail { display: flex; flex: 0 0 auto; align-items: center; }
+.message-rail--collapsed { margin-left: auto; flex-shrink: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.message-rail--collapsed .message-rail__button { flex: 0 1 32px; min-width: 20px; }
+.message-rail__button { position: relative; display: grid; place-items: center; width: 32px; height: 32px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: inherit; cursor: pointer; }
+.message-rail__button:hover { background: rgba(128,128,128,.18); }
+.message-rail__button:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
+.message-rail__dot { position: absolute; right: 3px; top: 3px; width: 6px; height: 6px; border-radius: 50%; background: #ff4f5f; }
+.message-rail--expanded { position: absolute; left: calc(100% + 8px * var(--island-expanded-scale)); top: 0; flex-direction: column; width: 36px; padding: 4px 2px; border-radius: 18px; background: var(--island-fill, var(--island-background-color)); transform: scale(var(--island-expanded-scale)); transform-origin: top left; box-shadow: 0 4px 16px #0002; }

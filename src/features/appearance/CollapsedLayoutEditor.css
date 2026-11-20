@@ -3,10 +3,14 @@
   display: grid;
   place-items: center;
   padding: 22px 12px 18px;
+  min-width: 0;
 }
 
 .collapsed-layout__island {
-  width: min(340px, 100%);
+  width: min(480px, 100%);
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
   height: 38px;
   display: flex;
   align-items: center;
@@ -41,6 +45,11 @@
   touch-action: none;
   user-select: none;
   transition: background 140ms ease, opacity 140ms ease, transform 140ms ease;
+}
+
+.collapsed-layout__island--pill {
+  border-radius: var(--radius-pill);
+  corner-shape: round;
 }
 
 .collapsed-layout__slot:hover {
@@ -113,3 +122,4 @@
   background: rgba(186, 186, 186, 0.38);
   border: 1px solid rgba(var(--overlay-rgb), 0.14);
 }
+.collapsed-layout__fixed-pet { display: flex; align-items: center; flex: none; }

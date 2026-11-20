@@ -3,7 +3,9 @@ import claudeCodeIcon from "../../assets/brands/claude-code.png";
 import { useTranslation } from "../../i18n";
 import { inkOn } from "../../utils/color";
 import { AgentPagePreview } from "./AgentPagePreview";
+import { IslandPet } from "../island-pet";
 import { cornerShapeCss } from "./cornerShape";
+import { shapedSettings } from "./islandShape";
 import { COLLAPSED_WIDTH, glassTintAlpha, hexToRgba, isGlass, MAX_COLLAPSED_SCALE, MAX_EXPANDED_SCALE } from "./settings";
 import type { IslandSettings } from "./types";
 import { resolveSchemeColors } from "./theme";
@@ -20,6 +22,7 @@ import "./IslandPreview.css";
 export function IslandPreview({ settings }: { settings: IslandSettings }) {
   const text = useTranslation().settings.appearance.preview;
   const glass = isGlass(settings.material);
+  const shaped = shapedSettings(settings);
   const colors = resolveSchemeColors(settings, useResolvedScheme(settings.colorScheme));
   const style = {
     "--preview-fill": hexToRgba(
@@ -28,8 +31,8 @@ export function IslandPreview({ settings }: { settings: IslandSettings }) {
     ),
     "--preview-glass": settings.glassIntensity / 100,
     "--preview-radius-px": settings.islandCornerRadius,
-    "--preview-radius-collapsed-px": settings.collapsedCornerRadius,
-    "--preview-corner-shape": cornerShapeCss(settings.islandCornerShape),
+    "--preview-radius-collapsed-px": shaped.collapsedCornerRadius,
+    "--preview-corner-shape": settings.islandShape === "pill" ? "round" : cornerShapeCss(settings.islandCornerShape),
     "--preview-pulse": colors.pulseColor,
     "--preview-pulse-glow": hexToRgba(colors.pulseColor, 0.72),
     "--preview-pulse-brightness": `${settings.pulseBrightness}%`,
@@ -47,7 +50,8 @@ export function IslandPreview({ settings }: { settings: IslandSettings }) {
     "island-preview__island",
     glass && "island-preview__island--glass",
     `island-preview__island--${settings.material}`,
-    settings.marginY > 0 && "island-preview__island--detached",
+    `island-preview__island--${settings.islandShape}`,
+    (settings.marginY > 0 || settings.islandShape === "pill") && "island-preview__island--detached",
   ].filter(Boolean).join(" ");
 
   return (
@@ -59,10 +63,10 @@ export function IslandPreview({ settings }: { settings: IslandSettings }) {
     >
       <div className="island-preview__desktop">
         <div className={`${islandClass} island-preview__island--collapsed`}>
-          <span className="island-preview__pulse" />
+          {settings.petEnabled && settings.collapsedSlotVisibility.pet && <IslandPet state="idle" active={false} />}
           <img className="island-preview__provider" src={claudeCodeIcon} alt="" draggable={false} />
-          {settings.showCollapsedText && <span className="island-preview__task">{text.sessions.needs.title}</span>}
-          <span className="island-preview__ring">1</span>
+          {settings.collapsedSlotVisibility.text && <span className="island-preview__task">{text.sessions.needs.title}</span>}
+          {settings.collapsedSlotVisibility.agents && settings.agentStatusEnabled && <span className="island-preview__ring">1</span>}
         </div>
         <figcaption className="island-preview__caption">{text.collapsed}</figcaption>
       </div>

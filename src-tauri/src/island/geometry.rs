@@ -13,12 +13,12 @@ use tauri::{LogicalSize, Monitor, PhysicalPosition, Position, Size, WebviewWindo
 use super::state::{IslandPosition, IslandWindowState, MonitorFollow, TuckStyle};
 use crate::win32::{self, taskbar_edge::TaskbarRect};
 
-pub(super) const STAGE_WINDOW_WIDTH: f64 = 820.0;
+pub(super) const STAGE_WINDOW_WIDTH: f64 = 960.0;
 pub(super) const STAGE_WINDOW_HEIGHT: f64 = 460.0;
 pub(super) const DEFAULT_MARGIN_Y: f64 = 0.0;
 pub(super) const DEFAULT_COLLAPSED_SCALE: f64 = 0.89;
 pub(super) const DEFAULT_EXPANDED_SCALE: f64 = 0.91;
-pub(super) const MIN_COLLAPSED_ISLAND_WIDTH: f64 = 240.0;
+pub(super) const MIN_COLLAPSED_ISLAND_WIDTH: f64 = 96.0;
 pub(super) const MAX_COLLAPSED_ISLAND_WIDTH: f64 = 480.0;
 pub(super) const COLLAPSED_ISLAND_WIDTH: f64 = 340.0;
 pub(super) const COLLAPSED_ISLAND_HEIGHT: f64 = 38.0;
@@ -104,14 +104,15 @@ pub(crate) fn apply_stage_geometry(
     let tucked_top_offset = tucked_top_offset(state, scale);
     let top_inset = monitor_top_inset(&monitor);
     let centered_x = monitor_position.x + (monitor_size.width as i32 - physical_width) / 2;
-    let normal_y = monitor_position.y + top_inset + physical_top_offset;
     let tucked_y = monitor_position.y + top_inset + tucked_top_offset;
     let mut positioned_state = state;
     if !has_custom_monitor {
         positioned_state.custom_position = None;
     }
+    let normal_y = monitor_position.y + top_inset + physical_top_offset + docked_shape_offset(positioned_state, scale);
     let (x, y) = resolve_stage_position(positioned_state, centered_x, normal_y, tucked_y);
-    super::top_edge::sync_from_stage(window, positioned_state, monitor_position.y + top_inset);
+    let x = clamp_stage_x(positioned_state, x, monitor_position.x, monitor_size.width as i32, scale);
+    super::top_edge::sync_from_stage(window, positioned_state, monitor_position.y + top_inset, scale);
     // At the very top the island overlaps app bars such as docks, which may have raised
     // themselves into the topmost band after it; take the front again. Not over a full-screen
     // game (game mode tucking the island resizes it): reordering the topmost band there is
@@ -304,4 +305,18 @@ pub(super) fn resolve_stage_position(
         (None, true) => (centered_x, tucked_y),
         (None, false) => (centered_x, normal_y),
     }
+}
+
+/// Capsules float below the docked anchor; custom positions retain their vertical placement.
+pub(super) fn docked_shape_offset(state: IslandWindowState, dpi: f64) -> i32 {
+    if state.island_shape == super::state::IslandShape::Pill && !state.is_tucked && state.custom_position.is_none() { (6.0 * dpi).round() as i32 } else { 0 }
+}
+/// Keep visible content, including the separate message rail, inside the monitor.
+pub(super) fn clamp_stage_x(state: IslandWindowState, x: i32, monitor_left: i32, monitor_width: i32, dpi: f64) -> i32 {
+    let (width, _) = state.active_size();
+    let left = (STAGE_WINDOW_WIDTH - width) / 2.0;
+    let right = left + width + state.message_rail_size().map_or(0.0, |(w, _)| 8.0 * state.expanded_scale + w);
+    let min = monitor_left - (left * dpi).floor() as i32;
+    let max = monitor_left + monitor_width - (right * dpi).ceil() as i32;
+    x.clamp(min.min(max), max)
 }

@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { MessageSourceIcon } from "./MessageSourceIcon";
-import { messagePreviewText, type MessagePreview } from "./messagePreview";
+import { isOfficeSource, messagePreviewText, type MessagePreview } from "./messagePreview";
 import { useTranslation } from "../../i18n";
 import "./CollapsedMessageContent.css";
 
@@ -16,12 +16,12 @@ type ContentTransition = {
 function MessageContent({ preview }: { preview: MessagePreview }) {
   const t = useTranslation();
   return <>
-    <MessageSourceIcon source={preview.source} size={16} />
+    <MessageSourceIcon source={preview.source} mailAccount={preview.mailAccount} size={16} />
     {preview.source === "qqMail" && preview.otpCode ? (
       <span className="island-message-preview__body">{preview.title.trim() || preview.body}</span>
-    ) : preview.source === "qq" || (preview.source === "wechat" && preview.title) ? (
+    ) : preview.source === "qq" || (preview.source === "wechat" && preview.title) || isOfficeSource(preview.source) ? (
       <span className="island-message-preview__text">
-        <strong className="island-message-preview__sender">{preview.title.trim() || "QQ"}</strong>
+        <strong className="island-message-preview__sender">{preview.title.trim() || (isOfficeSource(preview.source) ? t.messages.sourceLabels[preview.source] : "QQ")}</strong>
         <span className="island-message-preview__separator" aria-hidden="true">·</span>
         <span className="island-message-preview__body">{preview.body.trim() || t.messages.newMessage}</span>
       </span>
@@ -42,7 +42,7 @@ export function CollapsedMessageContent({
 }) {
   const t = useTranslation();
   const current = enabled ? preview : null;
-  const key = current ? JSON.stringify([current.source, current.receivedAt, current.title, current.body, current.otpCode]) : "idle";
+  const key = current ? JSON.stringify([current.source, current.receivedAt, current.title, current.body, current.otpCode, current.mailAccount]) : "idle";
   const [transition, setTransition] = useState<ContentTransition>({ key, current, previous: undefined, version: 0, animated: false, previousAnimated: false });
 
   // Retain just the departing row; identical snapshots must not restart the entrance.

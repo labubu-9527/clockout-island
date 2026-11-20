@@ -1,3 +1,6 @@
+import * as clock from "../sections/clock.ts";
+import * as islandPet from "../sections/islandPet.ts";
+import * as weather from "../sections/weather.ts";
 import type { Translations } from "../types";
 import * as common from "../sections/common.ts";
 import * as messages from "../sections/messages.ts";
@@ -16,6 +19,8 @@ import * as fileShelf from "../sections/fileShelf.ts";
 import * as settings from "../sections/settings/index.ts";
 
 const zhCN: Translations = {
+  clock: clock.zhCN,
+  islandPet: islandPet.zhCN,
   localeLabel: "简体中文",
   localeTag: "zh-CN",
 
@@ -45,6 +50,7 @@ const zhCN: Translations = {
 
   fileShelf: fileShelf.zhCN,
 
+  weather: weather.zhCN,
   settings: settings.zhCN,
 };
 

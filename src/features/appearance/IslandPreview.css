@@ -114,6 +114,19 @@
   border-radius: var(--preview-radius-expanded);
 }
 
+.island-preview__island--pill {
+  margin-top: 6px;
+}
+
+.island-preview__island--pill.island-preview__island--collapsed {
+  border-radius: var(--radius-pill);
+  corner-shape: round;
+}
+
+.island-preview__island--pill.island-preview__island--expanded {
+  border-radius: var(--preview-radius-expanded);
+}
+
 .island-preview__pulse {
   width: calc(9 * var(--c));
   height: calc(9 * var(--c));

@@ -11,8 +11,9 @@ type Props = {
 };
 
 /**
- * The open and collapsed island's corner radii (set apart since 2026-11-18) and their shared
- * shape. Tucked and detached corners follow the collapsed radius, the inner panels the open one.
+ * The island's shape (notch or capsule), the open and collapsed corner radii (set apart since
+ * 2026-11-18) and their shared corner shape. Tucked and detached corners follow the collapsed
+ * radius, the inner panels the open one. The capsule's collapsed radius is always half its height.
  */
 export function IslandCornerRows({ settings, onChange }: Props) {
   const t = useTranslation();
@@ -24,11 +25,11 @@ export function IslandCornerRows({ settings, onChange }: Props) {
       defaultValue={ISLAND_CORNER_RADIUS.default} resetLabel={t.settings.layout.resetToDefault}
       format={(value) => `${value}px`}
       onChange={(islandCornerRadius) => onChange({ ...settings, islandCornerRadius })} />
-    <SettingsSliderRow title={text.collapsedCornerRadius}
+    {settings.islandShape !== "pill" && <SettingsSliderRow title={text.collapsedCornerRadius}
       value={settings.collapsedCornerRadius} min={COLLAPSED_CORNER_RADIUS.min} max={COLLAPSED_CORNER_RADIUS.max} step={0.5}
       defaultValue={COLLAPSED_CORNER_RADIUS.default} resetLabel={t.settings.layout.resetToDefault}
       format={(value) => `${Math.round(value * 10) / 10}px`}
-      onChange={(collapsedCornerRadius) => onChange({ ...settings, collapsedCornerRadius })} />
+      onChange={(collapsedCornerRadius) => onChange({ ...settings, collapsedCornerRadius })} />}
     <SettingsRow
       title={text.cornerShape}
       control={

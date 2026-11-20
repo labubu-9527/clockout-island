@@ -126,7 +126,8 @@ else {
     check(document.querySelector(".todo-view-switch__segment--active")?.textContent === "Notes", "The todo view switch is translated");
     await click(".todo-view-switch__segment[data-view='today']");
     check(document.querySelectorAll("[title]").length === 0, "No hover tooltips on the island");
-    await click("button.dot-button--messages[aria-label^='Messages']");
+    await click(".message-rail--expanded button[data-source=qqMail]");
+    await click(".message-sources button[aria-label='QQ notifications']");
     check(document.querySelector(".qq-panel__empty")?.textContent?.includes("No messages"), "QQ panel uses English copy");
     await click(".message-sources button[aria-label='WeChat reminders']");
     check(document.querySelector(".qq-panel__empty")?.textContent?.includes("No reminders"), "WeChat panel uses English copy");

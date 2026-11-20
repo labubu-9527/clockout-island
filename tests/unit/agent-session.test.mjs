@@ -8,6 +8,13 @@ import {
 
 const NOW = 1_800_000_000_000;
 
+test("collapsed session exposes its phase and treats background work as running", () => {
+  for (const phase of ["running", "waiting", "completed", "failed", "stale"]) {
+    assert.equal(pickAgentSession([session({ phase })], undefined, NOW)?.phase, phase);
+  }
+  assert.equal(pickAgentSession([session({ phase: "completed", backgroundTasks: 2 })], undefined, NOW)?.phase, "running");
+});
+
 /** One entry of the Agent page's list (list_agent_sessions). */
 function session(overrides = {}) {
   return {
@@ -29,6 +36,7 @@ test("a running session from the session list is picked", () => {
     provider: "claudeCode",
     label: "Claude Code",
     title: "设置界面完善思路",
+    phase: "running",
   });
 });
 
@@ -70,7 +78,7 @@ test("with several sessions the most recently updated wins", () => {
 
 test("sources reported by plugins or the local API are named by their own name", () => {
   const others = [{ id: "local-api/aider", name: "Aider", phase: "running", title: "Refactor parser", updatedAt: NOW - 10 }];
-  assert.deepEqual(pickAgentSession([], others, NOW), { provider: null, label: "Aider", title: "Refactor parser" });
+  assert.deepEqual(pickAgentSession([], others, NOW), { provider: null, label: "Aider", title: "Refactor parser", phase: "running" });
   // An untitled or idle report is not shown.
   assert.equal(pickAgentSession([], [{ ...others[0], title: undefined }], NOW), null);
   assert.equal(pickAgentSession([], [{ ...others[0], phase: "idle" }], NOW), null);

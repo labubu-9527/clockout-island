@@ -1,5 +1,24 @@
 # Third-party licenses
 
+| 项目 | 内容 |
+| --- | --- |
+| 文档名称 | Third-party licenses |
+| 制作人 | XiaoZhu |
+| 日期 | 2026-11-20 |
+| 版本号 | v1.1.0 |
+
+## xiaotang-daozai pet expressions
+
+The twelve original expression sheets in `src/assets/pet/` and the geometry, non-uniform frame timing, idle/hover cadence and music pose sequence in `src/features/island-pet/` are reused or adapted from [Renly1994/xiaotang-daozai](https://github.com/Renly1994/xiaotang-daozai), `src/pet.rs`, `src/pet_expressions.rs` and `assets/pet/expressions/`, at commit `08250c583dfda4fe3643af9e27cc93221b4170e9`. Their MIT license is included in `src/assets/pet/LICENSE` and reproduced below. The procedural renderer is ported to SVG; the original PNG files remain unchanged.
+
+## xiaotang-daozai office messenger windows
+
+The DingTalk / Feishu / WeCom main-window rules and wake routes in `src-tauri/src/office_im/client.rs` (including the Feishu tray relaunch) are adapted from [Renly1994/xiaotang-daozai](https://github.com/Renly1994/xiaotang-daozai), `src/messenger/desktop.rs` and `src/messenger/windows.rs`, under the MIT License below. The DingTalk, Feishu and WeCom tile icons are taken from the same project's `assets/calendar/`.
+
+## xiaotang-daozai quota adapters
+
+The Kimi Code usage parsing in `src-tauri/src/agent_status/kimi_usage.rs` and the Z Code credential decryption and plan / trial usage reading in `src-tauri/src/agent_status/zcode_credentials.rs` and `zcode_usage.rs` are adapted from [Renly1994/xiaotang-daozai](https://github.com/Renly1994/xiaotang-daozai), `src/quota.rs` and `src/zcode_quota.rs`, under the MIT License below.
+
 ## xiaotang-daozai OTP detection
 
 The weighted verification-code detector in `src-tauri/src/mail/otp.rs` and its regression tests are adapted from [Renly1994/xiaotang-daozai](https://github.com/Renly1994/xiaotang-daozai), `src/otp.rs`. The reference credits pulse-mail (MIT) for keyword and shape scoring rules. Only the algorithm is reused.

@@ -2,7 +2,7 @@ use tauri::PhysicalPosition;
 
 use super::geometry::*;
 use super::glass::parse_hex_color;
-use super::passthrough::{point_in_island, point_in_notch};
+use super::passthrough::{point_in_island, point_in_notch, point_in_hover_region};
 use super::state::*;
 
 fn state(mode: IslandMode, scale: f64, expanded_height: f64) -> IslandWindowState {
@@ -13,6 +13,15 @@ fn state(mode: IslandMode, scale: f64, expanded_height: f64) -> IslandWindowStat
         expanded_height,
         ..IslandWindowState::default()
     }
+}
+
+#[test]
+fn compact_auto_width_keeps_native_hit_area_and_notice_floor_distinct() {
+    assert_eq!(MIN_COLLAPSED_ISLAND_WIDTH, 96.0);
+    let mut island = state(IslandMode::Collapsed, 1.0, 400.0);
+    island.collapsed_width = MIN_COLLAPSED_ISLAND_WIDTH;
+    assert_eq!(island.active_size().0, 96.0);
+    assert_eq!(notice_size_within_stage(Some(20.0), Some(44.0), 1.0), Some((240.0, 44.0)));
 }
 
 #[test]
@@ -418,7 +427,7 @@ fn a_grown_message_preview_sets_the_hit_area_within_the_stage_and_game_previews_
     // Limits: the stage at the scale, never below the smallest bar, and both sides or none.
     let (width, height) = notice_size_within_stage(Some(2000.0), Some(2000.0), 1.4).unwrap_or_default();
     assert!(width * 1.4 <= STAGE_WINDOW_WIDTH && height * 1.4 <= STAGE_WINDOW_HEIGHT);
-    assert_eq!(notice_size_within_stage(Some(10.0), Some(10.0), 1.0), Some((MIN_COLLAPSED_ISLAND_WIDTH, MIN_COLLAPSED_ISLAND_HEIGHT)));
+    assert_eq!(notice_size_within_stage(Some(10.0), Some(10.0), 1.0), Some((240.0, MIN_COLLAPSED_ISLAND_HEIGHT)));
     assert_eq!(notice_size_within_stage(Some(400.0), None, 1.0), None);
     assert_eq!(notice_size_within_stage(Some(f64::NAN), Some(80.0), 1.0), None);
 }
@@ -432,4 +441,120 @@ fn collapsed_corners_follow_their_own_setting_once_sent() {
     assert_eq!(state.bottom_corner_radius(), 8.0);
     state.mode = IslandMode::Expanded;
     assert_eq!(state.bottom_corner_radius(), 42.0, "the open island keeps the open radius");
+}
+
+#[test]
+fn message_rail_is_separate_rounded_and_dpi_scaled() {
+    for dpi in [1.0, 1.25, 2.0] {
+        let mut island = state(IslandMode::Expanded, 1.4, 306.0);
+        island.message_rail_count = 2;
+        let right = (STAGE_WINDOW_WIDTH + island.active_size().0) / 2.0;
+        let hit = |x, y| point_in_island(island, dpi, x * dpi, y * dpi);
+        assert!(hit(right + 26.0 * 1.4, 24.0));
+        assert!(!hit(right + 4.0 * 1.4, 24.0));
+        assert!(!hit(right + 8.0 * 1.4, 0.0));
+        assert!(!hit(right + 26.0 * 1.4, 73.0 * 1.4));
+        island.message_rail_count = 0;
+        assert!(!point_in_island(island, dpi, (right + 26.0 * 1.4) * dpi, 24.0 * dpi));
+    }
+}
+
+#[test]
+fn capsule_rounding_offset_tucking_and_horizontal_bounds() {
+    let mut island = state(IslandMode::Collapsed, 1.0, 306.0);
+    island.island_shape = IslandShape::Pill;
+    assert_eq!(island.bottom_corner_radius(), island.collapsed_height / 2.0);
+    assert_eq!(island.top_corner_radius(), island.collapsed_height / 2.0);
+    assert_eq!(docked_shape_offset(island, 1.5), 9);
+    island.is_tucked = true;
+    assert_eq!(docked_shape_offset(island, 1.5), 0);
+    assert_eq!(island.top_corner_radius(), 0.0);
+    island.is_tucked = false;
+    island.custom_position = Some(IslandPosition { x: 10, y: 100 });
+    assert_eq!(docked_shape_offset(island, 1.5), 0);
+    island.mode = IslandMode::Expanded;
+    island.message_rail_count = 99;
+    assert_eq!(island.message_rail_size(), Some((36.0, 232.0)));
+    let x = clamp_stage_x(island, 5000, 0, 1920, 1.5);
+    let right = (STAGE_WINDOW_WIDTH + island.active_size().0) / 2.0 + 44.0;
+    assert!(x as f64 + right * 1.5 <= 1920.0);
+    let x = clamp_stage_x(island, -5000, -1920, 1920, 1.5);
+    assert!(x as f64 + (STAGE_WINDOW_WIDTH - island.active_size().0) / 2.0 * 1.5 >= -1920.0);
+}
+
+#[test]
+fn message_rail_never_adds_a_collapsed_or_tucked_hit_target() {
+    let mut island = state(IslandMode::Collapsed, 1.0, 306.0);
+    island.message_rail_count = 4;
+    assert_eq!(island.message_rail_size(), None);
+    island.mode = IslandMode::Expanded;
+    island.is_tucked = true;
+    assert_eq!(island.message_rail_size(), None);
+    island.tuck_style = TuckStyle::Hidden;
+    island.island_shape = IslandShape::Pill;
+    let top = -f64::from(tucked_top_offset(island, 1.5));
+    assert!(point_in_island(island, 1.5, STAGE_WINDOW_WIDTH * 1.5 / 2.0, top + 1.0));
+    assert!(!point_in_island(island, 1.5, STAGE_WINDOW_WIDTH * 1.5 / 2.0 + 200.0, top + 1.0));
+    assert_eq!(IslandShape::from_value(None), IslandShape::Notch);
+    assert_eq!(IslandShape::from_value(Some("unknown")), IslandShape::Notch);
+}
+
+
+#[test]
+fn rail_hover_bridges_gap_and_rounded_entry_but_never_captures_gap_clicks() {
+    for dpi in [1.0, 1.25, 1.5, 2.0] {
+        for scale in [0.75, 1.0, 1.4] {
+            let island = IslandWindowState { message_rail_count: 2, ..state(IslandMode::Expanded, scale, 306.0) };
+            let body_right = (STAGE_WINDOW_WIDTH + island.active_size().0) / 2.0;
+            let hover = |x, y| point_in_hover_region(island, dpi, x * dpi, y * dpi);
+            for x in [body_right - 1.0, body_right + 4.0 * scale, body_right + 8.0 * scale, body_right + 26.0 * scale] {
+                assert!(hover(x, 1.0), "body-to-rail traversal stays hovered at scale {scale}, dpi {dpi}");
+            }
+            assert!(!point_in_island(island, dpi, (body_right + 4.0 * scale) * dpi, 1.0 * dpi));
+            assert!(!point_in_island(island, dpi, (body_right + 8.0 * scale) * dpi, 1.0 * dpi));
+            assert!(!hover(body_right + 4.0 * scale, 73.0 * scale));
+            assert!(!hover(body_right + 45.0 * scale, 10.0));
+            assert!(!hover(body_right + 4.0 * scale, -1.0));
+            for changed in [
+                IslandWindowState { message_rail_count: 0, ..island },
+                IslandWindowState { is_tucked: true, ..island },
+                IslandWindowState { mode: IslandMode::Collapsed, ..island },
+                IslandWindowState { click_through: true, ..island },
+            ] {
+                assert!(!point_in_hover_region(changed, dpi, (body_right + 4.0 * scale) * dpi, dpi));
+            }
+        }
+    }
+}
+
+#[test]
+fn collapsed_bar_takes_clicks_in_its_corners_and_just_beside_it() {
+    for dpi in [1.0, 1.25, 1.5, 2.0] {
+        let island = IslandWindowState { collapsed_height: 38.0, ..state(IslandMode::Collapsed, 1.0, DEFAULT_EXPANDED_ISLAND_HEIGHT) };
+        let (width, height) = island.active_size();
+        let left = (STAGE_WINDOW_WIDTH - width) / 2.0 * dpi;
+        let right = left + width * dpi;
+        let bottom = height * dpi;
+        // The bottom corners, where the first and last buttons sit.
+        assert!(point_in_island(island, dpi, left + 1.0, bottom - 1.0));
+        assert!(point_in_island(island, dpi, right - 1.0, bottom - 1.0));
+        // A few px outside the sides still counts; further out passes through.
+        assert!(point_in_island(island, dpi, left - 3.0 * dpi, bottom / 2.0));
+        assert!(!point_in_island(island, dpi, left - 6.0 * dpi, bottom / 2.0));
+        assert!(!point_in_island(island, dpi, right + 6.0 * dpi, bottom / 2.0));
+        assert!(!point_in_island(island, dpi, left + width * dpi / 2.0, bottom + 1.0));
+    }
+}
+
+#[test]
+fn seven_message_sources_remain_clickable_and_hoverable_to_the_bottom() {
+    for dpi in [1.0, 1.25, 2.0] {
+        let island = IslandWindowState { message_rail_count: 7, ..state(IslandMode::Expanded, 1.4, 306.0) };
+        let right = (STAGE_WINDOW_WIDTH + island.active_size().0) / 2.0;
+        let x = (right + 26.0 * 1.4) * dpi;
+        assert!(point_in_island(island, dpi, x, 220.0 * 1.4 * dpi));
+        assert!(point_in_hover_region(island, dpi, (right + 4.0 * 1.4) * dpi, 220.0 * 1.4 * dpi));
+        assert!(!point_in_island(island, dpi, (right + 4.0 * 1.4) * dpi, 220.0 * 1.4 * dpi));
+        assert!(!point_in_hover_region(island, dpi, x, 233.0 * 1.4 * dpi));
+    }
 }

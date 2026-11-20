@@ -1,3 +1,10 @@
+import { useOfficeImSnapshot } from "../../features/messages/office-im/useOfficeIm";
+import { getMessageRailItems } from "../../features/messages/messageRailItems";
+import { usePluginNotifications } from "../../features/messages/pluginNotifications";
+import { useWeather } from "../../features/weather/useWeather";
+import { WeatherBadge } from "../../features/weather/WeatherBadge";
+import { ClockIndicator } from "../../features/clock";
+import { IslandPet, resolvePetState } from "../../features/island-pet";
 import { useMemo } from "react";
 // First: the message panels it loads bring CSS that must come before the page panels' and the shell's.
 import { useIslandNotices } from "./useIslandNotices";
@@ -40,7 +47,8 @@ import { useIslandTranslation } from "./useIslandTranslation";
 import { useMessageView } from "./useMessageView";
 import { useSettingsPageHeight } from "./useSettingsPageHeight";
 import { useIslandPickerOpen } from "../../lib/islandPicker";
-import { TODO_DATE_PICKER_EXPANDED_ISLAND_HEIGHT } from "./layout";
+import { TODO_DATE_PICKER_EXPANDED_ISLAND_HEIGHT, alignCollapsedIslandWidth, getClockPetWidth } from "./layout";
+import { collapsedPresentationLayout } from "./collapsedPresentation";
 // Must stay the last import: IslandApp.css overrides the feature styles above.
 import "./IslandApp.css";
 
@@ -68,7 +76,8 @@ export function IslandApp() {
   // The output level shows only on the collapsed island (its waveform).
   const media = useMediaState(settings.musicEnabled, mode === "collapsed");
   // Only the collapsed bar shows the reading, so only poll while it can be seen.
-  const systemStatus = useSystemStatus(mode === "collapsed");
+  const systemStatus = useSystemStatus(mode === "collapsed" && !isTucked && media.mediaState.playbackStatus !== "playing" && (settings.collapsedAutoWidth || settings.collapsedWidth > 280) && (settings.cpuEnabled || settings.memoryEnabled));
+  const weather = useWeather();
   const { agentStatus, agentSessions, listedAgentSessions, activeAgentSessionCount, unseenAgentSessions, agentRemoval, agentSession, agentUsages, alertUsages } =
     useIslandAgents(settings);
   const quotaAlert = useQuotaAlert(alertUsages, settings.agentStatusEnabled ? settings.agentQuotaAlertPercent : 0, {
@@ -85,13 +94,12 @@ export function IslandApp() {
       settings.todoEnabled ? activeTodoId : null,
       settings.todoEnabled ? settings : { ...settings, showIdleTodoCount: false },
       mode !== "collapsed" || isTucked || !settings.showCollapsedText || hasMessagePreview,
-      agentSession?.title ?? null,
+      agentSession ? t.agent.phase[agentSession.phase ?? "running"] : null,
       { lyricsPlaying: songPlaying, coverWanted: Boolean(cover), timer: settings.todoEnabled ? timer : null,
         activeIds: settings.todoEnabled ? activeTodoIds : [], timers: settings.todoEnabled ? timers : [] },
     );
   // The cover goes with the lyric line: when something ranked above lyrics is shown, it goes too.
   const collapsedCover = collapsedItem === "lyrics" ? cover : null;
-  const notice = useMessageNotice(preview, settings, { mode, isTucked, quiet: game.quiet, collapsedIslandWidth });
   const { agentVisualState, agentStatusLabel } = useAgentIndicator(agentStatus, settings, activeAgentSessionCount, t);
   useIslandTucking({
     settings,
@@ -118,6 +126,31 @@ export function IslandApp() {
     setMessageSource,
     openIslandPage,
   });
+  const pluginNotifications = usePluginNotifications();
+  const officeSnapshot = useOfficeImSnapshot();
+  const messageItems = getMessageRailItems(features, settings.messageSourceVisibility, {
+    qq: qqNotifications.hasPending, wechat: wechatReminders.snapshot.pending,
+    qqMail: qqMail.unreadTotal > 0, plugin: pluginNotifications.length > 0,
+    dingtalk: officeSnapshot.dingtalk.pending, feishu: officeSnapshot.feishu.pending, wecom: officeSnapshot.wecom.pending,
+  });
+  const { fileShelf, isShelfDropping } = useIslandShelf(settings, navigation);
+  const lyricMode = songPlaying && !preview && !quotaAlert;
+  const collapsedMessages = lyricMode ? messageItems.filter(item => item.pending) : messageItems;
+  const slotVisible = (slot: keyof typeof settings.collapsedSlotVisibility) => settings.collapsedSlotVisibility[slot];
+  const presentation = collapsedPresentationLayout({
+      textWidth: settings.showCollapsedText && (settings.showTitle || collapsedItem !== null) ? collapsedIslandWidth : 36,
+      pet: settings.petEnabled && slotVisible("pet"),
+      clockWidth: settings.clockEnabled && slotVisible("clock") ? getClockPetWidth({ ...settings, petEnabled: false }) + 8 : 0,
+      statusCount: Number(settings.cpuEnabled && slotVisible("cpu")) + Number(settings.memoryEnabled && slotVisible("memory")),
+      weather: weather.settings.enabled && slotVisible("weather"),
+      shelf: settings.shelfEnabled && settings.shelfShowCount && fileShelf.items.length > 0 && slotVisible("shelf"),
+      music: features.music && slotVisible("music"), agents: (!features.agents || activeAgentSessionCount > 0) && slotVisible("agents"),
+      messages: collapsedMessages.length, lyricMode, timer: Boolean(collapsedTimer),
+    }, settings.collapsedAutoWidth ? 480 : settings.collapsedWidth);
+  const visibleCollapsedWidth = settings.collapsedAutoWidth
+    ? alignCollapsedIslandWidth(presentation.width, window.innerWidth, window.devicePixelRatio, 480) : collapsedIslandWidth;
+  const notice = useMessageNotice(preview, settings, { mode, isTucked, quiet: game.quiet, collapsedIslandWidth: visibleCollapsedWidth,
+    readerSideWidth: (settings.petEnabled && slotVisible("pet") ? 48 : 0) + (collapsedMessages.length ? Math.min(80, collapsedMessages.length * 32) + 8 : 0) });
   const { alertedSession, approvals: agentApprovals, agentCardHeight } = useIslandAgentAlerts({
     sessions: agentSessions,
     unseen: unseenAgentSessions.keys,
@@ -128,7 +161,6 @@ export function IslandApp() {
     openIslandPage,
     collapseIsland,
   });
-  const { fileShelf, isShelfDropping } = useIslandShelf(settings, navigation);
   const pickerOpen = useIslandPickerOpen();
   const expandedIslandHeight = Math.max(pickerOpen && page === "todo" ? TODO_DATE_PICKER_EXPANDED_ISLAND_HEIGHT : 0, getExpandedIslandHeight({
     page,
@@ -152,8 +184,8 @@ export function IslandApp() {
   const scheme = useDocumentTheme(settings);
   const colors = useMemo(() => resolveSchemeColors(settings, scheme), [settings, scheme]);
   const stageStyle = useMemo(
-    () => getIslandStageStyle(settings, colors, notice.size?.width ?? collapsedIslandWidth, expandedIslandHeight, notice.size?.height),
-    [collapsedIslandWidth, colors, expandedIslandHeight, settings, notice.size],
+    () => getIslandStageStyle(settings, colors, notice.size?.width ?? visibleCollapsedWidth, expandedIslandHeight, notice.size?.height),
+    [visibleCollapsedWidth, colors, expandedIslandHeight, settings, notice.size],
   );
 
 
@@ -169,7 +201,8 @@ export function IslandApp() {
     settings,
     setSettings,
     expandedIslandHeight,
-    collapsedIslandWidth,
+    collapsedIslandWidth: visibleCollapsedWidth,
+    messageRailCount: messageItems.length,
     notice: notice.nativeNotice,
     onCollapse: collapseIsland,
   });
@@ -210,6 +243,8 @@ export function IslandApp() {
   return (
     <main className={`stage stage--font-${settings.fontFamily}`} data-tone={colors.tone} style={stageStyle}>
       <IslandShell
+        slotVisibility={settings.collapsedSlotVisibility}
+        messageItems={messageItems}
         qqMail={qqMail}
         qqNotifications={qqNotifications}
         wechatReminders={wechatReminders}
@@ -226,6 +261,7 @@ export function IslandApp() {
         topEdgeShoulders={settings.topEdgeShoulders}
         positionLocked={settings.positionLocked}
         isDetached={isPositionDetached || settings.marginY > 0}
+        islandShape={settings.islandShape}
         showTitle={settings.showTitle}
         showCollapsedText={settings.showCollapsedText}
         collapsedTaskTitle={collapsedTaskTitle}
@@ -246,8 +282,16 @@ export function IslandApp() {
         agentStatusLabel={agentStatusLabel}
         features={features}
         shelfCount={settings.shelfEnabled && settings.shelfShowCount ? fileShelf.items.length : null}
+        weatherBadge={<WeatherBadge weather={weather} onOpen={() => openEnabledPage("weather")} />}
+        clockIndicator={<ClockIndicator settings={settings} active={mode === "collapsed" && !isTucked} />}
+        petIndicator={settings.petEnabled && <IslandPet active={mode === "collapsed" && !isTucked}
+          state={resolvePetState({ notice: hasMessagePreview, agentAttention: settings.agentStatusEnabled && agentVisualState === "attention",
+            agentWorking: settings.agentStatusEnabled && agentVisualState === "running", focusing: settings.todoEnabled && timers.some(round => !round.notified),
+            musicPlaying: settings.musicEnabled && (media.mediaState.playbackStatus === "playing" || (media.mediaState.playbackStatus === "unavailable" && media.mediaState.audioActive)) })} />}
         systemStatus={systemStatus}
-        compactCollapsed={!settings.collapsedAutoWidth && settings.collapsedWidth <= 280}
+        cpuEnabled={settings.cpuEnabled}
+        memoryEnabled={settings.memoryEnabled}
+        compactCollapsed={presentation.compact || (!settings.collapsedAutoWidth && settings.collapsedWidth <= 280)}
         quotaAlert={quotaAlert}
         onOpenPage={openEnabledPage}
         onWindowDragStart={startIslandDrag}
@@ -265,6 +309,7 @@ export function IslandApp() {
         )}
       >
         <IslandPages
+          weather={weather}
           page={page}
           mode={mode}
           settings={settings}

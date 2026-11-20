@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { ArrowUpRight, ClipboardList, Info, Languages, ListTodo, MessageCircle, MessagesSquare, Music, Palette, Plug, Puzzle, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
+import { CloudSun, ArrowUpRight, ClipboardList, Info, Languages, ListTodo, MessageCircle, MessagesSquare, Music, Palette, Plug, Puzzle, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { PROJECT_AUTHOR_URL } from "../../features/updater/projectLinks";
@@ -14,6 +14,7 @@ const CATEGORY_ICONS: Record<SettingsCategory, LucideIcon> = {
   messages: MessageCircle,
   todos: ListTodo,
   music: Music,
+  weather: CloudSun,
   clipboard: ClipboardList,
   translation: Languages,
   agents: MessagesSquare,
@@ -38,7 +39,7 @@ export function SettingsSidebar({
   const text = t.settings.categories;
   const listRef = useRef<HTMLDivElement>(null);
   // About keeps a red dot until the community group on it has been opened.
-  const communityPending = useCommunityInvite().pending;
+  const community = useCommunityInvite();
   // The list can outgrow a short window or the island; keep the open page in sight.
   useEffect(() => {
     listRef.current?.querySelector(".settings-sidebar__item--active")?.scrollIntoView({ block: "nearest" });
@@ -54,11 +55,15 @@ export function SettingsSidebar({
           type="button"
           aria-current={isActive ? "page" : undefined}
           data-category={entry}
-          onClick={() => onCategoryChange(entry)}
+          onClick={() => {
+            // One click on the dot clears it for good (用户要求 2026-11-18).
+            if (entry === "about" && community.pending) community.markSeen();
+            onCategoryChange(entry);
+          }}
         >
           <Icon size={16} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
           <span>{text[entry]}</span>
-          {entry === "about" && communityPending && <span className="settings-sidebar__dot" role="img" aria-label={t.settings.project.communityNew} />}
+          {entry === "about" && community.pending && <span className="settings-sidebar__dot" role="img" aria-label={t.settings.project.communityNew} />}
         </button>
       </li>
     );

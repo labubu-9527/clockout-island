@@ -37,6 +37,8 @@ export type IslandLayout = { collapsedScale: number; expandedScale: number; marg
 
 /** set_island_interaction 的参数，字段名与 src-tauri/src/island/mod.rs 中的命令参数一致。 */
 export type IslandInteraction = {
+  islandShape?: "notch" | "pill";
+  messageRailCount?: number;
   mode: IslandMode;
   collapsedScale: number;
   expandedScale: number;

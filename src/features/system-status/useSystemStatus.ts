@@ -24,7 +24,7 @@ export function useSystemStatus(enabled: boolean): SystemStatus {
         if (didCancel || !next || typeof next.memoryPercent !== "number") return;
         // 数值没变就不触发渲染：展开/收起动画期间重渲染会卡顿。
         setStatus((current) =>
-          current.cpuPercent === next.cpuPercent && current.memoryPercent === next.memoryPercent
+          current.updatedAt !== 0 && current.cpuPercent === next.cpuPercent && current.memoryPercent === next.memoryPercent
             ? current
             : next,
         );

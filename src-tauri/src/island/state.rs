@@ -10,7 +10,7 @@ use tauri::PhysicalPosition;
 use super::geometry::{
     COLLAPSED_ISLAND_HEIGHT, COLLAPSED_ISLAND_WIDTH, COLLAPSED_RADIUS, DEFAULT_COLLAPSED_SCALE,
     DEFAULT_EXPANDED_ISLAND_HEIGHT, DEFAULT_EXPANDED_SCALE, DEFAULT_MARGIN_Y,
-    EXPANDED_ISLAND_WIDTH, EXPANDED_RADIUS, MIN_COLLAPSED_ISLAND_HEIGHT, MIN_COLLAPSED_ISLAND_WIDTH,
+    EXPANDED_ISLAND_WIDTH, EXPANDED_RADIUS, MIN_COLLAPSED_ISLAND_HEIGHT,
     STAGE_WINDOW_HEIGHT, STAGE_WINDOW_PADDING_Y, STAGE_WINDOW_WIDTH, TUCKED_VISIBLE_EDGE_HEIGHT,
 };
 
@@ -29,6 +29,17 @@ pub(crate) fn game_quiet() -> bool {
     GAME_QUIET.load(Ordering::Acquire)
 }
 
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub(crate) enum IslandShape {
+    #[default]
+    Notch,
+    Pill,
+}
+impl IslandShape {
+    pub(super) fn from_value(value: Option<&str>) -> Self {
+        if value == Some("pill") { Self::Pill } else { Self::Notch }
+    }
+}
 #[derive(Clone, Copy)]
 pub(crate) enum IslandMode {
     Collapsed,
@@ -136,6 +147,8 @@ impl CornerShape {
 
 #[derive(Clone, Copy)]
 pub(crate) struct IslandWindowState {
+    pub(super) island_shape: IslandShape,
+    pub(super) message_rail_count: u32,
     pub(super) mode: IslandMode,
     pub(super) is_tucked: bool,
     pub(super) tuck_style: TuckStyle,
@@ -176,13 +189,14 @@ pub(crate) struct IslandWindowState {
 pub(super) fn notice_size_within_stage(width: Option<f64>, height: Option<f64>, scale: f64) -> Option<(f64, f64)> {
     let (width, height) = (width.filter(|value| value.is_finite())?, height.filter(|value| value.is_finite())?);
     let scale = if scale.is_finite() && scale > 0.0 { scale } else { 1.0 };
-    let widest = ((STAGE_WINDOW_WIDTH - NOTICE_STAGE_SIDE_ROOM) / scale).max(MIN_COLLAPSED_ISLAND_WIDTH);
+    let widest = ((STAGE_WINDOW_WIDTH - NOTICE_STAGE_SIDE_ROOM) / scale).max(MIN_NOTICE_WIDTH);
     let tallest = ((STAGE_WINDOW_HEIGHT - STAGE_WINDOW_PADDING_Y) / scale).max(MIN_COLLAPSED_ISLAND_HEIGHT);
-    Some((width.clamp(MIN_COLLAPSED_ISLAND_WIDTH, widest), height.clamp(MIN_COLLAPSED_ISLAND_HEIGHT, tallest)))
+    Some((width.clamp(MIN_NOTICE_WIDTH, widest), height.clamp(MIN_COLLAPSED_ISLAND_HEIGHT, tallest)))
 }
 
 /// Room left at the stage's sides beside the widest message preview (noticeLayout.ts keeps 40).
 const NOTICE_STAGE_SIDE_ROOM: f64 = 40.0;
+const MIN_NOTICE_WIDTH: f64 = 240.0;
 
 impl IslandWindowState {
     pub(super) fn active_size(self) -> (f64, f64) {
@@ -206,7 +220,19 @@ impl IslandWindowState {
         self.corner_radius / EXPANDED_RADIUS
     }
 
+    pub(super) fn message_rail_size(self) -> Option<(f64, f64)> {
+        if self.is_tucked || !matches!(self.mode, IslandMode::Expanded) || self.message_rail_count == 0 {
+            return None;
+        }
+        Some((36.0 * self.expanded_scale, (self.message_rail_count.min(7) * 32 + 8) as f64 * self.expanded_scale))
+    }
+    pub(super) fn active_corner_shape(self) -> CornerShape {
+        if self.island_shape == IslandShape::Pill && !self.is_tucked { CornerShape::Round } else { self.corner_shape }
+    }
     pub(super) fn bottom_corner_radius(self) -> f64 {
+        if self.island_shape == IslandShape::Pill && !self.is_tucked && matches!(self.mode, IslandMode::Collapsed) {
+            return self.notice_size.map_or(self.collapsed_height, |(_, h)| h) / 2.0;
+        }
         match (self.mode, self.collapsed_corner_radius) {
             (IslandMode::Collapsed, Some(radius)) => radius,
             _ => self.mode.corner_radius() * self.corner_radius_factor(),
@@ -216,7 +242,7 @@ impl IslandWindowState {
     /// Flat at the top edge; away from it the island floats, rounded evenly all round
     /// (`.island--detached` in IslandShell.css).
     pub(super) fn top_corner_radius(self) -> f64 {
-        if self.top_attached {
+        if self.top_attached && (self.island_shape != IslandShape::Pill || self.is_tucked) {
             0.0
         } else {
             self.bottom_corner_radius()
@@ -240,6 +266,8 @@ pub struct IslandPosition {
 impl Default for IslandWindowState {
     fn default() -> Self {
         Self {
+            island_shape: IslandShape::Notch,
+            message_rail_count: 0,
             mode: IslandMode::Collapsed,
             is_tucked: false,
             tuck_style: TuckStyle::Edge,

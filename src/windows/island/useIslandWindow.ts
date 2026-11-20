@@ -5,6 +5,7 @@ import { DEFAULT_SETTINGS } from "../../features/appearance/settings";
 import type { IslandSettings } from "../../features/appearance/types";
 import * as islandApi from "./api";
 import { clearIslandPosition } from "./storage";
+import { setIslandTopEdgeCapsule } from "./topEdge";
 import { useIslandPosition } from "./useIslandPosition";
 import { useGlassCapture } from "./useGlassCapture";
 import { useNativeLayout } from "./useNativeLayout";
@@ -13,6 +14,7 @@ import type { IslandMode, NativeGlassState } from "./types";
 import { isIslandPickerOpen } from "../../lib/islandPicker";
 
 type IslandWindowOptions = {
+  messageRailCount?: number;
   mode: IslandMode;
   isTucked: boolean;
   settings: IslandSettings;
@@ -28,6 +30,7 @@ export type IslandNotice = { width: number | null; height: number | null; clickT
 
 /** Keeps the native island window (size, position, glass, focus) in sync with the island's state. */
 export function useIslandWindow({
+  messageRailCount = 0,
   mode,
   isTucked,
   settings,
@@ -56,6 +59,8 @@ export function useIslandWindow({
       try {
         const glassState = await islandApi.setIslandInteraction({
           mode: nextMode,
+          islandShape: nextSettings.islandShape,
+          messageRailCount: nextMode === "expanded" && !nextIsTucked ? messageRailCount : 0,
           collapsedScale: nextSettings.collapsedScale,
           expandedScale: nextSettings.expandedScale,
           marginY: nextSettings.marginY,
@@ -89,7 +94,7 @@ export function useIslandWindow({
         );
       }
     },
-    [islandPositionRef],
+    [islandPositionRef, messageRailCount],
   );
 
   const showReadyIsland = useCallback(async () => {
@@ -128,6 +133,7 @@ export function useIslandWindow({
     }
   }, [islandPositionRef, setIsPositionDetached, setSettings, settings, syncNativeLayout]);
   useSettingsPositionReset(resetIslandPosition);
+  useEffect(() => setIslandTopEdgeCapsule(settings.islandShape === "pill"), [settings.islandShape]);
 
   // One native call at a time, and only the latest state once it returns. An Agent page that
   // opens measures its card row several times in a few frames; sending each height as its own
@@ -165,6 +171,8 @@ export function useIslandWindow({
     notice.clickThrough,
     isTucked,
     mode,
+    settings.islandShape,
+    messageRailCount,
     settings.tuckStyle,
     settings.tuckEdgeHeight,
     settings.marginY,

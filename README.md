@@ -3,7 +3,7 @@
 
   <h1>fly-island</h1>
 
-  <p>Windows 超轻量的灵动岛，微信、QQ、邮箱消息展示、Agent多session、额度环显示、音乐播放器、待办、剪贴板。文件中转等各种常见功能，需要时展开，用完收起。</p>
+  <p>Windows灵动岛：微信、QQ、邮箱消息，多会话 AI Agent 与额度环，音乐播放器、待办、剪贴板、文件中转等常用功能，需要时展开，用完收起。</p>
 
   <p>
     <a href="https://island.flyliu.org/">在线预览</a>
@@ -29,69 +29,128 @@
     <img src="docs/assets/promo-preview.webp" alt="fly-island 宣传片：微信消息弹到岛上、在岛上批准 Claude Code 权限、查看 Claude 与 Codex 额度、文件中转、待办、音乐与翻译" width="860">
   </a>
 
-  <p><sub>点击画面打开在线预览，不用安装就能试</sub></p>
-
   <p>如果它帮你少切了几次窗口，欢迎点个 ⭐ <b>Star</b>，让更多人看到它。</p>
-</div>
+</div>  
+
 
 ## 这是什么
 
-fly-island 是一款 Windows 优先的灵动岛：微信、QQ 和邮箱消息直接弹到岛上，Claude Code / Codex / DSH / Workbuddy 等主流Agent跑到哪、要不要你审批一眼就知道，再加上同步歌词、文件中转、剪贴板历史、快捷翻译和待办，都收在屏幕顶部的一座小岛里。
+fly-island 是一款 Windows 优先的灵动岛。微信、QQ 和邮箱消息直接弹到岛上；Claude Code、Codex、DSH 等 Agent 跑到哪、要不要你审批，一眼就知道；同步歌词、文件中转、剪贴板历史、快捷翻译和待办，也都收在屏幕顶部这座小岛里。
 
-fly-island 以极轻量、无边框、始终置顶的悬浮岛形式运行，内存占用约为0.2~0.5%，它会在需要时展开，用完后回到紧凑状态
+它是一个极轻量、无边框、始终置顶的悬浮岛，内存占用约 0.2%~0.5%，需要时展开，用完收起。
 
-网格[在线预览](https://island.flyliu.org/)，里面是真实的岛屿界面配上演示数据，可以手动操作点击
+不想安装也可以先玩一下：[在线预览](https://island.flyliu.org/)里是真实的岛屿界面配上演示数据，可以直接点。
 
 ## 为什么做它
 
-日常工作或学习过程中，我经常需要在某软件写下 Todo List，为了隔绝噪音，我会打开音乐软件并把音量调到合适的临界点，工作和学习又经常需要借助翻译网站，同时还会反复复制和粘贴代码，与此同时难以避免的是接收不同群聊、好友发送的消息
+工作和学习时，我常常要在一个软件里写待办，开着音乐隔绝噪音，查翻译，反复复制粘贴代码，还得时不时看群聊和好友消息。在这些窗口之间来回切换，既慢又分心。
 
-在这些界面之间来回切换，不仅会降低效率，也容易让人分心，因此我开始思考：能不能把这些高频功能集成到一个足够轻量的地方？
+iPhone 的灵动岛把通知、计时、媒体控制收在一个小岛上，缩短了获取信息的路。于是我想：能不能把这些高频功能也收进 Windows 上一个足够轻的地方？fly-island 就这样诞生了。
 
-我想到了iPhone的灵动岛，它把消息通知、计时器、媒体控制等信息集中到一个小岛上，缩短了我们获取信息的路程。于是，fly-island 诞生了
+## 平时它就这么小
 
-## 功能与使用
+不用的时候，它只是屏幕顶部一条小胶囊：显示正在播的歌、未读消息数、正在干活的 AI Agent。
 
-fly-island 把分散在不同窗口中的高频操作放到一个可折叠、可展开的悬浮岛里。
+<p align="center"><img src="docs/assets/screenshots/collapsed.webp" alt="收起时的小岛：显示正在播的歌、未读数和 Agent 数量" width="560"></p>
 
-| 类别 | 项目 | 说明 |
-| --- | --- | --- |
-| 功能介绍 | **微信、QQ 与邮箱** | 微信和 QQ 的新消息直接弹到岛上，一条一张卡片，显示来源、联系人、时间和内容，不用切过去看；微信免打扰的会话只在有人 @你 时提示，还可以开启会话名与消息摘要（实验性）。支持多个 IMAP 邮箱（QQ、163、126 等），邮件可以在岛上直接阅读。 |
-| 功能介绍 | **AI Agent** | Claude Code / Claude 桌面端、Codex 和 DeepSeek Harness（DSH，含 DataElement / anywhere-labs 社区桌面端）的会话实时显示在岛上；Agent 要运行命令、改文件时，直接在岛上允许或拒绝，任务做完、等你回答时会轻声提示，点击会话跳到对应窗口。显示 Claude/Codex 额度环及 DSH 余额环。详见 [AI Agent 状态灯说明](docs/agent-status-hooks.md)和 [DSH 接入说明与限制](docs/deepseek-harness.md)。 |
-| 功能介绍 | **音乐与歌词** | 通过 Windows 媒体会话控制播放，显示封面、波形、进度条和同步歌词；收起的岛上也能显示当前一句歌词。可以调整多个播放器的优先顺序，不常用的播放器可以归档，归档后不再跟随它显示或播放，需要时在「设置 → 音乐」里恢复。播放器不报告进度时进度条标为“估算”，点一句歌词就能校准。<br><br>网易云精准进度可在岛上的提示卡片或「设置 → 音乐 → 播放器兼容性」一键安装 InfLink-rs 与 BetterNCM，也可一键卸载；插件（GPL-3.0）随安装包附带、按固定指纹校验，不用下载；网易云运行中也能安装，装好后可一键重启网易云生效。支持 3.x x64 和 2.10.13 x86，其他 3.x 版本可能未经测试。 |
-| 功能介绍 | **文件中转** | 把文件拖到岛上暂存，换到别的窗口后再拖出去、复制或打开；只记录路径，不复制文件。详见[文件中转说明](docs/file-shelf.md)。 |
-| 功能介绍 | **图文剪贴板历史** | 记录复制过的文本和图片，搜索内容或备注、收藏常用项、添加备注，并一键复制回剪贴板。历史数量、图片记录和全局唤出快捷键均可设置。「全选」不包含收藏项，按钮文字会注明「不含收藏」。 |
-| 功能介绍 | **快捷翻译** | 用全局快捷键打开翻译，可以在岛上打开或使用独立窗口；支持 DeepSeek、火山方舟、通义千问、Kimi、硅基流动、OpenAI 和自定义的 OpenAI 兼容接口，自动判断中英方向或手动指定。 |
-| 功能介绍 | **待办、笔记与日历** | 管理当天任务、设置当前任务、拖动排序，列表顶部显示完成进度；待办可以安排到以后的某一天。左上角切换待办、每日笔记、历史和日历四个视图，日历标出有待办的日子。可选自动结转未完成任务，把任务和笔记保存为 Markdown。 |
-| 功能介绍 | **待办倒计时（默认关闭）** | 在「设置 → 待办」开启后，每项待办可以单独设倒计时，时间到时岛屿展开并提醒。详见[待办倒计时说明](docs/todo-timer.md)。 |
-| 功能介绍 | **外观与行为** | 经典或液态玻璃外观、默认或像素字体，调整大小、透明度、颜色（含展开页文字颜色）和位置，还能把整套外观存为预设、一键切换；页面按钮可选图标或胶囊，收起的岛显示什么、按什么顺序都能拖动调整。支持锁定位置、闲置时贴边隐藏、游戏模式、开机自启动，界面可切换中文或英文。 |
-| 功能介绍 | **自动更新** | 默认开启，启动时和之后每 3 小时检查一次并在后台下载，小岛收起闲置约 1 分钟后自动安装并重启；待办页签、收起的小岛和待办列表的更新按钮会亮红点，直到更新装好为止；下载失败会自动重试，GitHub 不可达时依次尝试镜像；待办列表和「设置 → 关于」都能立即更新，也可以在「关于」里关掉自动更新、手动检查，并查看每个版本的更新日志。 |
-| 功能设置 | **QQ 和微信提醒** | 首次默认开启。QQ 需要 Windows 通知访问权限，且 QQ 已登录并启用系统通知；微信需要电脑版保持登录并发出任务栏提醒。两个来源可分别在「设置 → 消息」或消息页面关闭。参见 [QQ 通知说明](docs/qq-notification-compatibility.md)和[微信提醒说明](docs/wechat-reminder-compatibility.md)。 |
-| 功能设置 | **AI 状态灯** | 在「设置 → 接入 AI 工具」安装或修复 Codex / Claude Code 钩子，然后重启 Codex 或运行 Claude Code 的终端。Codex 首次使用钩子时按提示信任配置。详见 [AI Agent 状态灯说明](docs/agent-status-hooks.md)。 |
-| 功能设置 | **邮箱** | 在邮箱网页设置中开启 IMAP 并生成授权码，然后在「设置 → 邮箱」填写邮箱地址和授权码（不是登录密码）。凭据保存在 Windows 凭据管理器。支持手动刷新、暂停接收和断开连接；首次同步不提醒历史邮件。详见[邮箱接入说明](docs/mail.md)。 |
-| 功能设置 | **快捷翻译** | 默认按 `Ctrl+Shift+F` 打开。首次使用时在「设置 → 翻译」选择服务并填写 API 密钥，密钥保存在 Windows 凭据管理器；提交翻译时，原文会发送到所选服务。 |
-| 功能设置 | **剪贴板与文件中转** | 在「设置 → 剪贴板与文件」调整是否记录、图片捕获、历史数量和唤出快捷键。历史记录保存在本机应用数据目录。 |
-| 使用说明 | **页面与窗口** | 展开岛屿后，用顶部的页面按钮切换待办、音乐、剪贴板、文件中转、翻译、消息和 AI Agent 页面。收起的小岛上，点 Agent 指示灯或会话数字进入 AI Agent 页，点播放器波形进入音乐页，点文件数字进入文件中转，点中间的文字则回到上一次离开的页面（小岛会记住它）。设置默认作为岛屿的一页打开，带分类侧栏；需要时可在「设置 → 通用 → 独立设置窗口」改为单独窗口。 |
-| 技术栈 | **Tauri 2** | Windows 桌面应用外壳和原生能力 |
-| 技术栈 | **React 19 + TypeScript** | 前端界面和交互 |
-| 技术栈 | **Rust** | 窗口、快捷键、剪贴板、媒体和文件等桌面能力 |
-| 技术栈 | **pnpm** | 依赖安装与项目脚本 |
+鼠标移上去，它就展开成下面这些样子。
 
-待办、剪贴板和应用设置保存在本机。微信可在设置中开启会话名与最新消息摘要（实验性），摘要和 QQ 通知只保留在本次运行的内存中。邮箱后台仅同步邮件头，正文按需读取且只保留在内存，不会改变邮件已读状态。
+## 微信、QQ、邮件，不用切窗口就能看
+
+新消息直接弹到岛上，谁发的、说了什么，一眼看完。长消息会把岛撑大，在岛上就能读完。设了免打扰的群，只在有人 @你 时才提醒。
+
+<p align="center"><img src="docs/assets/screenshots/messages.webp" alt="岛上的微信消息列表" width="620"></p>
+
+## AI 写代码时，不用一直盯着终端
+
+Claude Code、Codex 等 AI 工具的每个会话都会显示在岛上：哪个在跑、哪个做完了、哪个在等你回话。还能看到 Claude / Codex 的剩余额度。
+
+<p align="center"><img src="docs/assets/screenshots/agents.webp" alt="岛上的 AI Agent 会话列表和额度环" width="620"></p>
+
+AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝」。
+
+<p align="center"><img src="docs/assets/screenshots/approval.webp" alt="在岛上批准 Claude Code 的命令" width="620"></p>
+
+## 听歌看歌词
+
+正在用的播放器都能在岛上控制：封面、进度、切歌，还有同步歌词。收起时也会显示当前那一句。
+
+<p align="center"><img src="docs/assets/screenshots/music.webp" alt="岛上的音乐播放和歌词" width="620"></p>
+
+## 今天要做的事
+
+随手记一条待办，做完打个勾。也能写每日笔记、看日历、给任务计时。
+
+<p align="center"><img src="docs/assets/screenshots/todo.webp" alt="岛上的待办列表" width="620"></p>
+
+## 复制过的东西都找得回来
+
+复制过的文字、图片、文件都会记下来，可以搜索、收藏，点一下就能再复制。快捷键 `Ctrl+Shift+V`。
+
+<p align="center"><img src="docs/assets/screenshots/clipboard.webp" alt="岛上的剪贴板历史" width="620"></p>
+
+## 拖文件的中转站
+
+把文件拖到岛上先放着，切到别的窗口再拖出去。在两个窗口之间搬文件时特别顺手。
+
+<p align="center"><img src="docs/assets/screenshots/shelf.webp" alt="岛上的文件中转站" width="620"></p>
+
+## 随手翻译
+
+按 `Ctrl+Shift+F` 呼出，中英文自动互译。不用注册、不用填密钥就能用。
+
+<p align="center"><img src="docs/assets/screenshots/translation.webp" alt="岛上的快捷翻译" width="620"></p>
+
+## 换个样子
+
+三种质感：经典、液态玻璃、磨砂玻璃（玻璃会透出身后的画面），每种都有深色和浅色。大小、颜色、圆角、字体也都能调。
+
+<p align="center"><img src="docs/assets/screenshots/styles-zh.webp" alt="经典、液态玻璃、磨砂玻璃三种质感，各有深色和浅色" width="860"></p>
+
+## 几乎不占资源
+
+一直开着也不用心疼：在任务管理器里，fly-island 只占 0.3% 左右的内存。
+
+<p align="center"><img src="docs/assets/screenshots/memory.webp" alt="任务管理器里 fly-island 的内存占用约 0.3%" width="620"></p>
+
+## 下载安装
+
+1. 到 [Releases](https://github.com/flyl1u/fly-island/releases/latest) 下载 `fly-island_版本号_x64-setup.exe`，双击安装。
+2. 装好后小岛出现在屏幕顶部，鼠标移上去就能用。
+3. 想用哪个功能，到「设置」里打开就行。之后有新版本会自动更新。
+
+<details>
+<summary><b>各功能怎么打开？</b></summary>
+
+| 功能 | 怎么开 |
+| --- | --- |
+| 微信提醒 | 电脑版微信登录着就行。[详细说明](docs/wechat-reminder-compatibility.md) |
+| QQ 提醒 | QQ 登录着，并在 QQ 里打开系统通知。[详细说明](docs/qq-notification-compatibility.md) |
+| 邮箱 | 在邮箱网页里开启 IMAP、拿到授权码，填到「设置 → 邮箱」。[详细说明](docs/mail.md) |
+| AI Agent | 「设置 → Agent」里点安装，然后重开一次终端。[详细说明](docs/agent-status-hooks.md) |
+| 翻译 | 默认就能用；想用 DeepSeek、通义千问等大模型，在「设置 → 翻译」填 API 密钥 |
+
+</details>
+
+<details>
+<summary><b>我的数据安全吗？</b></summary>
+
+待办、剪贴板、设置都只存在你自己的电脑上。微信和 QQ 消息只在内存里，关掉就没了；邮件只在你点开时才读取正文，不会把邮件标成已读；密码和密钥存放在 Windows 自带的凭据管理器里。
+
+</details>
 
 ## 用户交流群
 
-欢迎加入 **fly-island 用户交流群**，交流使用体验、反馈问题和分享建议。使用微信扫描下方二维码即可入群，也可以在应用的「设置 → 关于」里打开二维码。
+用微信扫码加入用户群，聊使用体验、反馈问题。应用里「设置 → 关于」也能找到这个二维码。
 
-<p align="center">
-  <img src="docs/assets/wechat-community.jpg" alt="fly-island 微信用户交流群二维码" width="360">
-</p>
+<p align="center"><img src="docs/assets/wechat-community.jpg" alt="fly-island 微信交流群二维码" width="280"></p>
 
-二维码有有效期，当前图片标注为 **11 月 23 日前有效**；若已失效，可通过 [Issue](https://github.com/flyl1u/fly-island/issues) 反馈以便更新。
+<p align="center"><sub>二维码 11 月 23 日前有效，失效了请在 <a href="https://github.com/flyl1u/fly-island/issues">Issue</a> 里说一声。</sub></p>
 
-## 开发与构建
+## 参与开发
 
-### 从源码构建
+<details>
+<summary>从源码运行、开发插件</summary>
 
 需要 Windows 10/11、Node.js、pnpm、Rust、Visual Studio C++ Build Tools 和 WebView2 Runtime。
 
@@ -102,42 +161,21 @@ pnpm install
 pnpm tauri dev
 ```
 
-运行统一检查：
+提交前运行 `pnpm check`。仓库规则见 [AGENTS.md](AGENTS.md)，发布流程见 [docs/updater.md](docs/updater.md)。
 
-```powershell
-pnpm check
-```
+想给小岛做插件，可以按[插件开发规范](docs/plugins/README.md)开发并提交 PR（附演示录屏、作者和联系方式），审核后上线。
 
-### 构建 Release
+感谢 [@TixXin](https://github.com/TixXin) 在 [PR #36](https://github.com/flyl1u/fly-island/pull/36) 中提出的模块化架构方案，详见[改造说明](docs/architecture/refactor-plan.md)。
 
-```powershell
-pnpm tauri build
-```
-
-构建完成后，安装包位于：
-
-- `src-tauri/target/release/bundle/nsis/fly-island_版本号_x64-setup.exe`
-- `src-tauri/target/release/bundle/msi/fly-island_版本号_x64_en-US.msi`
-
-也可以直接从 [GitHub Releases](https://github.com/flyl1u/fly-island/releases/latest) 下载 Windows x64 安装包。
-
-应用内更新（检查更新、签名与 `latest.json` 发布流程）见 [docs/updater.md](docs/updater.md)。
-
-## 贡献致谢
-
-感谢 [@TixXin](https://github.com/TixXin) 在 [PR #36](https://github.com/flyl1u/fly-island/pull/36) 中提出的模块化架构方案与实现。本地重构在当前主线上适配并复用了其中部分代码，来源与验证记录见[改造说明](docs/architecture/refactor-plan.md)。
+</details>
 
 ## 开源协议
 
-本项目采用 [GNU 通用公共许可证第 3 版（GPL-3.0）](LICENSE)。你可以自由使用、修改和再分发；分发修改后的版本时，需要同样以 GPL-3.0 开源并提供源代码。
+[GPL-3.0](LICENSE)：可以免费使用、修改和分发；分发修改版时需要同样开源。3.0.8 及以前的版本按 MIT 发布。第三方资源遵循各自的许可证，见[字体说明](src/assets/fonts/README.md)和[网易云插件说明](src-tauri/resources/media-plugins/README.md)。
 
-Copyright (C) 2026 flyl1u and contributors。3.0.8 及以前的版本以 MIT 协议发布，已发布版本仍可按 MIT 使用。
-
-第三方依赖和内置资源仍遵循各自的许可证。内置字体的许可信息见[字体说明](src/assets/fonts/README.md)。随安装包附带的网易云进度插件 BetterNCM 与 InfLink-rs 采用 GPL-3.0，原样附带，许可证与源码链接见[插件说明](src-tauri/resources/media-plugins/README.md)。
+Copyright (C) 2026 flyl1u and contributors
 
 ## Star History
-
-觉得 fly-island 好用的话，[点个 Star](https://github.com/flyl1u/fly-island/stargazers) 就是对作者最大的鼓励。
 
 <a href="https://www.star-history.com/?repos=flyl1u%2Ffly-island&type=date&legend=top-left">
   <picture>
@@ -146,7 +184,3 @@ Copyright (C) 2026 flyl1u and contributors。3.0.8 及以前的版本以 MIT 协
     <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=flyl1u/fly-island&type=date&theme=light&legend=top-left" />
   </picture>
 </a>
-
-### 插件开发
-
-插件功能即将上线，欢迎先按[插件开发规范](docs/plugins/README.md)开发并提交 PR，由 flyl1u 审核合并后统一发布。

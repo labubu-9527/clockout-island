@@ -73,6 +73,14 @@
     border-radius var(--island-motion-duration) var(--island-motion);
 }
 
+.island--shape-pill:not(.island--tucked) { --island-corner-shape: round; corner-shape: round; }
+.island--shape-pill.island--collapsed:not(.island--tucked) {
+  border-radius: calc(var(--collapsed-island-height) * var(--island-collapsed-scale) / 2);
+}
+.island--shape-pill.island--expanded:not(.island--tucked) {
+  border-radius: var(--island-shape-radius);
+}
+
 /* An adaptive message preview grows the collapsed island on the opening spring, and shrinks back
    on the closing one when it ends (useMessageNotice, noticeLayout.ts). */
 .island--notice {
@@ -180,6 +188,14 @@
 
 .island--detached.island--expanded {
   border-radius: var(--island-shape-radius);
+}
+
+/*
+ * The capsule (islandShape.ts) collapses to a true pill: its radius is half the bar's height, and
+ * the ends stay round whatever corner shape the open island uses.
+ */
+.island--capsule.island--collapsed:not(.island--tucked) {
+  --island-corner-shape: round;
 }
 
 /*

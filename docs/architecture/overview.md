@@ -1,5 +1,20 @@
 # 架构总览
 
+| 项目 | 内容 |
+| --- | --- |
+| 文档名称 | 架构总览 |
+| 制作人 | XiaoZhu |
+| 日期 | 2026-11-19 |
+| 版本号 | v1.0.0 |
+
+形状与消息入口（2026-11-19）：appearance 归一化保存形状和可见性映射，messages/messageRailItems.ts 根据已启用来源、可见性与未处理状态生成固定顺序入口，MessageRail 渲染收起横排或展开侧栏。窗口层组合现有消息控制器，不新增消息服务。原生 island 状态兼容接收形状和侧栏数量，几何层负责胶囊偏移、侧栏边界，passthrough 只让实际圆角区域接收点击。
+
+天气（2026-11-19）：`features/weather/` 包含类型化 IPC、城市与预报校验、localStorage 配置/缓存、请求 hook、完整设置页、展开面板和收起徽章。IslandApp 的天气面板与徽章共用控制器，设置页持有独立预览控制器，窗口层组合导航与页面。Rust `weather/mod.rs` 提供固定 Open-Meteo 请求、超时/限额和 DTO 校验，`weather/qweather.rs` 提供和风租户校验、凭据访问与统一 DTO 适配，测试在 weather/tests.rs；不新增窗口。CPU 与内存继续共用 system-status 和 get_system_status，只拆分配置、排列及显示，旧 system 槽位在归一化时迁移。存储见 [data-storage.md](data-storage.md)，契约见 [contracts.md](contracts.md)。
+
+自动天气位置由 Rust `weather/location.rs` 处理固定服务请求与直连/代理回退，纯解析和顺序测试在 `weather/location/tests.rs`。原生侧不保存定位信息；前端负责三小时缓存、手动/自动模式和过期请求处理。消息栏悬停与点击区域在 `island/passthrough.rs` 分开计算，悬停事件覆盖连接走廊，点击穿透仍按真实外形。
+
+时间与岛仔：`features/clock/` 负责本地时间格式、叶子定时刷新与通用设置组；`features/island-pet/` 负责状态优先级、参考原始表情序列与矢量姿态动画。窗口层组合现有业务状态并传入组件，IslandShell / IslandCollapsedBar 只接收插槽；岛仔固定替代前导状态圆点，旧排序项兼容保留但不重复渲染。不可见时停止时间更新与表情动画，不增加原生监听。
+
 本文描述 FocuSD Island 的运行时架构、目标代码结构、从现有文件到目标位置的迁移映射，以及对外契约清单。编码规则见 [AGENTS.md](../../AGENTS.md)、[src/AGENTS.md](../../src/AGENTS.md) 和 [src-tauri/AGENTS.md](../../src-tauri/AGENTS.md)，迁移步骤见 [refactor-plan.md](refactor-plan.md)，插件 API v1 架构见 [plugins.md](plugins.md)（进程树清理由 `win32/process_job.rs` 封装）。
 
 ## 运行时架构
@@ -22,7 +37,7 @@
 
 各项数据存在哪里见 [data-storage.md](data-storage.md)。
 
-根目录 `release-features.json` 是前端与 Rust 的发布功能开关单一来源：`plugins`、`mailOtp` 当前均关闭。前端通过 `features/releaseFlags.ts` 读取，`src-tauri/build.rs` 将同一配置转为编译期 cfg，由 `release_flags.rs` 导出常量。关闭时保留旧数据与 IPC 契约，插件宿主不启动进程、请求索引或修改配置，邮箱同步不提取验证码或为此请求正文，复制入口也不运行。每项仅改 JSON 中对应的一个值并重新构建即可恢复。回归运行器分别启动正式配置和开启保留功能的 Vite 测试实例；测试覆盖不通过生产运行时开关实现。
+根目录 `release-features.json` 是前端与 Rust 的发布功能开关单一来源：`plugins`、`mailOtp`、`pluginMarket` 当前均关闭。`pluginMarket` 只在前端生效：关闭时插件页不显示内置插件市场（钉钉 / 飞书 / 企业微信、Cursor / Kimi Code / Hermes / Z Code），`useNativePlugins` 一律报告未安装，测试版存下的安装记录保留不读；正式版关、测试版开（2026-11-19 起）。前端通过 `features/releaseFlags.ts` 读取，`src-tauri/build.rs` 将同一配置转为编译期 cfg，由 `release_flags.rs` 导出常量。关闭时保留旧数据与 IPC 契约，插件宿主不启动进程、请求索引或修改配置，邮箱同步不提取验证码或为此请求正文，复制入口也不运行。每项仅改 JSON 中对应的一个值并重新构建即可恢复。回归运行器分别启动正式配置和开启保留功能的 Vite 测试实例；测试覆盖不通过生产运行时开关实现。
 
 Codex 的会话展示仍由 `agent_status/session_scan.rs` 读取 rollout 尾部；`codex_activity.rs` 在内存中增量保存完整文件的 turn 边界、用户提示时间和最后完成时间，避免长上下文把开始记录挤出尾部。按文件修改时间扫描所有日期目录，兼容旧目录中恢复的会话。前端 `features/agent-status/completion.ts` 统一判定显式完成时间变化，供弹出与声音使用。无新增持久化文件。实测与限制见 [Codex 会话排查记录](../investigations/codex-thinking-sessions-2026-11-15.md)。
 

@@ -1,7 +1,12 @@
 import zhCN from "../../i18n/locales/zh-CN.ts";
 import type { Translations } from "../../i18n/types";
 
-export type MessageSource = "qq" | "wechat" | "qqMail" | "plugin";
+export type OfficeSource = "dingtalk" | "feishu" | "wecom";
+export type MessageSource = "qq" | "wechat" | "qqMail" | "plugin" | OfficeSource;
+export const OFFICE_SOURCES: readonly OfficeSource[] = ["dingtalk", "feishu", "wecom"];
+export function isOfficeSource(source: MessageSource): source is OfficeSource {
+  return (OFFICE_SOURCES as readonly string[]).includes(source);
+}
 export type MessagePreview = {
   source: MessageSource;
   title: string;
@@ -13,12 +18,14 @@ export type MessagePreview = {
   receivedAt: number;
   wechatMessageId?: string;
   otpCode?: string | null;
+  mailAccount?: string | null;
 };
 
 export const MESSAGE_SOURCE_LABELS: Record<MessageSource, string> = zhCN.messages.sourceLabels;
 
 export function messagePreviewText(preview: MessagePreview, copy: Translations["messages"] = zhCN.messages): string {
   if (preview.source === "wechat" && !preview.title.trim()) return copy.wechatPreview;
+  if (isOfficeSource(preview.source)) return copy.newMessage;
   if (preview.source === "qqMail") return preview.otpCode
     ? `${preview.body.trim() || copy.newMail} · ${preview.otpCode}` : preview.body.trim() || copy.newMail;
   return copy.qqPreview(preview.title.trim() || "QQ", preview.body.trim() || copy.newMessage);

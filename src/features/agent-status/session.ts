@@ -11,6 +11,7 @@ export type AgentSession = {
   /** Who is working, e.g. "Claude Code" or a reported source's name. */
   label: string;
   title: string;
+  phase?: AgentTaskStatus["phase"];
 };
 
 type Candidate = { session: AgentSession; phase: AgentTaskStatus["phase"]; updatedAt: number; backgroundTasks?: number };
@@ -67,7 +68,7 @@ export function pickAgentSession(
       picked = candidate;
     }
   }
-  return picked?.session ?? null;
+  return picked ? { ...picked.session, phase: hasBackgroundWork(picked) ? "running" : picked.phase } : null;
 }
 
 /** When the next completed title stops being shown, or null when nothing expires. */

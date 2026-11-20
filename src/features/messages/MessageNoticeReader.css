@@ -18,8 +18,27 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  flex: 0 0 24px;
+  flex: 0 0 auto;
+  min-height: 24px;
+  flex-wrap: wrap;
   min-width: 0;
+}
+
+.message-notice__header:has(.mail-otp-code) {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) 24px;
+  row-gap: 4px;
+}
+
+.message-notice__header .mail-otp-code {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  justify-self: start;
+}
+
+.message-notice__header:has(.mail-otp-code) .message-notice__open {
+  grid-column: 3;
+  grid-row: 1;
 }
 
 .message-notice__drag { display: inline-flex; flex: none; touch-action: none; cursor: grab; }

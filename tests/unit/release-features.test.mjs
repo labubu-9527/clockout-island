@@ -6,7 +6,7 @@ import { isPageEnabled, resolveMessageSource } from "../../src/windows/island/fe
 import { normalizeSettings } from "../../src/features/appearance/settings.ts";
 
 test("unavailable runtime features preserve choices and expose the plugin guide route", () => {
-  assert.equal(MAIL_OTP_ENABLED, false);
+  assert.equal(MAIL_OTP_ENABLED, true);
   assert.equal(PLUGINS_ENABLED, false);
   assert.equal(SETTINGS_CATEGORIES.includes("plugins"), true);
   assert.equal(SETTINGS_GROUPS.some((group) => group.categories.includes("plugins")), true);

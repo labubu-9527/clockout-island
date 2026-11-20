@@ -1,4 +1,6 @@
 import type { SessionRemoval } from "../../features/agent-status/useHiddenSessions";
+import { WeatherPanel } from "../../features/weather/WeatherPanel";
+import type { WeatherController } from "../../features/weather/useWeather";
 import type { ReactNode } from "react";
 import { MessagesPanel } from "../../features/messages/Messages";
 import type { useQQNotifications } from "../../features/messages/qq-notifications/QQNotifications";
@@ -31,6 +33,7 @@ type MessageView = ReturnType<typeof useMessageView>;
 type AgentAlerts = ReturnType<typeof useIslandAgentAlerts>;
 
 type IslandPagesProps = {
+  weather?: WeatherController;
   page: ReturnType<typeof useIslandNavigation>["page"];
   mode: ReturnType<typeof useIslandNavigation>["mode"];
   settings: IslandSettings;
@@ -61,6 +64,7 @@ type IslandPagesProps = {
 
 /** The expanded island's page panels; the one for `page` shows. */
 export function IslandPages({
+  weather,
   page,
   mode,
   settings,
@@ -115,6 +119,7 @@ export function IslandPages({
           <MessagesPanel qqMail={qqMail} qqNotifications={qqNotifications} wechatReminders={wechatReminders} source={messageSource} enabledSources={features} onSourceChange={openMessages} onOpenMailSettings={() => openSettingsWindow("mail")} />
         </div>
       )}
+      {page === "weather" && weather && <WeatherPanel weather={weather} />}
       {page === "music" && (
         <MusicPlayerPanel
           mediaState={mediaState}

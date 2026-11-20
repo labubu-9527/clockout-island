@@ -1,3 +1,4 @@
+import { WeatherSettingsPage } from "../../features/weather/WeatherSettingsPage";
 import { useCallback, useEffect, useState } from "react";
 import { AppearanceSettingsPage } from "./AppearanceSettingsPage";
 import { DEFAULT_SETTINGS_CATEGORY, type SettingsCategory } from "./categories";
@@ -61,6 +62,7 @@ export function SettingsPanel({
     const section = takeFocusRequest();
     if (section === "savePath") focusSavePath();
     if (section === "translation") setCategory("translation");
+    if (section === "weather") setCategory("weather");
     if (section === "music") setCategory("music");
     if (section === "mail") setCategory("messages");
     if (section === "updates") setCategory("about");
@@ -113,10 +115,11 @@ export function SettingsPanel({
       )}
       {category === "translation" && <TranslationSettingsPage settings={settings} onSettingsChange={setSettings} />}
       {category === "clipboard" && <ClipboardSettingsPage settings={settings} onSettingsChange={setSettings} />}
+      {category === "weather" && <WeatherSettingsPage />}
       {category === "music" && <MusicSettingsPage settings={settings} onSettingsChange={setSettings} />}
       {category === "agents" && <AgentSettingsPage settings={settings} onSettingsChange={setSettings} onOpenConnect={() => setCategory("agentConnect")} />}
       {category === "agentConnect" && <AgentConnectSettingsPage />}
-      {category === "plugins" && <PluginsSettingsPage />}
+      {category === "plugins" && <PluginsSettingsPage settings={settings} onSettingsChange={setSettings} />}
       {category === "about" && <AboutSettingsPage />}
     </LayoutEditor>
   );

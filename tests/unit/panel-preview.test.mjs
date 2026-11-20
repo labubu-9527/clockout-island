@@ -3,10 +3,22 @@ import test from "node:test";
 import { parsePanelPreview, PREVIEW_IDLE_MS } from "../../src/windows/settings/panelPreview.ts";
 import { previewTarget, shouldRestorePreview } from "../../src/windows/island/panelPreviewPlan.ts";
 import { appearancePreviewMode } from "../../src/windows/settings/appearancePreview.ts";
-import { DEFAULT_SETTINGS } from "../../src/features/appearance/settings.ts";
+import { DEFAULT_SETTINGS, normalizeSettings } from "../../src/features/appearance/settings.ts";
 
 const original = { mode: "expanded", page: "todo", isTucked: false, retractsAfterPeek: true, peekRetractDelayMs: 500 };
 const idle = { hovering: false, interacted: false, blocked: false };
+
+test("visibility previews compare map contents across normalization", () => {
+  const current = normalizeSettings(DEFAULT_SETTINGS);
+  const equivalent = normalizeSettings(current);
+  assert.notEqual(current.collapsedSlotVisibility, equivalent.collapsedSlotVisibility);
+  assert.notEqual(current.messageSourceVisibility, equivalent.messageSourceVisibility);
+  assert.equal(appearancePreviewMode(current, equivalent), null);
+  for (const patch of [
+    { collapsedSlotVisibility: { ...current.collapsedSlotVisibility, music: false } },
+    { messageSourceVisibility: { ...current.messageSourceVisibility, qq: false } },
+  ]) assert.equal(appearancePreviewMode(current, { ...equivalent, ...patch }), "collapsed");
+});
 
 test("appearance controls preview their affected shape, with no requests for unchanged or behavioral data", () => {
   for (const patch of [{ topEdgeShoulders: true }, { topEdgeShoulderSize: 20 }, { opacity: 80 }, { pulseColor: "#123456" }, { collapsedLayout: [...DEFAULT_SETTINGS.collapsedLayout].reverse() }]) {

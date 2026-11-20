@@ -5,6 +5,13 @@ import { noticeText } from "../../src/features/messages/messagePreview.ts";
 
 const limits = { maxWidth: 520, maxHeight: 180, baseWidth: 340, baseHeight: 38, fontScale: 1, collapsedScale: 1 };
 
+test("reader grows around leading pet and source rail rather than taking their reading room", () => {
+  const text = { sender: "Team", body: "明天下午三点开会请带好电脑" };
+  const plain = getNoticeSize(text, { ...limits, forceReader: true });
+  const accessories = getNoticeSize(text, { ...limits, forceReader: true, readerSideWidth: 120 });
+  assert.ok(accessories.width > plain.width);
+});
+
 test("a message that fits the one-line preview does not grow the island", () => {
   assert.equal(getNoticeSize({ sender: "张三", body: "好的" }, limits), null);
 });
@@ -25,7 +32,7 @@ test("past the limits the reader scrolls, and the stage bounds the size at any s
   assert.equal(huge.height, 180);
   assert.equal(huge.scrolls, true);
   const scaled = getNoticeSize({ sender: "群", body: "很长的消息".repeat(200) }, { ...limits, maxWidth: 720, maxHeight: 360, collapsedScale: 1.4 });
-  assert.ok(scaled.width * 1.4 <= 780 && scaled.height * 1.4 <= 436);
+  assert.ok(scaled.width * 1.4 <= 920 && scaled.height * 1.4 <= 436);
   assert.equal((scaled.width - 4) % 8, 0);
 });
 

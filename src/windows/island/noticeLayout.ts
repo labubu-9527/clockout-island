@@ -2,7 +2,7 @@ import { getCollapsedTextUnits } from "../../utils/text.ts";
 
 // Keep in step with src-tauri/src/island/geometry.rs (STAGE_WINDOW_WIDTH / HEIGHT / PADDING_Y):
 // the grown island must stay inside the stage window, at any collapsed scale.
-const STAGE_WIDTH = 820;
+const STAGE_WIDTH = 960;
 const STAGE_MIN_HEIGHT = 460;
 const STAGE_PADDING_Y = 24;
 const STAGE_SIDE_ROOM = 40;
@@ -33,6 +33,8 @@ export type NoticeLimits = {
   collapsedScale: number;
   /** Use the selectable reader even for a message that fits one line (the adaptive preview always does). */
   forceReader?: boolean;
+  /** Space occupied beside the reader by the pet and source rail, including their gaps. */
+  readerSideWidth?: number;
   /**
    * How much the one-line preview overflowed when laid out (useMessageNotice measures it): the
    * estimate leaves out the status icons beside the text and real glyph widths, so the island
@@ -65,22 +67,23 @@ export function getNoticeSize({ sender, body }: NoticeText, limits: NoticeLimits
     return { width: Math.max(limits.baseWidth + overflow, alignNoticeWidth(oneLine + 8, widest)), height: limits.baseHeight, scrolls: false, reader: false };
   }
   const tallest = Math.min(limits.maxHeight, Math.floor((STAGE_MIN_HEIGHT - STAGE_PADDING_Y) / scale));
+  const sideWidth = Math.max(0, limits.readerSideWidth ?? 0);
   const natural = Math.max(
     textWidth(sender) + HEADER_CHROME,
     ...paragraphs.map(textWidth),
-  ) + SIDE_PADDING * 2;
+  ) + SIDE_PADDING * 2 + sideWidth;
   // As wide as the message needs, even narrower than the collapsed bar: a short WeChat line in a
   // wide island left most of it empty (2026-11-18, owner). MIN_WIDTH is the narrowest island (240,
   // COLLAPSED_WIDTH.min and MIN_COLLAPSED_ISLAND_WIDTH in geometry.rs) on alignNoticeWidth's grid.
   const width = Math.max(MIN_WIDTH, alignNoticeWidth(Math.min(widest, natural), widest));
-  const textRoom = Math.max(1, width - SIDE_PADDING * 2);
+  const textRoom = Math.max(1, width - SIDE_PADDING * 2 - sideWidth);
   const lines = Math.max(1, paragraphs.reduce((total, line) => total + Math.max(1, Math.ceil(textWidth(line) / textRoom)), 0));
   const wanted = Math.ceil(VERTICAL_PADDING * 2 + HEADER_HEIGHT + HEADER_GAP + lines * LINE_HEIGHT * limits.fontScale);
   return { width, height: Math.max(limits.baseHeight, Math.min(tallest, wanted)), scrolls: wanted > tallest, reader: true };
 }
 
 /**
- * The stage (820 wide) centres the island; a width of 4 more than a multiple of 8 puts its left
+ * The stage (960 wide) centres the island; a width of 4 more than a multiple of 8 puts its left
  * edge on a whole device pixel at the 1x, 1.25x, 1.5x and 2x display scales, so it does not jump
  * when the resize animation ends (alignCollapsedIslandWidth explains the jump).
  */

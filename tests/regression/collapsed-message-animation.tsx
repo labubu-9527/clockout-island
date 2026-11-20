@@ -117,7 +117,7 @@ function Fixture() {
       material="classic" nativeGlassState="disabled" agentVisualState="idle" agentStatusLabel="AI Agent 空闲或已完成"
       mediaState={UNAVAILABLE_MEDIA}
       features={{ todo: true, music: true, clipboard: true, shelf: true, qq: true, wechat: true, qqMail: true, agents: agentsEnabled, translation: false }}
-      shelfCount={null} systemStatus={{ cpuPercent: null, memoryPercent: 0, updatedAt: 0 }} compactCollapsed={false}
+      petIndicator={<span className="island-pet" />} shelfCount={null} systemStatus={{ cpuPercent: null, memoryPercent: 0, updatedAt: 0 }} compactCollapsed={false}
       onOpenPage={(page) => { openedPage = page; }} onOpenMessages={(source) => { openedPage = source; }}
       onPageChange={() => {}} onWindowDragStart={() => {}} onCollapse={() => setMode("collapsed")}
       onResetPosition={() => {}} minimizesToTray onMinimize={() => {}} onOpenSettings={() => {}} onOpenTranslator={() => {}} onTuck={() => setTucked(true)} onReveal={() => setTucked(false)}>
@@ -247,24 +247,24 @@ async function runChecks() {
     await settle();
     const agentRow = summary().querySelector<HTMLElement>(".island__agent-session");
     const agentTitle = agentRow?.querySelector<HTMLElement>(".island__agent-session-title");
-    check(agentRow?.querySelector(".agent-provider-icon--claudeCode") && agentTitle && !incoming().textContent?.includes("完成今日设计评审"), "Agent 运行时显示图标和会话标题，代替待办");
-    check(agentTitle!.scrollWidth > agentTitle!.clientWidth && agentTitle!.clientWidth > 40, "280px 岛屿内长会话标题省略且不挤掉图标");
+    check(agentRow?.querySelector(".agent-provider-icon--claudeCode") && agentTitle && !incoming().textContent?.includes("完成今日设计评审"), "Agent 运行时显示图标和简短状态，代替待办");
+    check(agentTitle!.textContent === "正在运行" && agentTitle!.scrollWidth <= agentTitle!.clientWidth + 1, "280px 岛屿只显示完整简短状态，不展示长会话标题");
     check(document.querySelector(".island")!.getAttribute("aria-label")?.includes("Claude Code"), "无障碍标签说明是哪个 Agent");
     await notify("qq");
     check(incoming().querySelector(".island-message-preview") && !incoming().querySelector(".island__agent-session"), "消息预览优先于 Agent 标题");
     await act(async () => button().click());
     await settle();
     check(incoming().querySelector(".agent-provider-icon--claudeCode"), "预览结束后回到 Agent 标题");
-    await act(async () => changeAgent({ provider: "codex", label: "Codex", title: "恢复 Windows 发布机环境" }));
+    await act(async () => changeAgent({ provider: "codex", label: "Codex", title: "恢复 Windows 发布机环境", phase: "waiting" }));
     await settle();
-    check(incoming().querySelector(".agent-provider-icon--codex") && incoming().textContent?.includes("恢复 Windows 发布机环境"), "切换为 Codex 会话时更换图标和标题");
+    check(incoming().querySelector(".agent-provider-icon--codex") && incoming().textContent?.includes("等待确认") && !incoming().textContent?.includes("恢复 Windows 发布机环境"), "切换会话时更新图标和状态，完整标题保留给展开页");
     await act(async () => changeAgent(null));
     await settle();
     check(!summary().querySelector(".island__agent-session") && incoming().textContent?.includes("剩余2个待办"), "Agent 结束后恢复待办");
     await act(async () => changeAgent({ provider: "claudeCode", label: "Claude Code", title: "插件市场功能" }));
     await settle();
     await act(async () => button().click());
-    check(openedPage === "todo", "显示 Agent 标题时点击中间文字打开上一次页面");
+    check(openedPage === "agents", "点击 Agent 简短状态打开完整 Agent 页");
     openedPage = null;
     await act(async () => document.querySelector<HTMLElement>(".island__agent-light")!.click());
     check(openedPage === "agents", "点击 Agent 指示灯打开 Agent 页");

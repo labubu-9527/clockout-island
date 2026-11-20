@@ -11,11 +11,11 @@ import type { SystemStatus } from "../../features/system-status/api";
 import { CollapsedLyric } from "../../features/media/CollapsedLyric";
 import type { LyricsSettings } from "../../features/media/lyrics/useLyrics";
 import { CollapsedMessageContent } from "../../features/messages/CollapsedMessageContent";
-import { MessageSourceIcon } from "../../features/messages/MessageSourceIcon";
 import { MessageNoticeReader } from "../../features/messages/MessageNoticeReader";
 // After CollapsedMessageContent, matching the original stylesheet order.
 import { MusicWaveButton } from "../../features/media/MusicWaveButton";
-import { messagePreviewText, type MessagePreview, type MessageSource } from "../../features/messages/messagePreview";
+import { isOfficeSource, messagePreviewText, type MessagePreview, type MessageSource } from "../../features/messages/messagePreview";
+import { openOfficeClient } from "../../features/messages/office-im/useOfficeIm";
 import type { MailController } from "../../features/messages/mail/MailPanel";
 import { MailOtpCode } from "../../features/messages/mail/MailOtpCode";
 import type { QQNotificationsController } from "../../features/messages/qq-notifications/QQNotifications";
@@ -27,6 +27,7 @@ import { isTodoTimerEndingSoon, type TodoTimer } from "../../features/todos/time
 import { CollapsedTodoContent, type TodoRotationDisplay } from "./CollapsedTodoContent";
 import type { IslandPage } from "./types";
 import { useWindowDragGesture } from "./useWindowDragGesture";
+import { visibleCollapsedSlots } from "./collapsedPresentation";
 import "./IslandCollapsedBar.css";
 
 type IslandCollapsedBarProps = {
@@ -51,6 +52,8 @@ type IslandCollapsedBarProps = {
   collapsedItem: CollapsedItem | null;
   /** Where the text and each status icon sit, left to right (Settings → Appearance). */
   collapsedLayout: readonly CollapsedSlot[];
+  slotVisibility?: Partial<Record<CollapsedSlot, boolean>>;
+  messageRail?: ReactNode;
   /** The playing song's cover, or null when it is not shown. */
   collapsedCover: string | null;
   lyricsSettings: LyricsSettings & { lyricsOffsetMs: number };
@@ -67,6 +70,11 @@ type IslandCollapsedBarProps = {
   shelfCount: number | null;
   /** CPU and memory usage for the status slot; the first CPU sample may be null. */
   systemStatus: SystemStatus;
+  cpuEnabled?: boolean;
+  memoryEnabled?: boolean;
+  weatherBadge?: ReactNode;
+  clockIndicator?: ReactNode;
+  petIndicator?: ReactNode;
   /** A fixed narrow island has no room for the badge beside a long todo and its countdown. */
   compactCollapsed: boolean;
   /** Claude's or Codex's usage reaching the alert level, or resetting; it takes the place of the text while shown. */
@@ -100,6 +108,8 @@ export function IslandCollapsedBar({
   collapsedTodoCount,
   collapsedItem,
   collapsedLayout,
+  slotVisibility = {},
+  messageRail,
   collapsedCover,
   lyricsSettings,
   agentSession,
@@ -108,9 +118,13 @@ export function IslandCollapsedBar({
   showMusic,
   shelfCount,
   systemStatus,
+  cpuEnabled = true,
+  memoryEnabled = true,
+  weatherBadge,
+  clockIndicator,
+  petIndicator,
   compactCollapsed,
   quotaAlert = null,
-  agentVisualState,
   onOpenPage,
   onOpenMessages,
   onWindowDragStart,
@@ -122,15 +136,17 @@ export function IslandCollapsedBar({
   const { didDragRef, prepareWindowDrag, handleWindowDragMove, cancelWindowDrag } =
     useWindowDragGesture(isTucked || positionLocked, onWindowDragStart);
   const isMusicPlaying = mediaState.playbackStatus === "playing";
-  const pulseClassName = [
-    "island__pulse",
-    `island__pulse--agent-${agentVisualState}`,
-  ].join(" ");
+  const lyricMode = showMusic && isMusicPlaying && Boolean(mediaState.title) && !preview && !quotaAlert;
+  const ordinaryText = showCollapsedText && slotVisibility.text !== false && !lyricMode;
   const shownAgent = collapsedItem === "agent" ? agentSession : null;
   // Opens where the previewed message lives: the mail reader, or QQ / WeChat (else their page).
   const openPreview = (shown: MessagePreview) => {
     const source = shown.source;
     if (source === "plugin") { onOpenMessages(source); return; }
+    if (isOfficeSource(source)) {
+      void openOfficeClient(source).catch(() => onOpenMessages(source));
+      return;
+    }
     if (source === "qqMail" && qqMail.preview) {
       onOpenMessages("qqMail");
       void qqMail.readMail(qqMail.preview, qqMail.previewAccount);
@@ -144,11 +160,23 @@ export function IslandCollapsedBar({
     });
   };
 
+  const leadingPet = slotVisibility.pet !== false && petIndicator ? (
+    <button className="island__agent-light" type="button" aria-label={t.agent.sessions.title}
+      onPointerDown={prepareWindowDrag} onPointerMove={handleWindowDragMove}
+      onPointerUp={cancelWindowDrag} onPointerCancel={cancelWindowDrag}
+      onClick={(event) => {
+        if (event.detail === 0 || !didDragRef.current) onOpenPage("agents");
+      }}>{petIndicator}</button>
+  ) : null;
+
   if (noticeReader && preview && !isExpanded && !isTucked) return (
     <div className="island__collapsed island__collapsed--notice">
+      {leadingPet}
       <MessageNoticeReader preview={preview} scrolls={noticeReader.scrolls} onOpen={() => openPreview(preview)}
         onRetry={qqMail.retryPreviewContent}
+        onCopyOtp={qqMail.copyOtp} copiedOtp={qqMail.copiedOtp}
         drag={{ onPointerDown: prepareWindowDrag, onPointerMove: handleWindowDragMove, onPointerUp: cancelWindowDrag, onPointerCancel: cancelWindowDrag }} />
+      {messageRail}
     </div>
   );
 
@@ -173,46 +201,34 @@ export function IslandCollapsedBar({
               if (preview) {
                 openPreview(preview);
               } else {
-                onOpenPage(page);
+                onOpenPage(shownAgent ? "agents" : page);
               }
             }
           }}
         >
-          {/* The agent light opens the Agent page; the text beside it reopens the last page. */}
-          <span
-            className="island__agent-light"
-            onClick={(event) => {
-              if (preview || (event.detail !== 0 && didDragRef.current)) return;
-              event.stopPropagation();
-              onOpenPage("agents");
-            }}
-          >
-            <span className={pulseClassName} />
-          </span>
           {updatePending && <span className="island-update-dot island-update-dot--inline" aria-hidden="true" />}
           {collapsedCover && <img className="collapsed-cover" src={collapsedCover} alt="" draggable={false} />}
           <CollapsedMessageContent preview={preview} enabled={!isExpanded && !isTucked}>
             {quotaAlert ? (
               <QuotaAlertPopup alert={quotaAlert} />
             ) : <>
-            {showCollapsedText && showTitle && (
+            {ordinaryText && showTitle && !shownAgent && (
               <span className="island__brand">fly-island</span>
             )}
-            {showCollapsedText && shownAgent && (
-              <span className="island__agent-session" key={`${shownAgent.label}:${shownAgent.title}`}>
-                {showTitle && <span className="island__agent-session-separator">·</span>}
+            {ordinaryText && shownAgent && (
+              <span className="island__agent-session" key={`${shownAgent.label}:${shownAgent.phase}`}>
                 {shownAgent.provider ? (
                   <AgentProviderIcon provider={shownAgent.provider} size={16} />
                 ) : (
                   <Bot className="island__agent-session-bot" size={16} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
                 )}
-                <span className="island__agent-session-title">{shownAgent.title}</span>
+                <span className="island__agent-session-title">{t.agent.phase[shownAgent.phase ?? "running"]}</span>
               </span>
             )}
-            {showCollapsedText && collapsedItem === "lyrics" && (
+            {lyricMode && (
               <CollapsedLyric mediaState={mediaState} lyricsSettings={lyricsSettings} active={!isExpanded} />
             )}
-            {showCollapsedText && collapsedItem === "todo" && collapsedTaskTitle && (todoTimer && !todoRotation ? (
+            {ordinaryText && collapsedItem === "todo" && collapsedTaskTitle && (todoTimer && !todoRotation ? (
               <span className={`island__active-task island__active-task--timed${isTodoTimerEndingSoon(todoTimer) ? " island__active-task--ending" : ""}`} key={collapsedTaskTitle}>
                 {showTitle ? "· " : ""}
                 <>
@@ -223,7 +239,7 @@ export function IslandCollapsedBar({
                 </>
               </span>
             ) : <CollapsedTodoContent title={collapsedTaskTitle} prefix={showTitle ? "· " : ""} rotation={todoRotation} />)}
-            {showCollapsedText && collapsedItem === "todo" && !collapsedTaskTitle && collapsedTodoCount !== null && (
+            {ordinaryText && collapsedItem === "todo" && !collapsedTaskTitle && collapsedTodoCount !== null && (
               <span className="island__todo-count">
                 {showTitle ? "· " : ""}
                 {t.island.pendingTodos(collapsedTodoCount)}
@@ -231,24 +247,22 @@ export function IslandCollapsedBar({
             )}
             </>}
           </CollapsedMessageContent>
+          {lyricMode && todoTimer && <span className="island__timer-pill">
+            {todoTimer.notified ? t.todo.timeUp : <TodoCountdown endsAt={todoTimer.endsAt} warning={isTodoTimerEndingSoon(todoTimer)} />}
+          </span>}
         </button>
         {!isExpanded && !isTucked && preview?.source === "qqMail" && preview.otpCode && <MailOtpCode
           key={preview.otpCode} code={preview.otpCode} copied={qqMail.copiedOtp === preview.otpCode} onCopy={qqMail.copyOtp} />}
       </div>
     ),
-    mail: qqMail.preview !== null && (
-      <button className="island-message-button island-message-button--compact qq-mail-badge" type="button" aria-label={t.messages.newMailLabel} onClick={() => onOpenMessages("qqMail")}>
-        <MessageSourceIcon source="qqMail" size={16} />
-        <span className="island-message-button__dot" aria-hidden="true" />
-      </button>
-      ),
-    shelf: shelfCount !== null && shelfCount > 0 && (
+    mail: null,
+    shelf: !compactCollapsed && shelfCount !== null && shelfCount > 0 && (
       <button className="island-shelf-count" type="button" aria-label={t.island.shelfCount(shelfCount)} onClick={() => onOpenPage("shelf")}>
         <Inbox size={14} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
         <span>{shelfCount}</span>
       </button>
       ),
-    music: showMusic && (
+    music: showMusic && (!compactCollapsed || lyricMode) && (
       <MusicWaveButton
         isAvailable={mediaState.available || mediaState.audioActive}
         isPlaying={isMusicPlaying}
@@ -267,7 +281,7 @@ export function IslandCollapsedBar({
           onTuck();
         }}
       />
-      ) : agentSessionCount > 0 ? (
+      ) : !compactCollapsed && agentSessionCount > 0 ? (
       <button
         className="island-agent-count"
         type="button"
@@ -280,22 +294,20 @@ export function IslandCollapsedBar({
         {agentSessionCount}
       </button>
       ) : null,
-    system: !compactCollapsed && (
-      <span
-        className="island-system-status"
-        role="img"
-        aria-label={t.island.systemStatus(systemStatus.cpuPercent, systemStatus.memoryPercent)}
-      >
-        <span>CPU {systemStatus.cpuPercent === null ? "--" : systemStatus.cpuPercent}%</span>
-        <span className="island-system-status__separator" aria-hidden="true">·</span>
-        <span>MEM {systemStatus.memoryPercent}%</span>
-      </span>
+    cpu: cpuEnabled && !compactCollapsed && (
+      <span className="island-system-status">CPU {systemStatus.cpuPercent === null ? "--" : systemStatus.cpuPercent}%</span>
     ),
+    memory: memoryEnabled && !compactCollapsed && (
+      <span className="island-system-status">MEM {systemStatus.updatedAt === 0 ? "--" : systemStatus.memoryPercent}%</span>
+    ),
+    weather: !compactCollapsed && weatherBadge,
+    clock: !compactCollapsed && clockIndicator,
+    pet: null,
   };
 
   return (
     <div
-      className="island__collapsed"
+      className={`island__collapsed${lyricMode ? " island__collapsed--music" : ""}`}
       aria-hidden={isExpanded}
       inert={isExpanded}
       onClick={(event) => {
@@ -304,7 +316,9 @@ export function IslandCollapsedBar({
         }
       }}
     >
-      {collapsedLayout.map((slot) => <Fragment key={slot}>{slots[slot]}</Fragment>)}
+      {leadingPet}
+      {visibleCollapsedSlots(collapsedLayout, slotVisibility, lyricMode).map((slot) => <Fragment key={slot}>{slots[slot]}</Fragment>)}
+      {messageRail}
     </div>
   );
 }

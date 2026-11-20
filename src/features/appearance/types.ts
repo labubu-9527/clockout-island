@@ -12,6 +12,8 @@ export type IslandFont = "system" | "pixel";
 export type PageButtonStyle = "capsule" | "icon";
 /** Shape of the island's corners: CSS `corner-shape: squircle`, or a circular arc. */
 export type IslandCornerShape = "squircle" | "round";
+export type IslandShape = "notch" | "pill";
+export type MessageSource = "qq" | "wechat" | "qqMail" | "plugin" | "dingtalk" | "feishu" | "wecom";
 /** Which monitor the island sits on: the primary one, or it follows the pointer or the foreground window there. */
 export type IslandMonitor = "primary" | "cursor" | "foreground";
 /** How the collapsed island opens: a click, or resting the pointer on it. */
@@ -36,7 +38,8 @@ export type AgentSessionGroup = "computer" | "project" | "none";
 export type AgentArchiveMotion = "slide" | "dissolve";
 /** Light effects on the Agent page's cards and compact rows: none, the sparkle band, or a gradient wash. */
 export type AgentCardEffects = "off" | "sparkle" | "gradient";
-export type AgentQuotaSource = "claudeCode" | "codex" | "dsh" | "workbuddy";
+/** Kimi Code and Z Code come from the plugin market and are offered only once installed. */
+export type AgentQuotaSource = "claudeCode" | "codex" | "dsh" | "workbuddy" | "kimiCode" | "zcode";
 /** Which session starts open the Agent page: every turn, a new session's first turn only, or none. */
 export type AgentAlertStarted = "everyTurn" | "newSession" | "off";
 /** What double-clicking a file shelf entry does. */
@@ -49,9 +52,9 @@ export type CollapsedItem = "agent" | "lyrics" | "todo";
  * the new-mail badge, files on the shelf, the music waveform, running Agent sessions (or the tuck
  * dot). Icons before the text sit on its left.
  */
-export type CollapsedSlot = "text" | "mail" | "shelf" | "music" | "agents" | "system";
+export type CollapsedSlot = "text" | "mail" | "shelf" | "music" | "agents" | "cpu" | "memory" | "weather" | "clock" | "pet";
 /** The page dots in the expanded island's header, which the user can drag into any order. */
-export type PageDot = "todo" | "music" | "clipboard" | "shelf" | "translation";
+export type PageDot = "todo" | "music" | "clipboard" | "shelf" | "translation" | "weather";
 
 export type IslandSettings = {
   topEdgeLayoutVersion: 1;
@@ -78,6 +81,9 @@ export type IslandSettings = {
   /** Corner radius (px) of the collapsed bar; tucked and detached collapsed corners follow it. */
   collapsedCornerRadius: number;
   islandCornerShape: IslandCornerShape;
+  islandShape: IslandShape;
+  collapsedSlotVisibility: Record<CollapsedSlot, boolean>;
+  messageSourceVisibility: Record<MessageSource, boolean>;
   // Optional concave corners where the island joins the screen top.
   topEdgeShoulders: boolean;
   topEdgeShoulderSize: number;
@@ -97,6 +103,11 @@ export type IslandSettings = {
   agentShowCodex: boolean;
   agentShowDsh: boolean;
   agentShowWorkbuddy: boolean;
+  /** Agents from the plugin market: shown only once installed there, and while switched on here. */
+  agentShowCursor: boolean;
+  agentShowKimiCode: boolean;
+  agentShowHermes: boolean;
+  agentShowZcode: boolean;
   /** List only running, waiting or stalled sessions on the Agent page. */
   agentHideFinished: boolean;
   /** Show how long a session's current (or last) turn has run. */
@@ -184,6 +195,13 @@ export type IslandSettings = {
    * Module switches. Off hides the module on the island and stops its background work;
    * its data is kept. QQ, WeChat and clipboard history use their existing switches.
    */
+  clockEnabled: boolean;
+  clockHour12: boolean;
+  clockPeriod: "none" | "ampm" | "detailed";
+  clockShowSeconds: boolean;
+  petEnabled: boolean;
+  cpuEnabled: boolean;
+  memoryEnabled: boolean;
   todoEnabled: boolean;
   musicEnabled: boolean;
   agentStatusEnabled: boolean;
@@ -243,7 +261,8 @@ export type IslandSettings = {
   clipboardCloseOnBlur: boolean;
 };
 
-export type LegacyIslandSettings = Partial<IslandSettings> & {
+export type LegacyIslandSettings = Omit<Partial<IslandSettings>, "islandShape"> & {
+  islandShape?: IslandShape | "capsule";
   /** Before 2026-11-14: "classic" or "liquidGlass", now `material`. */
   appearanceMode?: unknown;
   margin?: number;

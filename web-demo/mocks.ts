@@ -125,6 +125,9 @@ export function installDemoMocks(data: DemoContent) {
   mockIPC((command, payload) => {
     const args = (payload ?? {}) as Args;
     switch (command) {
+      case "get_system_status": return { cpuPercent: 12, memoryPercent: 58, updatedAt: Date.now() };
+      case "search_weather_cities": return [{ id: 1808926, name: "杭州", admin1: "浙江", country: "中国", latitude: 30.27, longitude: 120.15, timezone: "Asia/Shanghai" }];
+      case "get_weather_forecast": return { timezone: "Asia/Shanghai", current: { time: Math.floor(Date.now() / 1000), temperature: 19, apparentTemperature: 18, humidity: 62, windSpeed: 8, weatherCode: 2, isDay: true }, hourly: Array.from({ length: 6 }, (_, i) => ({ time: Math.floor(Date.now() / 1000) + (i + 1) * 3600, temperature: 19 - i, weatherCode: 2 })) };
       case "get_launch_at_startup": return false;
       case "get_default_todo_save_directory": return "D:\\Notes";
       case "save_todo_markdown": return { filePath: `D:\\Notes\\${String(args.date)}.md` };

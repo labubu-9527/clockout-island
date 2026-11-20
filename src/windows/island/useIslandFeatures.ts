@@ -1,3 +1,5 @@
+import { listenWeatherOpen } from "../../features/weather/api";
+import { useWeatherSettings } from "../../features/weather/storage";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { IslandSettings } from "../../features/appearance/types";
 import type { MessageView } from "../../features/messages/Messages";
@@ -36,10 +38,24 @@ export function useIslandFeatures({
   setMessageSource,
   openIslandPage,
 }: IslandFeatureOptions) {
+  const weatherEnabled = useWeatherSettings().enabled;
+  useEffect(() => {
+    let disposed = false;
+    let unlisten: (() => void) | undefined;
+    void listenWeatherOpen(() => { if (weatherEnabled) openIslandPage("weather"); }).then(stop => {
+      if (disposed) stop(); else unlisten = stop;
+    }).catch(error => console.error("Unable to listen for weather navigation", error));
+    return () => { disposed = true; unlisten?.(); };
+  }, [weatherEnabled, openIslandPage]);
   const plugins = usePlugins();
+  const office = useOfficeSources();
   const hasPluginMessages = Object.values(plugins.registry.installed).some((p) => p.enabled && p.manifest.contributes.includes("notifications"));
   const features = useMemo<IslandFeatures>(() => ({
     plugin: hasPluginMessages,
+    dingtalk: office.dingtalk,
+    feishu: office.feishu,
+    wecom: office.wecom,
+    weather: weatherEnabled,
     todo: settings.todoEnabled,
     music: settings.musicEnabled,
     clipboard: clipboardEnabled,
@@ -49,7 +65,7 @@ export function useIslandFeatures({
     qqMail: settings.mailEnabled,
     agents: settings.agentStatusEnabled,
     translation: settings.translationEnabled && settings.translationTarget === "island",
-  }), [clipboardEnabled, qqEnabled, settings.agentStatusEnabled, settings.mailEnabled, settings.musicEnabled, settings.shelfEnabled, settings.todoEnabled, settings.translationEnabled, settings.translationTarget, wechatEnabled, hasPluginMessages]);
+  }), [weatherEnabled, clipboardEnabled, qqEnabled, settings.agentStatusEnabled, settings.mailEnabled, settings.musicEnabled, settings.shelfEnabled, settings.todoEnabled, settings.translationEnabled, settings.translationTarget, wechatEnabled, hasPluginMessages, office.dingtalk, office.feishu, office.wecom]);
 
   useEffect(() => {
     const next = islandPageFor(page, features, settings.clipboardDetached);
@@ -86,3 +102,4 @@ export function useIslandFeatures({
   return { features, openEnabledPage };
 }
 import { usePlugins } from "../../features/plugins";
+import { useOfficeSources } from "../../features/messages/office-im/useOfficeIm";

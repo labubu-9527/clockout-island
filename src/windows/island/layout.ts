@@ -1,10 +1,9 @@
 import type { TodoItem } from "../../features/todos/types";
-import type { AgentSessionView } from "../../features/appearance/types";
+import type { AgentSessionView, IslandSettings } from "../../features/appearance/types";
 import { COLLAPSED_WIDTH } from "../../features/appearance/settingsLimits.ts";
-import { clamp } from "../../utils/number.ts";
-import { getCollapsedTextUnits, getTodoTitleLineCount } from "../../utils/text.ts";
+import { getTodoTitleLineCount } from "../../utils/text.ts";
 
-export const MIN_COLLAPSED_ISLAND_WIDTH = 280;
+export const MIN_COLLAPSED_ISLAND_WIDTH = 96;
 export const MAX_COLLAPSED_ISLAND_WIDTH = COLLAPSED_WIDTH.default;
 export const MIN_COLLAPSED_TEXT_UNITS = 2;
 export const MAX_COLLAPSED_TEXT_UNITS = 12;
@@ -33,25 +32,9 @@ const CLIPBOARD_ROW_GAP = 6;
 export const TODO_ROW_HEIGHT = 38;
 export const TODO_GROW_START_ROWS = 2;
 /** Collapsed width for the summary `text`, plus `extraWidth` px, up to the widest. */
-export function getCollapsedIslandWidth(text: string, extraWidth = 0, fontScale = 1) {
-  const visualUnits = getCollapsedTextUnits(text) * fontScale;
-  const widthProgress =
-    (clamp(
-      visualUnits,
-      MIN_COLLAPSED_TEXT_UNITS,
-      MAX_COLLAPSED_TEXT_UNITS,
-    ) -
-      MIN_COLLAPSED_TEXT_UNITS) /
-    (MAX_COLLAPSED_TEXT_UNITS - MIN_COLLAPSED_TEXT_UNITS);
-
-  return Math.min(
-    MAX_COLLAPSED_ISLAND_WIDTH,
-    Math.round(
-      MIN_COLLAPSED_ISLAND_WIDTH +
-        widthProgress * (MAX_COLLAPSED_ISLAND_WIDTH - MIN_COLLAPSED_ISLAND_WIDTH) +
-        Math.max(0, extraWidth),
-    ),
-  );
+export function getCollapsedIslandWidth(text: string, extraWidth = 0, fontScale = 1, maxWidth: number = MAX_COLLAPSED_ISLAND_WIDTH) {
+  const textWidth = [...text].reduce((width, char) => width + (/[\u2E80-\uFFFF]/.test(char) ? 13 : 7), 0) * fontScale;
+  return Math.min(maxWidth, Math.round(Math.max(MIN_COLLAPSED_ISLAND_WIDTH, 64 + textWidth) + Math.max(0, extraWidth)));
 }
 
 // Widest nudge allowed when aligning; covers the 1.25x and 1.75x display scales.
@@ -67,6 +50,7 @@ export function alignCollapsedIslandWidth(
   width: number,
   stageWidth: number,
   devicePixelRatio: number,
+  maxWidth: number = MAX_COLLAPSED_ISLAND_WIDTH,
 ) {
   const isAligned = (candidate: number) => {
     const left = ((stageWidth - candidate) / 2) * devicePixelRatio;
@@ -77,7 +61,7 @@ export function alignCollapsedIslandWidth(
     for (const candidate of [width - nudge, width + nudge]) {
       if (
         candidate >= MIN_COLLAPSED_ISLAND_WIDTH &&
-        candidate <= MAX_COLLAPSED_ISLAND_WIDTH &&
+        candidate <= maxWidth &&
         isAligned(candidate)
       ) {
         return candidate;
@@ -86,6 +70,13 @@ export function alignCollapsedIslandWidth(
   }
 
   return width;
+}
+
+/** Reserve the widest clock format rather than resizing the native window on every tick. */
+export function getClockPetWidth(settings: Pick<IslandSettings, "clockEnabled" | "clockShowSeconds" | "clockPeriod" | "petEnabled" | "islandFontPercent">) {
+  const clock = settings.clockEnabled ? (44 + (settings.clockShowSeconds ? 20 : 0)
+    + (settings.clockPeriod === "none" ? 0 : settings.clockPeriod === "ampm" ? 30 : 72)) * settings.islandFontPercent / 100 : 0;
+  return Math.ceil(clock + (settings.petEnabled ? 40 : 0));
 }
 
 /** Todo rows the expanded panel grows to before the list scrolls, within the tallest panel allowed. */

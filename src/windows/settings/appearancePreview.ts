@@ -2,9 +2,10 @@ import type { IslandSettings } from "../../features/appearance/types";
 import type { PanelPreviewMode } from "./panelPreview";
 
 const COLLAPSED_FIELDS = [
-  "topEdgeShoulders", "topEdgeShoulderSize", "collapsedScale", "collapsedAutoWidth", "collapsedWidth", "collapsedHeight",
+  "islandShape", "topEdgeShoulders", "topEdgeShoulderSize", "collapsedScale", "collapsedAutoWidth", "collapsedWidth", "collapsedHeight",
   "collapsedCornerRadius", "collapsedLayout", "collapsedPriority", "collapsedShowCover", "showCollapsedText",
   "islandBackgroundColor", "taskTextColor", "pulseColor", "opacity",
+  "islandShape", "collapsedSlotVisibility", "messageSourceVisibility",
 ] as const satisfies readonly (keyof IslandSettings)[];
 const EXPANDED_FIELDS = [
   "expandedScale", "fontFamily", "islandFontPercent", "pageButtonStyle", "material", "glassIntensity", "glassBlur", "colorScheme",
@@ -17,6 +18,9 @@ export function appearancePreviewMode(current: IslandSettings, next: IslandSetti
   const changed = (key: keyof IslandSettings) => {
     const left = current[key];
     const right = next[key];
+    if (key === "collapsedSlotVisibility" || key === "messageSourceVisibility") {
+      return JSON.stringify(left) !== JSON.stringify(right);
+    }
     return Array.isArray(left) && Array.isArray(right) ? left.join() !== right.join() : left !== right;
   };
   if (COLLAPSED_FIELDS.some(changed)) return "collapsed";

@@ -16,6 +16,7 @@ const EMPTY_SNAPSHOT: QQNotificationSnapshot = {
 export function useQQNotifications(canPreview: boolean, previewSeconds = 5) {
   const t = useTranslation();
   const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT);
+  const [acknowledged, setAcknowledged] = useState<string[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(isTauri);
   const [previewWindow, setPreviewWindow] = useState<{ id: string; expiresAt: number; receivedAt: number } | null>(null);
@@ -139,16 +140,19 @@ export function useQQNotifications(canPreview: boolean, previewSeconds = 5) {
     setPreviewWindow(null);
   }), [acceptSnapshot, run]);
 
-  /** Opening from one contact's message reads that contact's messages; the others stay. */
+  /** Opening QQ acknowledges the captured reminder batch; retained history is not unread state. */
   const openQQ = useCallback((contact?: string) => run(async () => {
+    const batch = snapshot.items.filter(item => contact === undefined || item.title === contact).map(item => JSON.stringify(item));
     await launchQQ();
+    setAcknowledged(previous => [...new Set([...previous, ...batch])].slice(-128));
     setPreviewWindow(null);
     // QQ is already open; a list that failed to update is not worth an error.
     if (contact !== undefined) await dismissQQContact(contact).then(acceptSnapshot).catch(() => undefined);
-  }), [acceptSnapshot, run]);
+  }), [acceptSnapshot, run, snapshot.items]);
 
   return {
-    snapshot, busy, actionError, setEnabled, requestAccess, openSettings, refresh, clear, openQQ,
+    snapshot, hasPending: snapshot.items.some(item => !acknowledged.includes(JSON.stringify(item))),
+    busy, actionError, setEnabled, requestAccess, openSettings, refresh, clear, openQQ,
     previewReceivedAt: canPreview ? previewWindow?.receivedAt ?? null : null,
     preview: canPreview && previewWindow
       ? snapshot.items.find((item) => item.id === previewWindow.id) ?? null

@@ -1,3 +1,6 @@
+import * as clock from "../sections/clock.ts";
+import * as islandPet from "../sections/islandPet.ts";
+import * as weather from "../sections/weather.ts";
 import type { Translations } from "../types";
 import * as common from "../sections/common.ts";
 import * as messages from "../sections/messages.ts";
@@ -16,6 +19,8 @@ import * as fileShelf from "../sections/fileShelf.ts";
 import * as settings from "../sections/settings/index.ts";
 
 const en: Translations = {
+  clock: clock.en,
+  islandPet: islandPet.en,
   localeLabel: "English",
   localeTag: "en",
 
@@ -42,6 +47,7 @@ const en: Translations = {
 
   fileShelf: fileShelf.en,
 
+  weather: weather.en,
   settings: settings.en,
 };
 

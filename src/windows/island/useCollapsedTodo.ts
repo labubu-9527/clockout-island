@@ -5,18 +5,14 @@ import type { TodoItem } from "../../features/todos/types";
 import { formatTodoCountdown, type TodoTimer } from "../../features/todos/timer";
 import { useTranslation } from "../../i18n";
 import { useTodoRotation } from "./useIslandAutomation";
-import { alignCollapsedIslandWidth, getCollapsedIslandWidth } from "./layout";
+import { alignCollapsedIslandWidth, getCollapsedIslandWidth, MAX_COLLAPSED_ISLAND_WIDTH } from "./layout";
+import { COLLAPSED_WIDTH } from "../../features/appearance/settingsLimits";
 import { pickCollapsedItem } from "./collapsedItem";
 import { selectRotatingTodos } from "../../features/todos/todoRotation";
 import type { TodoRotationDisplay } from "./CollapsedTodoContent";
 
 // Stands in for the agent icon (16px plus gap) when sizing the island for a session title.
 const AGENT_ICON_TEXT = "MM";
-// Lyric lines come and go every few seconds; the island keeps its widest size for them rather
-// than resizing with each line.
-const LYRICS_WIDTH_TEXT = "♪".repeat(24);
-// The song's cover (22px) and the gap after it.
-const COVER_WIDTH = 30;
 // A countdown pill beside the todo title: gap, padding and about 7px a digit (12px a CJK glyph).
 function timerPillWidth(text: string, fontScale: number) {
   return 20 + fontScale * [...text].reduce((width, char) => width + (/[\u2E80-\uFFFF]/.test(char) ? 12 : 7), 0);
@@ -25,10 +21,8 @@ function timerPillWidth(text: string, fontScale: number) {
 /**
  * What the collapsed island shows: a running agent's session title (`agentTitle`), the lyric
  * line while a song plays (`lyricsPlaying`), or for todos the active (or rotating) todo title,
- * otherwise the pending count; whichever comes first in Settings → Appearance → Collapsed island
- * of those that have something to show (`collapsedItem`); a todo only claims its rank once one is
- * started (pickCollapsedItem). Also the width that needs, with room
- * for the song's cover beside the lyric line when `coverWanted`.
+ * otherwise the pending count. Music has its own centered presentation; ordinary content follows
+ * the saved priority. The returned width measures the text; the window adds only visible accessories.
  */
 export function useCollapsedTodo(
   todos: TodoItem[],
@@ -36,9 +30,10 @@ export function useCollapsedTodo(
   settings: IslandSettings,
   isRotationPaused: boolean,
   agentTitle: string | null = null,
-  { lyricsPlaying = false, coverWanted = false, timer = null, activeIds, timers }: { lyricsPlaying?: boolean; coverWanted?: boolean; timer?: TodoTimer | null; activeIds?: string[]; timers?: TodoTimer[] } = {},
+  { lyricsPlaying = false, timer = null, activeIds, timers }: { lyricsPlaying?: boolean; coverWanted?: boolean; timer?: TodoTimer | null; activeIds?: string[]; timers?: TodoTimer[] } = {},
 ) {
   const t = useTranslation();
+  const accessoryWidth = 0;
   const pendingTodoIds = useMemo(
     () => todos.filter((todo) => !todo.completed && !isUpdateTodo(todo)).map((todo) => todo.id),
     [todos],
@@ -76,14 +71,16 @@ export function useCollapsedTodo(
   const collapsedTodoCount = settings.showIdleTodoCount && !collapsedTaskTitle && pendingTodoCount > 0
     ? pendingTodoCount
     : null;
-  const collapsedItem = timers?.length || timer ? "todo" : pickCollapsedItem(settings.collapsedPriority, {
+  const collapsedItem = lyricsPlaying ? "lyrics" : timers?.length || timer ? "todo" : pickCollapsedItem(settings.collapsedPriority, {
     agent: agentTitle !== null,
     lyrics: lyricsPlaying,
     todo: collapsedTaskTitle !== null || collapsedTodoCount !== null,
   }, activeTodoId !== null && pendingTodoIds.includes(activeTodoId));
   const collapsedIslandWidth = useMemo(() => {
     if (!settings.collapsedAutoWidth) return settings.collapsedWidth;
+    if (collapsedItem === "lyrics") return 300;
     const fontScale = settings.islandFontPercent / 100;
+    const maxWidth = Math.min(COLLAPSED_WIDTH.max, MAX_COLLAPSED_ISLAND_WIDTH + accessoryWidth);
     // A fixed width for the whole round; ticking digits never resize the native window.
     const widestTimer = (timers ?? (timer ? [timer] : [])).reduce<string | null>((widest, round) => {
       const text = round.notified ? t.todo.timeUp : formatTodoCountdown(round.durationMinutes * 60);
@@ -94,16 +91,17 @@ export function useCollapsedTodo(
       : collapsedTaskTitle ?? (collapsedTodoCount !== null ? t.island.pendingTodos(collapsedTodoCount) : null);
     const itemText = collapsedItem === "agent"
       ? AGENT_ICON_TEXT + agentTitle
-      : collapsedItem === "lyrics" ? LYRICS_WIDTH_TEXT : collapsedItem === "todo" ? todoText : null;
-    const text = settings.showCollapsedText ? itemText ?? (settings.showTitle ? "fly-island" : "") : "";
+      : collapsedItem === "todo" ? todoText : null;
+    const text = settings.showCollapsedText ? [settings.showTitle && collapsedItem !== "agent" ? "fly-island" : "", itemText].filter(Boolean).join(" ") : "";
     return alignCollapsedIslandWidth(
-      getCollapsedIslandWidth(text, coverWanted && collapsedItem === "lyrics" ? COVER_WIDTH
-        : widestTimer && collapsedItem === "todo" && settings.showCollapsedText ? timerPillWidth(widestTimer, fontScale) : 0, fontScale),
+      getCollapsedIslandWidth(text, accessoryWidth + (widestTimer && collapsedItem === "todo" && settings.showCollapsedText ? timerPillWidth(widestTimer, fontScale) : 0), fontScale, maxWidth),
       window.innerWidth,
       window.devicePixelRatio,
+      maxWidth,
     );
-  }, [agentTitle, collapsedItem, collapsedTaskTitle, collapsedTodoCount, coverWanted, settings.collapsedAutoWidth,
-    settings.collapsedWidth, settings.islandFontPercent, settings.showCollapsedText, settings.showTitle, t, timer, timers, rotating, rotationTodos]);
+  }, [agentTitle, collapsedItem, collapsedTaskTitle, collapsedTodoCount, settings.collapsedAutoWidth,
+    settings.collapsedWidth, settings.islandFontPercent, settings.showCollapsedText, settings.showTitle,
+    accessoryWidth, t, timer, timers, rotating, rotationTodos]);
 
   return { collapsedTaskTitle, collapsedTodoCount, collapsedItem, collapsedIslandWidth, todoRotation, collapsedTimer };
 }

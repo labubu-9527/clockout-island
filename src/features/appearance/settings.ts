@@ -3,6 +3,7 @@ import { normalizeAgentSettings } from "./normalizeAgentSettings.ts";
 import { normalizeBehaviorSettings } from "./normalizeBehaviorSettings.ts";
 import { normalizeLayoutSettings } from "./normalizeLayoutSettings.ts";
 import { DEFAULT_SETTINGS } from "./settingsDefaults.ts";
+import { legacyDisplayFlags } from "./visibilitySettings.ts";
 import type { IslandSettings, LegacyIslandSettings, Material } from "./types";
 
 // Island settings (focusd-island-settings): limits in settingsLimits.ts, first-launch values in
@@ -36,6 +37,7 @@ export { DEFAULT_SETTINGS } from "./settingsDefaults.ts";
 /**
  * Settings that belong to the appearance page. Resetting the appearance or applying a
  * preset changes only these, so todo and tuck behavior chosen on the general page survive.
+ * The tucked look joined them when it moved to the appearance page (2026-11-19).
  * The top margin (general page) and the idle todo count (todos page) are not among them,
  * so presets saved with those values no longer move the island or change the count.
  */
@@ -53,11 +55,16 @@ export const APPEARANCE_SETTING_KEYS = [
   "collapsedWidth",
   "collapsedHeight",
   "expandedScale",
+  "islandShape",
   "islandCornerRadius",
   "collapsedCornerRadius",
   "islandCornerShape",
+  "collapsedSlotVisibility",
+  "messageSourceVisibility",
   "topEdgeShoulders",
   "topEdgeShoulderSize",
+  "tuckStyle",
+  "tuckEdgeHeight",
   "maxPanelHeight",
   "taskTextColor",
   "pageTextColor",
@@ -77,7 +84,7 @@ export function withAppearanceFrom(settings: IslandSettings, source: IslandSetti
     APPEARANCE_SETTING_KEYS.map((key) => [key, source[key]]),
   ) as AppearanceSettings;
 
-  return { ...settings, ...appearance };
+  return { ...settings, ...appearance, ...legacyDisplayFlags(source.collapsedSlotVisibility) };
 }
 
 export function hexToRgba(hex: string, alpha: number) {
@@ -111,6 +118,8 @@ export function isSameSettings(a: IslandSettings, b: IslandSettings) {
   return (Object.keys(a) as (keyof IslandSettings)[]).every((key) => {
     const [left, right] = [a[key], b[key]];
     // The orders (collapsedPriority, collapsedLayout, pageOrder) are arrays, read back as new ones each time.
-    return left === right || (Array.isArray(left) && Array.isArray(right) && left.join() === right.join());
+    return left === right || (Array.isArray(left) && Array.isArray(right) && left.join() === right.join())
+      || (left !== null && right !== null && typeof left === "object" && typeof right === "object"
+        && JSON.stringify(left) === JSON.stringify(right));
   });
 }

@@ -1,0 +1,7 @@
+.clock-settings__preview {
+  display: inline-flex;
+  max-width: 100%;
+  font-size: 18px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

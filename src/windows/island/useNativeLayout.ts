@@ -74,7 +74,7 @@ export function useNativeLayout(settings: IslandSettings) {
     // Only the margin needs this path: scale changes already reach the native side
     // through set_island_interaction in useIslandWindow.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings.marginY, scheduleNativeLayout]);
+  }, [settings.marginY, settings.islandShape, scheduleNativeLayout]);
 
   return syncNativeLayout;
 }

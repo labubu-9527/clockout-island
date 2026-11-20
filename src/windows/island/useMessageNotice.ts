@@ -7,20 +7,21 @@ import { noticePassesClicks } from "./noticeRules";
 import type { IslandMode } from "./types";
 import type { IslandNotice } from "./useIslandWindow";
 
-type MessageNoticeOptions = { mode: IslandMode; isTucked: boolean; quiet: boolean; collapsedIslandWidth: number };
+type MessageNoticeOptions = { mode: IslandMode; isTucked: boolean; quiet: boolean; collapsedIslandWidth: number; readerSideWidth?: number };
 
 /**
  * The adaptive message preview (Settings → Messages): the size the collapsed island grows to for
  * the preview showing, null while it fits one line or the setting is off; and what the native
  * window needs to know of it (its hit area, and passing clicks through in game mode).
  */
-export function useMessageNotice(preview: MessagePreview | null, settings: IslandSettings, { mode, isTucked, quiet, collapsedIslandWidth }: MessageNoticeOptions) {
+export function useMessageNotice(preview: MessagePreview | null, settings: IslandSettings, { mode, isTucked, quiet, collapsedIslandWidth, readerSideWidth = 0 }: MessageNoticeOptions) {
   const t = useTranslation();
   const grows = settings.messageAutoExpand && preview !== null && mode === "collapsed" && !isTucked;
   // What the laid-out one-line preview still overflowed by, for this preview; see measuredOverflow.
   const [measured, setMeasured] = useState({ at: -1, overflow: 0, tries: 0 });
+  const [readerMeasure, setReaderMeasure] = useState({ key: "", height: 0, scrolls: false });
   const measuredOverflow = preview && measured.at === preview.receivedAt ? measured.overflow : 0;
-  const size = useMemo(() => grows && preview ? getNoticeSize(noticeText(preview, t.messages), {
+  const estimatedSize = useMemo(() => grows && preview ? getNoticeSize(noticeText(preview, t.messages), {
     maxWidth: settings.messageExpandMaxWidth,
     maxHeight: settings.messageExpandMaxHeight,
     baseWidth: collapsedIslandWidth,
@@ -30,9 +31,28 @@ export function useMessageNotice(preview: MessagePreview | null, settings: Islan
     // Every source gets the selectable reader: the one-line bar is a button, whose text cannot be
     // selected and which opens the app on click (QQ / WeChat users wanted to copy too).
     forceReader: true,
+    readerSideWidth,
     measuredOverflow,
-  }) : null, [collapsedIslandWidth, grows, measuredOverflow, preview, settings.collapsedHeight, settings.collapsedScale, settings.islandFontPercent,
+  }) : null, [collapsedIslandWidth, grows, measuredOverflow, preview, readerSideWidth, settings.collapsedHeight, settings.collapsedScale, settings.islandFontPercent,
     settings.messageExpandMaxHeight, settings.messageExpandMaxWidth, t.messages]);
+  const readerKey = JSON.stringify([preview, estimatedSize, settings.messageExpandMaxHeight, settings.islandFontPercent, settings.collapsedScale]);
+  const size = useMemo(() => estimatedSize && readerMeasure.key === readerKey
+    ? { ...estimatedSize, height: readerMeasure.height, scrolls: readerMeasure.scrolls } : estimatedSize,
+  [estimatedSize, readerKey, readerMeasure]);
+  // Pet, source rail and OTP actions reduce the real reading room. Measure the wrapped body
+  // rather than assuming it still has the full estimated island width.
+  useLayoutEffect(() => {
+    if (!size?.reader || !grows) return;
+    const body = document.querySelector<HTMLElement>(".island--collapsed .message-notice__body");
+    if (!body) return;
+    const overflow = Math.max(0, body.scrollHeight - body.clientHeight);
+    const scale = settings.collapsedScale > 0 ? settings.collapsedScale : 1;
+    const tallest = Math.min(settings.messageExpandMaxHeight, Math.floor((460 - 24) / scale));
+    const height = overflow > 1 ? Math.min(tallest, size.height + overflow) : size.height;
+    const scrolls = overflow > 1 && height >= tallest;
+    if (height === size.height && scrolls === size.scrolls) return;
+    setReaderMeasure({ key: readerKey, height, scrolls });
+  }, [grows, readerKey, settings.collapsedScale, settings.messageExpandMaxHeight, size]);
   // The estimate can fall short of the island as drawn (status icons beside the text, real glyph
   // widths): measure the one-line preview after layout and grow by what is still cut off.
   const receivedAt = preview?.receivedAt ?? null;

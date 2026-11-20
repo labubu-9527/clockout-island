@@ -1,9 +1,11 @@
+import { MessageRail } from "../../features/messages/MessageRail";
+import type { MessageRailItem } from "../../features/messages/messageRailItems";
 import { isGlass } from "../../features/appearance/settings";
 import type { ReactNode } from "react";
 import type { AgentSession } from "../../features/agent-status/session";
 import type { QuotaAlert } from "../../features/agent-status/quotaAlerts";
 import type { AgentVisualState } from "../../features/agent-status/status";
-import type { CollapsedItem, CollapsedSlot, Material, PageButtonStyle, PageDot, TuckStyle } from "../../features/appearance/types";
+import type { CollapsedItem, CollapsedSlot, IslandShape, Material, PageButtonStyle, PageDot, TuckStyle } from "../../features/appearance/types";
 import type { MediaState } from "../../features/media/api";
 import type { SystemStatus } from "../../features/system-status/api";
 import type { MessagePreview, MessageSource } from "../../features/messages/messagePreview";
@@ -28,8 +30,11 @@ import "./IslandPageText.css";
 import "./IslandGlass.css";
 import "./IslandTuckStyle.css";
 import { useTuckMorph } from "./useTuckMorph";
+import { usePendingOfficeSource } from "../../features/messages/office-im/useOfficeIm";
 
 type IslandShellProps = {
+  slotVisibility?: Partial<Record<CollapsedSlot, boolean>>;
+  messageItems?: readonly MessageRailItem[];
   qqMail: MailController;
   qqNotifications: QQNotificationsController;
   wechatReminders: WeChatRemindersController;
@@ -49,7 +54,9 @@ type IslandShellProps = {
   tuckStyle: TuckStyle;
   topEdgeShoulders: boolean;
   positionLocked: boolean;
+  /** Moved away from its default place by a drag or the margin; a capsule floats without that. */
   isDetached: boolean;
+  islandShape?: IslandShape;
   showTitle: boolean;
   showCollapsedText: boolean;
   collapsedTaskTitle: string | null;
@@ -80,6 +87,11 @@ type IslandShellProps = {
   shelfCount: number | null;
   /** CPU and memory usage for the collapsed bar's status slot. */
   systemStatus: SystemStatus;
+  cpuEnabled?: boolean;
+  memoryEnabled?: boolean;
+  weatherBadge?: ReactNode;
+  clockIndicator?: ReactNode;
+  petIndicator?: ReactNode;
   /** Hide the badge on a fixed narrow island so a long todo and its countdown still fit. */
   compactCollapsed: boolean;
   /** Claude's or Codex's usage reaching the alert level, or resetting. */
@@ -103,6 +115,8 @@ type IslandShellProps = {
 };
 
 export function IslandShell({
+  slotVisibility,
+  messageItems = [],
   qqMail,
   qqNotifications,
   wechatReminders,
@@ -119,6 +133,7 @@ export function IslandShell({
   topEdgeShoulders,
   positionLocked,
   isDetached,
+  islandShape = "notch",
   showTitle,
   showCollapsedText,
   collapsedTaskTitle,
@@ -140,6 +155,11 @@ export function IslandShell({
   features,
   shelfCount,
   systemStatus,
+  cpuEnabled = true,
+  memoryEnabled = true,
+  weatherBadge,
+  clockIndicator,
+  petIndicator,
   compactCollapsed,
   quotaAlert = null,
   onOpenPage,
@@ -158,6 +178,16 @@ export function IslandShell({
 }: IslandShellProps) {
   const t = useTranslation();
   const isExpanded = mode === "expanded";
+  const railMailAccount = qqMail.mailboxes?.find(mailbox => mailbox.enabled && (mailbox.unreadCount ?? 0) > 0)?.email ?? qqMail.snapshot.email;
+  const openRailSource = (source: MessageSource) => {
+    const launching = source === "qq" ? qqNotifications.openQQ()
+      : source === "wechat" ? wechatReminders.openWeChat() : null;
+    if (launching) {
+      void launching.then(opened => { if (opened === false) onOpenMessages(source); });
+    } else {
+      onOpenMessages(source);
+    }
+  };
   const glass = isGlass(material);
   const isLiquidGlass = material === "liquidGlass";
   const { handleGlassPointerMove, resetGlassPointer } = useGlassPointer(isLiquidGlass);
@@ -167,16 +197,19 @@ export function IslandShell({
   const panelRef = useMotionLayer<HTMLDivElement>(mode, page, expandedHeight);
   const qqNotificationCount = qqNotifications.snapshot.items.length;
   const wechatPending = wechatReminders.snapshot.pending;
+  const officePending = usePendingOfficeSource();
   const className = [
     "island",
     `island--${mode}`,
+    `island--shape-${islandShape}`,
     `island--${page}`,
     `island--material-${material}`,
     isPreparing && !isExpanded ? "island--preparing" : "",
-    isDetached ? "island--detached" : "island--docked",
+    isDetached || islandShape === "pill" ? "island--detached" : "island--docked",
+    islandShape === "pill" ? "island--capsule" : "",
     isTucked ? "island--tucked" : "",
     tuckMorphClass,
-    topEdgeShoulders ? "island--shoulders" : "",
+    topEdgeShoulders && islandShape !== "pill" ? "island--shoulders" : "",
     glass ? `island--glass-${nativeGlassState}` : "",
     showTitle ? "" : "island--title-hidden",
     notice && !isExpanded ? "island--notice" : "",
@@ -242,6 +275,8 @@ export function IslandShell({
           collapsedTodoCount={collapsedTodoCount}
           collapsedItem={collapsedItem}
           collapsedLayout={collapsedLayout}
+          slotVisibility={slotVisibility}
+          messageRail={!isExpanded && !isTucked && <MessageRail items={messageItems} mailAccount={railMailAccount} expanded={false} onOpen={openRailSource} />}
           collapsedCover={collapsedCover}
           lyricsSettings={lyricsSettings}
           agentSession={agentSession}
@@ -250,6 +285,11 @@ export function IslandShell({
           showMusic={features.music}
           shelfCount={shelfCount}
           systemStatus={systemStatus}
+          cpuEnabled={cpuEnabled}
+          memoryEnabled={memoryEnabled}
+          weatherBadge={weatherBadge}
+          clockIndicator={clockIndicator}
+          petIndicator={petIndicator}
           compactCollapsed={compactCollapsed}
           quotaAlert={quotaAlert}
           agentVisualState={agentVisualState}
@@ -267,6 +307,7 @@ export function IslandShell({
           inert={!isExpanded}
         >
           <IslandHeader
+            separateMessageRail
             isExpanded={isExpanded && !isTucked}
             page={page}
             features={features}
@@ -279,6 +320,7 @@ export function IslandShell({
             agentStatusLabel={agentStatusLabel}
             qqNotificationCount={qqNotificationCount}
             wechatPending={wechatPending}
+            officePending={officePending}
             onPageChange={onPageChange}
             onCollapse={onCollapse}
             onOpenSettings={onOpenSettings}
@@ -292,6 +334,7 @@ export function IslandShell({
           <div ref={contentRef} className="island__content">{children}</div>
         </div>
       </div>
+      {isExpanded && !isTucked && <MessageRail items={messageItems} mailAccount={railMailAccount} expanded onOpen={openRailSource} />}
     </section>
   );
 }
