@@ -28,6 +28,7 @@ export function prepareColorRegression() {
 }
 
 async function checkColorInputs(check: (condition: unknown, message: string) => void) {
+  await click('[data-appearance-tab="material"]');
   check(!document.querySelector(".appearance-color-restore"), "Without a backup, the restore icon is absent");
   const group = element(".settings-color").closest(".settings-group")!;
   // The page text color row (2026-11-14) follows the three color input rows; the presets row follows them all.
@@ -158,6 +159,7 @@ export async function checkAppearance(check: (condition: unknown, message: strin
     check(order.filter(slot => slot === "pet").length === 1 && order.length === new Set(order).size && resetLayout.disabled,
       "Resetting arrangement retains exactly one fixed pet and returns to the default order");
     await checkColorInputs(check);
+    await click('[data-appearance-tab="size"]');
     const colorsBeforeReset = storedColors();
     // Expanded size: a slider from 0.85x to 1.2x, stored as the scale once the thumb is let go,
     // and the island opens to show it.
@@ -243,6 +245,7 @@ export async function checkAppearance(check: (condition: unknown, message: strin
       "Appearance reset restores the font and notch defaults");
 
     check(storedSettings().carryOverIncompleteTodos === false, "Resetting the appearance keeps todo settings");
+    await click('[data-appearance-tab="material"]');
     check(JSON.stringify(JSON.parse(localStorage.getItem("focusd-island-color-backup") ?? "null")) === JSON.stringify(colorsBeforeReset),
       "Reset appearance first backs up all three colors");
     check(element(".appearance-color-restore").getAttribute("aria-label") === "恢复上一版颜色", "A backup reveals the restore icon with its accessible name");

@@ -22,6 +22,7 @@ import type { QQNotificationsController } from "../../features/messages/qq-notif
 import type { WeChatRemindersController } from "../../features/messages/wechat/WeChatReminders";
 import { useSaveDirectorySetting } from "../../features/todos/useSaveDirectorySetting";
 import { useLocale } from "../../i18n";
+import { APPEARANCE_TABS, type AppearanceTab, type SettingsSearchEntry } from "./settingsSearch";
 
 /**
  * Every settings page with its sidebar. Shown as a page of the island or in the
@@ -50,6 +51,11 @@ export function SettingsPanel({
   const setSettings = onSettingsChange;
   const saveDirectory = useSaveDirectorySetting();
   const [category, setCategory] = useState<SettingsCategory>(DEFAULT_SETTINGS_CATEGORY);
+  const [appearanceTab, setAppearanceTab] = useState<AppearanceTab>(() => {
+    const requested = new URLSearchParams(location.search).get("tab");
+    return APPEARANCE_TABS.find(tab => tab === requested) ?? "size";
+  });
+  const [searchTarget, setSearchTarget] = useState<SettingsSearchEntry | null>(null);
   const highlightSaveDirectory = saveDirectory.highlight;
 
   // The island asks for the save path when an export has nowhere to go; it lives on the todos page.
@@ -88,6 +94,8 @@ export function SettingsPanel({
       category={category}
       onCategoryChange={setCategory}
       onContentHeight={onContentHeight}
+      searchTarget={searchTarget}
+      onSearchNavigate={entry => { setCategory(entry.category); if (entry.tab) setAppearanceTab(entry.tab); setSearchTarget({ ...entry }); }}
       titleAction={category === "appearance" && <ResetAppearanceButton onReset={resetAppearance} />}
     >
       {category === "general" && (
@@ -101,7 +109,7 @@ export function SettingsPanel({
         />
       )}
       {category === "appearance" && (
-        <AppearanceSettingsPage settings={settings} onSettingsChange={setSettings} />
+        <AppearanceSettingsPage settings={settings} onSettingsChange={setSettings} tab={appearanceTab} onTabChange={setAppearanceTab} />
       )}
       {category === "todos" && (
         <TodosSettingsPage

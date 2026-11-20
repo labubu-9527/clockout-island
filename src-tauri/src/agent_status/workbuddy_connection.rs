@@ -122,7 +122,7 @@ fn login_window(app: &AppHandle) -> Result<WebviewWindow, String> {
         WINDOW_LABEL,
         WebviewUrl::External(Url::parse("about:blank").map_err(|e| e.to_string())?),
     )
-    .title("WorkBuddy · fly-island")
+    .title("WorkBuddy · Clockout-island")
     .inner_size(850.0, 690.0)
     .prevent_overflow()
     .center()

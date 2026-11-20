@@ -44,6 +44,7 @@ pub fn get_default_todo_save_directory() -> Result<String, String> {
     let documents = home_dir.join("Documents");
     // Exports from before the rename went to Documents\FocuSD: keep using it when it is there.
     let former = documents.join("FocuSD");
-    let folder = if former.is_dir() { former } else { documents.join("Fly Island") };
+    let previous = documents.join("Fly Island");
+    let folder = if former.is_dir() { former } else if previous.is_dir() { previous } else { documents.join("岛点下班") };
     Ok(folder.to_string_lossy().to_string())
 }

@@ -2,8 +2,8 @@ import { useEffect, useLayoutEffect, useRef } from "react";
 import { noteIslandMotion } from "../../lib/islandMotion";
 import type { IslandMode, IslandPage } from "./types";
 
-// The longest shape transition (opening, 560ms in IslandShell.css) and a few frames to spare.
-const MOTION_LAYER_MS = 640;
+// Keep compositing and polling guards until the configured shape and panel transitions settle.
+const MOTION_FRAME_BUFFER_MS = 80;
 
 /**
  * Gives the page panel a layer of its own (will-change) while the island changes shape: when it
@@ -13,7 +13,7 @@ const MOTION_LAYER_MS = 640;
  * The layer goes once the shape has settled, so the text is drawn straight onto the island again.
  * Set on the element itself rather than through state, so a motion costs no extra render.
  */
-export function useMotionLayer<T extends HTMLElement>(mode: IslandMode, page: IslandPage, height: number) {
+export function useMotionLayer<T extends HTMLElement>(mode: IslandMode, page: IslandPage, height: number, duration = 560) {
   const ref = useRef<T>(null);
   const isFirst = useRef(true);
   const lastMode = useRef(mode);
@@ -26,7 +26,8 @@ export function useMotionLayer<T extends HTMLElement>(mode: IslandMode, page: Is
       isFirst.current = false;
       return;
     }
-    noteIslandMotion(MOTION_LAYER_MS);
+    const motionMs = duration + MOTION_FRAME_BUFFER_MS;
+    noteIslandMotion(motionMs);
     const modeChanged = lastMode.current !== mode;
     lastMode.current = mode;
     // Between pages the new page is meant to be read at once. On a layer of its own its text is
@@ -45,8 +46,8 @@ export function useMotionLayer<T extends HTMLElement>(mode: IslandMode, page: Is
       timer.current = null;
       element.style.willChange = "";
       island?.removeAttribute("data-moving");
-    }, MOTION_LAYER_MS);
-  }, [mode, page, height]);
+    }, motionMs);
+  }, [mode, page, height, duration]);
 
   useEffect(() => () => {
     if (timer.current !== null) window.clearTimeout(timer.current);

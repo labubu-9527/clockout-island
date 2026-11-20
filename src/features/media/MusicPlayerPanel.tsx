@@ -1,12 +1,11 @@
-import type { CSSProperties } from "react";
-import { MicVocal, Music2, Pause, Play, RefreshCcw, SkipBack, SkipForward } from "lucide-react";
+import { useState, type CSSProperties } from "react";
+import { Music2, Pause, Play, RefreshCcw, SkipBack, SkipForward } from "lucide-react";
 import { useTranslation } from "../../i18n";
 import type { MediaState } from "./api";
 import { MusicEqualizer } from "./MusicEqualizer";
 import { MusicIdle } from "./MusicIdle";
 import { MusicProgress } from "./MusicProgress";
-import { useArtworkTint } from "./useArtworkTint";
-import { tintOnLight } from "./artworkTint";
+import { useArtworkPalette } from "./useArtworkPalette";
 import { LyricsView } from "./lyrics/LyricsView";
 import { useLyrics, type LyricsSettings } from "./lyrics/useLyrics";
 import { LyricsOffsetControl } from "./lyrics/LyricsOffsetControl";
@@ -17,6 +16,7 @@ import "./MusicPlayerPanel.css";
 import { hasTimeline } from "./trackClock";
 import { useMediaDiagnostics } from "./useMediaDiagnostics";
 import { MediaNotice, MediaNoticeButton, useMediaNotice } from "./MediaNotice";
+import { MusicPlayerToolbar } from "./MusicPlayerToolbar";
 
 const NO_LYRICS = { lyricsFolder: "", lyricsOnline: false, lyricsOffsetMs: 0 };
 
@@ -38,10 +38,9 @@ type MusicPlayerPanelProps = {
 
 /**
  * The music page, drawn straight on the island like the Agent page rather than in a card of its
- * own. The song's cover, title and artist sit at the top; under them the lyrics, when there are
- * any, then a progress bar with elapsed and remaining time and the transport. Without lyrics the
- * cover grows and takes their room. The cover's colours glow softly beneath it, and its accent
- * tints the progress fill and the equalizer. Nothing playing shows its own quiet page (MusicIdle),
+ * own. Artwork sits left of the title, artist and current lyric. Full-width progress and the
+ * capability-aware toolbar follow below. The cover keeps its compact size without lyrics.
+ * Artwork supplies the atmosphere and control tint. Nothing playing shows MusicIdle,
  * not an empty player.
  */
 export function MusicPlayerPanel({
@@ -68,7 +67,8 @@ export function MusicPlayerPanel({
   const { lines: lyrics, notFound, durationMs: lyricsDurationMs } = useLyrics(mediaState, lyricsSettings);
   const chineseHint = suggestsChineseSources(mediaState, lyricsSettings, notFound);
   const [songOffsetMs, setSongOffsetMs] = useSongOffset(lyrics ? songOffsetKey(mediaState) : null);
-  const tint = useArtworkTint(mediaState.thumbnail);
+  const palette = useArtworkPalette(mediaState.thumbnail);
+  const [showTranslation, setShowTranslation] = useState(true);
   const source = mediaState.sessions.find((session) => session.id === mediaState.activeSessionId)?.label ?? mediaState.sourceApp;
   const artist = mediaState.artist || t.music.unknownArtist;
 
@@ -80,10 +80,15 @@ export function MusicPlayerPanel({
     isPlaying ? "music-player--playing" : "",
     hasTrack ? "" : "music-player--idle",
   ].filter(Boolean).join(" ");
-  const style = (tint ? { "--music-tint": tint, "--music-tint-light": tintOnLight(tint) } : undefined) as CSSProperties | undefined;
+  const style = { "--music-palette-accent": palette.accent, "--music-palette-light-accent": palette.lightAccent } as CSSProperties;
 
   return (
     <section className={className} style={style} aria-label={t.music.playerLabel}>
+      {hasTrack && mediaState.thumbnail && (
+        <div className="music-player__atmosphere" aria-hidden="true">
+          <img src={mediaState.thumbnail} alt="" draggable={false} />
+        </div>
+      )}
       {hasTrack ? (
         <header className="music-player__head">
           <div className="music-player__cover" aria-hidden="true">
@@ -91,10 +96,16 @@ export function MusicPlayerPanel({
             <div className="music-player__artwork">
               {mediaState.thumbnail ? <img src={mediaState.thumbnail} alt="" draggable={false} /> : <Music2 size={24} strokeWidth={1.5} absoluteStrokeWidth />}
             </div>
+            <span className="music-player__status"><i />{isPlaying ? t.music.toolbar.playing : t.music.toolbar.paused}</span>
           </div>
           <div className="music-player__meta">
             <span className="music-player__track">{mediaState.title}</span>
             <span className="music-player__artist">{artist}</span>
+            {lyrics && <div className="music-player__lyrics">
+              <LyricsView lines={lyrics} mediaState={mediaState} offsetMs={lyricsSettings.lyricsOffsetMs + songOffsetMs}
+                wordFillEnabled={lyricsSettings.lyricWordFill === true} showTranslation={showTranslation} onPosition={onLyricPosition} />
+              <LyricsOffsetControl offsetMs={songOffsetMs} onChange={setSongOffsetMs} />
+            </div>}
             {!lyrics && (chineseHint ? (
               <button className="music-player__lyrics-hint" type="button" aria-label={t.music.lyricsChineseHint.label} onClick={onOpenSettings}>
                 {t.music.lyricsChineseHint.text}
@@ -106,10 +117,6 @@ export function MusicPlayerPanel({
           <div className="music-player__aside">
             {notice.player && <MediaNoticeButton open={notice.open} onClick={notice.toggle} />}
             <MusicEqualizer playing={isPlaying} />
-            {/* A microphone, not a gear: the island's header already has the gear for Settings. */}
-            <button className="music-icon-button" type="button" aria-label={t.music.openSettings} onClick={onOpenSettings}>
-              <MicVocal size={16} strokeWidth={1.5} absoluteStrokeWidth />
-            </button>
           </div>
         </header>
       ) : (
@@ -118,21 +125,15 @@ export function MusicPlayerPanel({
 
       {notice.open && notice.player && <MediaNotice player={notice.player} onClose={notice.close} />}
 
-      {lyrics && (
-        <div className="music-player__lyrics">
-          <LyricsView lines={lyrics} mediaState={mediaState} offsetMs={lyricsSettings.lyricsOffsetMs + songOffsetMs}
-            wordFillEnabled={lyricsSettings.lyricWordFill === true} onPosition={onLyricPosition} />
-          <LyricsOffsetControl offsetMs={songOffsetMs} onChange={setSongOffsetMs} />
-        </div>
-      )}
-
       {commandError && <p className="music-player__error" role="alert">{t.music.controlFailed}</p>}
 
       {/* A player that reports no length (NetEase Cloud Music) borrows the lyrics source's. */}
       {hasTrack && <MusicProgress mediaState={mediaState} durationMs={mediaState.durationMs > 0 ? mediaState.durationMs : lyricsDurationMs} onSeek={onSeek} />}
 
       {hasTrack && (
-        <div className="music-player__controls">
+        <MusicPlayerToolbar mediaState={mediaState} hasTranslation={Boolean(lyrics?.some(line => line.translation))}
+          showTranslation={showTranslation} onTranslationChange={setShowTranslation} onOpenSettings={onOpenSettings}
+          transport={<div className="music-player__controls">
           <button className="music-control-button" type="button" aria-label={t.music.previousTrack} disabled={prevDisabled} onClick={onPrevious}>
             <SkipBack size={22} strokeWidth={1.5} fill="currentColor" />
           </button>
@@ -154,7 +155,7 @@ export function MusicPlayerPanel({
           <button className="music-control-button" type="button" aria-label={t.music.nextTrack} disabled={nextDisabled} onClick={onNext}>
             <SkipForward size={22} strokeWidth={1.5} fill="currentColor" />
           </button>
-        </div>
+        </div>} />
       )}
     </section>
   );

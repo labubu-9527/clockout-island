@@ -151,6 +151,9 @@ try {
   window.getSelection()!.removeAllRanges();
   check(!document.querySelector(".message-notice .copy-text-button") && !body().innerHTML.includes("<p>订单")
     && body().textContent?.includes("https://example.com/order"), "通知不放复制按钮，正文为可选中的纯文本");
+  // Finish the preceding QQ scenario so FIFO does not put its queued reminder before this mail.
+  await act(async () => emit("qq-notifications-changed", { snapshot: { revision: ++revision,
+    enabled: true, status: "listening", items: [], error: null }, newestId: null, windowVisible: true }));
   read = async () => { throw new Error("读取失败"); };
   await arrive("failed");
   check(body().querySelector("[role=alert]"), "正文加载失败时原地提示");

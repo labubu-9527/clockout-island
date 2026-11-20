@@ -23,9 +23,11 @@ for (const key of Object.keys(localStorage).filter(key => key.startsWith("focusd
 let media: MediaState = { ...DEFAULT_MEDIA_STATE, available: true, title: "Test song", artist: "Test artist", playbackStatus: "playing", updatedAt: Date.now() };
 let sessions: AgentSessionSummary[] = [];
 let audioActive = false;
+let interaction: Record<string, unknown> = {};
 mockIPC((command, payload) => {
   switch (command) {
     case "get_media_state": return media;
+    case "get_lyrics": return { source: "lrclib", lrc: "[00:00.00]我本险将心单单向你\n[01:00.00]奈何明月照沟渠" };
     case "get_audio_level": return { active: audioActive, peak: audioActive ? 0.2 : 0 };
     case "get_clipboard_history": return { settings: { enabled: false, captureImages: true, maxItems: 100, shortcut: "Ctrl+Shift+V", shortcutEnabled: false }, items: [] };
     case "get_file_shelf": return { items: [] };
@@ -34,7 +36,7 @@ mockIPC((command, payload) => {
     case "get_agent_status": return { codex: { phase: "idle", updatedAt: 0 }, claudeCode: { phase: "idle", updatedAt: 0 }, updatedAt: 0, statusPath: "" };
     case "get_system_status": return { cpuPercent: 12, memoryPercent: 58, updatedAt: Date.now() };
     case "get_foreground_fullscreen": return { active: false, onIslandMonitor: false };
-    case "set_island_interaction": return "disabled";
+    case "set_island_interaction": interaction = payload as Record<string, unknown>; return "disabled";
     case "get_island_top_attachment": case "plugin:window|is_visible": return true;
     case "set_qq_notifications_enabled": case "get_qq_notification_state": return { revision: 1, enabled: false, status: "disabled", items: [], error: null };
     case "set_wechat_reminders_enabled": return { revision: 1, enabled: false, status: "disabled", pending: false, lastAttentionAt: null, error: null, previewEnabled: false, previewStatus: "off", hideMinimizedTaskbar: false, messages: [] };
@@ -53,6 +55,10 @@ const root = createRoot(document.getElementById("root")!);
 const messages: string[] = [];
 const check = (ok: unknown, message: string) => { if (!ok) throw new Error(message); messages.push(`PASS ${message}`); };
 const wait = (ms: number) => act(async () => { await new Promise(resolve => setTimeout(resolve, ms)); });
+const waitForMusicPet = async (playing: boolean) => {
+  const until = performance.now() + 6000;
+  while (Boolean(document.querySelector('.island-pet[data-state="music"]')) !== playing && performance.now() < until) await wait(100);
+};
 const patch = (value: object) => act(async () => {
   const previous = JSON.parse(localStorage.getItem("focusd-island-settings")!);
   localStorage.setItem("focusd-island-settings", JSON.stringify({ ...previous, ...value }));
@@ -62,18 +68,53 @@ const width = () => parseFloat(document.querySelector<HTMLElement>(".stage")!.st
 try {
   await act(async () => root.render(<I18nProvider><IslandApp /></I18nProvider>));
   await wait(100);
+  await wait(900);
+  const musicIsland = document.querySelector<HTMLElement>('.island')!;
+  const radius = parseFloat(getComputedStyle(musicIsland).borderBottomLeftRadius);
+  check(musicIsland.classList.contains('island--shape-pill') && ['round', 'superellipse(1)'].includes(getComputedStyle(musicIsland).getPropertyValue('corner-shape'))
+    && Math.abs(radius * 2 - musicIsland.getBoundingClientRect().height) < 1, 'music capsule uses circular ends instead of the saved squircle');
+  check(interaction.islandShape === 'pill' && interaction.cornerShape === 'round'
+    && Number(interaction.collapsedCornerRadius) * 2 === interaction.collapsedHeight, 'native hit region uses the same music capsule geometry');
+  await act(async () => window.dispatchEvent(new StorageEvent('storage', {
+    key: 'focusd-island-position-reset', newValue: JSON.stringify({ requestedAt: Date.now() }),
+  })));
+  await wait(100);
+  const savedAfterReset = JSON.parse(localStorage.getItem('focusd-island-settings')!);
+  check(savedAfterReset.islandShape === 'notch' && savedAfterReset.islandCornerShape === 'squircle'
+    && savedAfterReset.collapsedHeight === 38, 'resetting position during music never saves render-only capsule overrides');
   check(document.querySelector(".collapsed-lyric")?.textContent?.includes("Test song"), "lyrics stay visible when ordinary text is off");
+  check(document.querySelector(".music-wave-button"), "waveform appears during music playback");
+  for (const [material, frost, reflection] of [["classic", 0, 0], ["frostedGlass", 15 / 255, 0], ["liquidGlass", 0, 24 / 255]] as const) {
+    await patch({ material });
+    const plane = getComputedStyle(musicIsland);
+    check(Math.abs(parseFloat(plane.getPropertyValue("--music-surface-frost")) - frost) < 0.00001
+      && Math.abs(parseFloat(plane.getPropertyValue("--music-surface-reflection")) - reflection) < 0.00001,
+    `${material} uses its source frost and reflection instead of a shared bright sheen`);
+  }
+  await patch({ material: "classic" });
   check(!document.querySelector(".clock-indicator, .island-system-status, .weather-badge, .island-agent-count"), "music hides ordinary indicators");
   check(document.querySelectorAll(".island__collapsed .island-pet").length === 1 && document.querySelector(".island__agent-light .island-pet"), "pet replaces leading status dot without a duplicate slot");
   check(!document.querySelector(".island__pulse"), "leading status circle is replaced");
   check(document.querySelector('.island-pet[data-state="music"]'), "playing music selects the singing pet");
   check(document.querySelector(".island__collapsed")?.firstElementChild?.classList.contains("island__agent-light"), "pet is a fixed leading control outside sortable text");
   check(getComputedStyle(document.querySelector(".collapsed-lyric")!).textAlign === "center", "lyric line centers independently");
+  await patch({ lyricsOnline: true, lyricsChinese: true });
+  for (const islandFontPercent of [100, 120, 150]) {
+    await patch({ islandFontPercent });
+    await wait(900);
+    const summary = document.querySelector('.island__summary')!.getBoundingClientRect();
+    const lines = [...document.querySelectorAll('.collapsed-lyric--double > span')].map(line => line.getBoundingClientRect());
+    check(lines.length === 2 && lines.every(line => line.top >= summary.top - 0.1 && line.bottom <= summary.bottom + 0.1),
+      `both Chinese lyric rows fit inside the clipping wrapper at ${islandFontPercent}% font size`);
+  }
+  await patch({ lyricsOnline: false, islandFontPercent: 100 });
+  await wait(900);
   const musicWidth = width();
   await patch({ petEnabled: false, collapsedSlotVisibility: { text: false, pet: false } });
   check(!document.querySelector(".island__collapsed .island-pet") && width() < musicWidth, "pet switch removes the face and closes its reserved space");
   media = { ...media, playbackStatus: "paused", updatedAt: Date.now() };
   await wait(2600);
+  check(!document.querySelector(".music-wave-button"), "paused music hides the waveform even with its visibility switch enabled");
   await act(async () => {
     localStorage.setItem("focusd-island-weather-settings", JSON.stringify({ enabled: true }));
     window.dispatchEvent(new StorageEvent("storage", { key: "focusd-island-weather-settings" }));
@@ -109,13 +150,16 @@ try {
   check(width() < 300 && !bar.querySelector(".island__brand"), `Agent adaptive width follows short status (${width()})`);
   media = { ...media, playbackStatus: "playing", title: null, updatedAt: Date.now() };
   await wait(2700);
+  await waitForMusicPet(true);
   check(document.querySelector('.island-pet[data-state="music"]'), "music without track metadata overrides ordinary Agent work");
   media = { ...DEFAULT_MEDIA_STATE, audioActive: true, audioPeak: 0.2, updatedAt: Date.now() };
   audioActive = true;
   await wait(2700);
+  await waitForMusicPet(true);
   check(document.querySelector('.island-pet[data-state="music"]'), "system audio drives singing when the player exposes no media session");
   media = { ...media, playbackStatus: "paused", updatedAt: Date.now() };
   await wait(2700);
+  await waitForMusicPet(false);
   check(!document.querySelector('.island-pet[data-state="music"]'), "explicit pause suppresses the audio fallback");
   check(bar.firstElementChild?.classList.contains("island__agent-light"), "reordering indicators cannot move the leading pet");
   const faceBounds = bar.querySelector(".island-pet")!.getBoundingClientRect();
@@ -124,20 +168,23 @@ try {
   const crowded = collapsedPresentationLayout({ textWidth: 96, pet: true, clockWidth: 150, statusCount: 2, weather: true, shelf: true, music: true, agents: true, messages: 7 });
   const sources = ["wechat", "qq", "qqMail", "dingtalk", "feishu", "wecom", "plugin"] as const;
   type BarProps = ComponentProps<typeof IslandCollapsedBar>;
-  await act(async () => root.render(<I18nProvider><div style={{ "--collapsed-island-width": `${crowded.width}px`, "--collapsed-island-height": "38px", "--island-collapsed-scale": "1", position: "relative", marginLeft: "300px" } as CSSProperties}>
+  let openedPage = "";
+  const renderTimer = (showText = true, playing = false) => act(async () => root.render(<I18nProvider><div style={{ "--collapsed-island-width": `${crowded.width}px`, "--collapsed-island-height": "38px", "--island-collapsed-scale": "1", "--island-font-scale": "1.2", position: "relative", marginLeft: "300px" } as CSSProperties}>
     <IslandCollapsedBar qqMail={{} as BarProps["qqMail"]} qqNotifications={{} as BarProps["qqNotifications"]} wechatReminders={{} as BarProps["wechatReminders"]}
-      preview={null} page="todo" isExpanded={false} isTucked={false} positionLocked={false}
-      showTitle={false} showCollapsedText collapsedLabel="Test" collapsedTaskTitle="Focused task" collapsedTodoCount={null} collapsedItem="todo"
+      preview={null} page="weather" isExpanded={false} isTucked={false} positionLocked={false}
+      showTitle showCollapsedText={showText} collapsedLabel="Test" collapsedTaskTitle={"Focused long task ".repeat(20)} collapsedTodoCount={null} collapsedItem="todo"
+      slotVisibility={{ text: showText }}
       todoTimer={{ todoId: "focused", endsAt: Date.now() + 900000, durationMinutes: 15, notified: false }}
       collapsedLayout={["text", "cpu", "memory", "weather", "clock", "shelf", "music", "agents", "pet"]}
       collapsedCover={null} lyricsSettings={{ lyricsFolder: "", lyricsOnline: false, lyricsChinese: false, lyricsOffsetMs: 0 }}
-      agentSession={null} agentSessionCount={2} mediaState={DEFAULT_MEDIA_STATE} showMusic shelfCount={3}
-      systemStatus={{ cpuPercent: 12, memoryPercent: 58, updatedAt: Date.now() }} compactCollapsed={crowded.compact}
+      agentSession={null} agentSessionCount={2} mediaState={playing ? { ...media, title: "Test song", playbackStatus: "playing" } : DEFAULT_MEDIA_STATE} showMusic shelfCount={3}
+      systemStatus={{ cpuPercent: 12, memoryPercent: 58, updatedAt: Date.now() }} compactCollapsed={false}
       weatherBadge={<span>Weather 25°</span>} clockIndicator={<span>Afternoon 12:34:56</span>}
       petIndicator={<IslandPet state="idle" active={false} />} agentVisualState="idle"
       messageRail={<MessageRail items={sources.map(source => ({ source, pending: true }))} expanded={false} onOpen={() => {}} />}
-      onOpenPage={() => {}} onOpenMessages={() => {}} onWindowDragStart={() => {}} onTuck={() => {}} />
+      onOpenPage={page => { openedPage = page; }} onOpenMessages={() => {}} onWindowDragStart={() => {}} onTuck={() => {}} />
   </div></I18nProvider>));
+  await renderTimer();
   const crowdedBar = document.querySelector<HTMLElement>(".island__collapsed")!;
   check(document.querySelectorAll(".message-rail__button").length === 7 && !document.querySelector(".island-system-status"), "crowded bar retains seven message sources and yields auxiliary readings");
   check(crowdedBar.scrollWidth <= crowdedBar.clientWidth + 1, `seven message sources and ordinary controls fit adaptive width (${crowdedBar.scrollWidth}/${crowdedBar.clientWidth})`);
@@ -146,6 +193,15 @@ try {
   const timerBounds = document.querySelector(".island__timer-pill")!.getBoundingClientRect();
   const summaryBounds = document.querySelector(".island__summary")!.getBoundingClientRect();
   check(timerBounds.left >= summaryBounds.left && timerBounds.right <= summaryBounds.right + 1, "fixed narrow bar keeps the running timer visible beside its face");
+  check(!document.querySelector(".island__brand, .island-shelf-count, .island-agent-count, .island-system-status, .music-wave-button"), "running timer yields brand and ordinary indicators even without width pressure");
+  await renderTimer(false);
+  check(document.querySelector(".island__timer-pill") && !document.querySelector(".island__active-task-title"), "text and text-slot switches do not hide a running timer");
+  await act(async () => document.querySelector<HTMLButtonElement>(".island__summary")!.click());
+  check(openedPage === "todo", "clicking the running task opens todo independently of the current page");
+  await renderTimer(false, true);
+  await act(async () => document.querySelector<HTMLButtonElement>(".island__summary")!.click());
+  check(openedPage === "music", "clicking lyrics opens music independently of the current page");
+  check(document.querySelector(".collapsed-lyric") && document.querySelector(".island__timer-pill") && document.querySelectorAll(".message-rail__button").length === 7, "music keeps lyrics, running countdown and all pending message entries with text disabled");
   document.documentElement.dataset.testResult = "passed";
 } catch (error) {
   messages.push(`FAIL ${error instanceof Error ? error.message : error}`);

@@ -126,7 +126,7 @@ export function getExpandedIslandHeight({
     : page === "weather"
       ? Math.min(380, maxPanelHeight)
     : page === "music"
-      ? MUSIC_EXPANDED_ISLAND_HEIGHT + (hasMediaCommandError ? 24 : 0)
+      ? MUSIC_EXPANDED_ISLAND_HEIGHT + Math.max(0, fontScale - 1) * 100 + (hasMediaCommandError ? 24 : 0)
       : page === "shelf"
         ? Math.min(getShelfExpandedHeight(shelfItems), maxPanelHeight)
       : page === "translation"

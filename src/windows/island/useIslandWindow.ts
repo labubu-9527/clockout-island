@@ -12,12 +12,14 @@ import { useNativeLayout } from "./useNativeLayout";
 import { useSettingsPositionReset } from "./useSettingsPositionReset";
 import type { IslandMode, NativeGlassState } from "./types";
 import { isIslandPickerOpen } from "../../lib/islandPicker";
+import { shapedSettings } from "../../features/appearance/islandShape";
 
 type IslandWindowOptions = {
   messageRailCount?: number;
   mode: IslandMode;
   isTucked: boolean;
   settings: IslandSettings;
+  savedSettings?: IslandSettings;
   setSettings: (settings: IslandSettings) => void;
   expandedIslandHeight: number;
   collapsedIslandWidth: number;
@@ -34,6 +36,7 @@ export function useIslandWindow({
   mode,
   isTucked,
   settings,
+  savedSettings = settings,
   setSettings,
   expandedIslandHeight,
   collapsedIslandWidth,
@@ -77,7 +80,7 @@ export function useIslandWindow({
           glassIntensity: nextSettings.glassIntensity,
           glassTint: nextSettings.islandBackgroundColor,
           cornerRadius: nextSettings.islandCornerRadius,
-          collapsedCornerRadius: nextSettings.collapsedCornerRadius,
+          collapsedCornerRadius: shapedSettings(nextSettings).collapsedCornerRadius,
           cornerShape: nextSettings.islandCornerShape,
           monitorFollow: nextSettings.islandMonitor,
           noticeWidth: nextNotice.width,
@@ -127,11 +130,11 @@ export function useIslandWindow({
       islandPositionRef.current = null;
       setIsPositionDetached(false);
       clearIslandPosition();
-      setSettings(nextSettings);
+      setSettings({ ...savedSettings, marginY: DEFAULT_SETTINGS.marginY });
     } catch (error) {
       console.error("Failed to reset island position", error);
     }
-  }, [islandPositionRef, setIsPositionDetached, setSettings, settings, syncNativeLayout]);
+  }, [islandPositionRef, setIsPositionDetached, setSettings, settings, savedSettings, syncNativeLayout]);
   useSettingsPositionReset(resetIslandPosition);
   useEffect(() => setIslandTopEdgeCapsule(settings.islandShape === "pill"), [settings.islandShape]);
 
@@ -184,6 +187,7 @@ export function useIslandWindow({
     settings.expandedScale,
     settings.islandCornerRadius,
     settings.collapsedCornerRadius,
+    settings.pillCornerRadius,
     settings.islandCornerShape,
     settings.islandMonitor,
     settings.positionLocked,

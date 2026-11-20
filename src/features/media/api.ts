@@ -56,6 +56,17 @@ export function sendMediaCommand(command: MediaCommand, target: string | undefin
   return invoke<MediaState>(command, { target });
 }
 
+/** Existing media_control commands; support is reported by the active media session. */
+export function toggleMediaShuffle(target: string | undefined) {
+  return invoke<MediaState>("media_toggle_shuffle", { target });
+}
+export function cycleMediaRepeat(target: string | undefined) {
+  return invoke<MediaState>("media_cycle_repeat", { target });
+}
+export function setMediaVolume(level: number) {
+  return invoke<MediaState>("media_set_volume", { level: Math.max(0, Math.min(1, level)) });
+}
+
 export function getAudioLevel() {
   return invoke<AudioLevel>("get_audio_level");
 }

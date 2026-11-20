@@ -1,40 +1,44 @@
 .settings-layout {
+  --settings-page: color-mix(in srgb, #f2f2f5 calc(var(--is-light) * 100%), #222428);
+  --settings-card: color-mix(in srgb, #fcfcfd calc(var(--is-light) * 100%), #2c2e33);
+  --settings-control: color-mix(in srgb, #e9e9ec calc(var(--is-light) * 100%), #303238);
+  --settings-selected: color-mix(in srgb, #e1e1e6 calc(var(--is-light) * 100%), #3c4149);
+  --settings-text: color-mix(in srgb, #161a1e calc(var(--is-light) * 100%), #eef0f3);
+  --settings-muted: color-mix(in srgb, #7b8086 calc(var(--is-light) * 100%), #a5aab4);
+  --settings-line: color-mix(in srgb, #d9dadd calc(var(--is-light) * 100%), #41444b);
+  --settings-accent: color-mix(in srgb, #315e76 calc(var(--is-light) * 100%), #8cb8d1);
+  --color-accent: var(--settings-accent);
+  --color-text: var(--settings-text);
+  --color-text-muted: var(--settings-muted);
+  --color-text-subtle: var(--settings-muted);
   height: 100%;
   display: grid;
-  grid-template-columns: 164px minmax(0, 1fr);
+  grid-template-columns: 222px minmax(0, 1fr);
   min-height: 0;
+  min-width: 0;
+  padding: 22px 14px;
+  color: var(--settings-text);
+  background: var(--settings-page);
+  border-radius: 26px;
 }
 
 .editor-panel {
   position: relative;
   display: grid;
-  gap: var(--space-lg);
+  gap: 16px;
   align-content: start;
   overflow-y: auto;
-  padding: 14px 20px;
-  background: rgba(var(--overlay-rgb), 0.075);
-  scrollbar-color: rgba(116, 214, 255, 0.38) var(--color-white-a08);
-  scrollbar-width: thin;
+  padding: 4px 12px 24px 26px;
+  min-width: 0;
+  background: transparent;
+  scrollbar-width: none;
 }
 
-.editor-panel::-webkit-scrollbar {
-  width: 7px;
-}
-
-.editor-panel::-webkit-scrollbar-track {
-  background: rgba(var(--overlay-rgb), 0.07);
-  border-radius: var(--radius-pill);
-}
-
-.editor-panel::-webkit-scrollbar-thumb {
-  background: rgba(116, 214, 255, 0.42);
-  border-radius: var(--radius-pill);
-}
-
-.editor-panel::-webkit-scrollbar-button {
+.settings-layout, .settings-layout * { scrollbar-width: none; }
+.settings-layout::-webkit-scrollbar, .settings-layout *::-webkit-scrollbar {
+  display: none;
   width: 0;
   height: 0;
-  display: none;
 }
 
 .settings-page__header {
@@ -42,6 +46,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-lg);
+  padding-right: 32px;
 }
 
 .settings-page__title {
@@ -50,9 +55,32 @@
   align-items: center;
   margin: 0;
   color: var(--color-text);
-  font-size: calc(20px * var(--island-font-scale, 1));
-  font-weight: 700;
+  font-size: calc(28px * var(--island-font-scale, 1));
+  font-weight: 650;
   line-height: 1.2;
+}
+
+.settings-page__description { margin: 8px 0 0; color: var(--settings-muted); font-size: 13px; line-height: 1.5; }
+.settings-layout .settings-group__title { color: var(--settings-muted); font-weight: 600; }
+.settings-layout .settings-group__card { background: var(--settings-card); border: 0; border-radius: 16px; }
+.settings-layout .settings-group__card > * + *::before { border-color: var(--settings-line); opacity: 0.65; }
+.settings-layout .settings-row { padding: 13px 16px; }
+.settings-layout .settings-row__description { line-height: 1.4; }
+.settings-layout .settings-switch { width: 40px; height: 20px; }
+.settings-layout .settings-switch__track { background: var(--settings-selected); }
+.settings-layout .settings-switch__track::after { width: 16px; height: 16px; left: 2px; top: 2px; background: #fff; box-shadow: none; }
+.settings-layout .settings-switch input:checked + .settings-switch__track { background: var(--settings-accent); }
+.settings-layout .settings-switch input:checked + .settings-switch__track::after { transform: translateX(20px); }
+.settings-layout .settings-choice { padding: 3px; background: var(--settings-control); border-radius: 22px; }
+.settings-layout .settings-choice__option { border-radius: 18px; min-height: 30px; }
+.settings-layout .settings-choice__option--active { color: var(--settings-text); background: var(--settings-card); box-shadow: 0 2px 4px #0001; }
+.settings-layout .settings-section { background: var(--settings-card); border: 0; border-radius: 16px; }
+.settings-layout .settings-section--list { background: transparent; }
+.settings-layout .settings-search-target { outline: 2px solid color-mix(in srgb, var(--settings-accent) 50%, transparent); outline-offset: -2px; }
+@media (max-width: 700px) {
+  .settings-layout { grid-template-columns: 164px minmax(0, 1fr); padding: 12px 8px; }
+  .editor-panel { padding-left: 16px; }
+  .settings-page__title { font-size: 23px; }
 }
 
 /* Each section is a card; the card, not bold type, shows what belongs together. */

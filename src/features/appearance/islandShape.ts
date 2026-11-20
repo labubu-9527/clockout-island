@@ -17,6 +17,6 @@ export function shapedSettings(settings: IslandSettings): IslandSettings {
   if (settings.islandShape !== "pill") return settings;
   return {
     ...settings,
-    collapsedCornerRadius: settings.collapsedHeight / 2,
+    collapsedCornerRadius: settings.pillCornerRadius ?? settings.collapsedHeight / 2,
   };
 }

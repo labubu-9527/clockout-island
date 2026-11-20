@@ -1,0 +1,45 @@
+﻿.island-halo {
+  --island-halo-strength: 0;
+  --island-halo-color: rgb(116, 214, 255);
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  border-radius: inherit;
+  corner-shape: inherit;
+  pointer-events: none;
+  opacity: var(--island-halo-strength);
+}
+.island-halo[data-halo-kind="off"] { opacity: 0; }
+/* Five reference strokes, centred on the outline inflated by one pixel. */
+.island-halo__stroke {
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  corner-shape: inherit;
+  pointer-events: none;
+  outline: var(--halo-stroke) solid var(--island-halo-color);
+  outline-offset: calc(var(--halo-stroke) / -2);
+  opacity: var(--halo-alpha);
+}
+.island-halo__stroke:nth-child(1) { --halo-stroke: 19px; --halo-alpha: 0.018; }
+.island-halo__stroke:nth-child(2) { --halo-stroke: 14px; --halo-alpha: 0.032; }
+.island-halo__stroke:nth-child(3) { --halo-stroke: 10px; --halo-alpha: 0.055; }
+.island-halo__stroke:nth-child(4) { --halo-stroke: 6px; --halo-alpha: 0.10; }
+.island-halo__stroke:nth-child(5) { --halo-stroke: 2.5px; --halo-alpha: 0.30; }
+.island-halo[data-halo-kind="update"] .island-halo__stroke { outline: none; }
+.island-halo[data-halo-kind="update"] .island-halo__stroke::before {
+  content: "";
+  position: absolute;
+  inset: calc(var(--halo-stroke) / -2);
+  padding: var(--halo-stroke);
+  border-radius: inherit;
+  corner-shape: inherit;
+  background: conic-gradient(from var(--island-halo-phase), #4285f4, #a17bff, #ea6a8d, #f8c46a, #66c49b, #61c3e8, #4285f4);
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.island--tucked .island-halo { visibility: hidden; }
+@media (prefers-reduced-motion: reduce) {
+  .island-halo { --island-halo-phase: 0deg; }
+}

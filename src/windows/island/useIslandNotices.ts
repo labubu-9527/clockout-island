@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQQNotifications } from "../../features/messages/qq-notifications/QQNotifications";
 import { useWeChatReminders } from "../../features/messages/wechat/WeChatReminders";
 import { useMail } from "../../features/messages/mail/MailPanel";
-import { usePluginPreview } from "../../features/messages/pluginNotifications";
+import { usePluginPreview, usePluginNotifications } from "../../features/messages/pluginNotifications";
 import { useOfficeIm } from "../../features/messages/office-im/useOfficeIm";
 import { latestMessagePreview, type MessagePreview } from "../../features/messages/messagePreview";
 import type { QQNotificationsController } from "../../features/messages/qq-notifications/QQNotifications";
@@ -11,27 +11,45 @@ import type { MailController } from "../../features/messages/mail/MailPanel";
 import type { IslandSettings } from "../../features/appearance/types";
 import type { IslandMode } from "./types";
 import { canPreviewNotice, previewSecondsFor } from "./noticeRules";
-import { useHeldPreview } from "./useHeldPreview";
+import { useNoticeQueue } from "./useNoticeQueue";
+import { noticeSourceValidity } from "./noticeSourceValidity";
+import type { QueuedNotice } from "./noticeQueue";
+import { useDeviceNotice } from "../../features/device-notices/useDeviceNotice";
+import { useDeviceNoticeSettings } from "../../features/device-notices/storage";
 
 /** What can pop up on the collapsed island: message previews (QQ, WeChat, mail). */
-export function useIslandNotices(settings: IslandSettings, { mode, isTucked, quiet }: { mode: IslandMode; isTucked: boolean; quiet: boolean }) {
+export function useIslandNotices(settings: IslandSettings, { mode, isTucked, quiet, critical = false }: { mode: IslandMode; isTucked: boolean; quiet: boolean; critical?: boolean }) {
   // A tucked island still takes message previews when it will slide out to show them. Game mode
   // holds them back unless asked to show them anyway (gameShowNotices), then without taking clicks.
   const canPreviewMessages = canPreviewNotice(settings, quiet, mode, isTucked);
   const previewSeconds = previewSecondsFor(settings, quiet);
-  const qqNotifications = useQQNotifications(canPreviewMessages, previewSeconds);
-  const wechatReminders = useWeChatReminders(canPreviewMessages, { previewSeconds });
-  const qqMail = useMail(canPreviewMessages, { previewSeconds, autoCopyOtp: settings.autoCopyOtp, previewBody: settings.messageAutoExpand });
-  // Plugin previews keep their own 8 s unless an adaptive or game-mode duration applies.
-  const pluginPreview = usePluginPreview(canPreviewMessages, settings.messageAutoExpand || quiet ? previewSeconds : undefined);
-  const office = useOfficeIm(canPreviewMessages, previewSeconds);
-  // Kept while the cursor is on it, and counted as showing, so the island neither opens under the
-  // cursor nor slides back mid-read; not in game mode, where clicks pass through it.
-  const preview = useHeldPreview(useLatestPreview(qqNotifications, wechatReminders, pluginPreview, qqMail, office.preview), !quiet);
-  const hasMessagePreview = Boolean(
-    qqNotifications.preview || wechatReminders.preview || qqMail.preview || pluginPreview || office.preview || preview,
-  );
-  return { qqNotifications, wechatReminders, qqMail, preview, hasMessagePreview };
+  const validity = useRef<(entry: QueuedNotice) => boolean>(() => true);
+  const queue = useNoticeQueue({ enabled: mode === "collapsed" && !critical && (!quiet || settings.gameShowNotices),
+    boundary: `${mode}:${quiet}:${critical}:${isTucked && !settings.revealOnMessage}`,
+    holdEnabled: !quiet, durationMs: previewSeconds * 1000,
+    pluginDurationMs: settings.messageAutoExpand || quiet ? previewSeconds * 1000 : 8000,
+    isValid: entry => validity.current(entry) });
+  const shown = queue.active?.payload;
+  const message = shown?.kind === "message" ? shown.preview : null;
+  const qqNotifications = useQQNotifications(canPreviewMessages, previewSeconds, queue.acceptMessage);
+  const wechatReminders = useWeChatReminders(canPreviewMessages, { previewSeconds, onNotice: queue.acceptMessage });
+  const qqMail = useMail(canPreviewMessages, { previewSeconds, autoCopyOtp: settings.autoCopyOtp,
+    previewBody: settings.messageAutoExpand, onNotice: queue.acceptMessage,
+    managedPreview: message?.source === "qqMail" && message.messageId && message.mailAccount
+      ? { account: message.mailAccount, id: message.messageId } : null });
+  usePluginPreview(canPreviewMessages, settings.messageAutoExpand || quiet ? previewSeconds : undefined, queue.acceptMessage);
+  const plugins = usePluginNotifications();
+  const office = useOfficeIm(canPreviewMessages, previewSeconds, queue.acceptMessage);
+  const devices = useDeviceNoticeSettings();
+  validity.current = noticeSourceValidity({ qq: qqNotifications, wechat: wechatReminders, mail: qqMail,
+    plugins, office: office.snapshot, devices });
+  const deviceChange = useDeviceNotice(mode !== "collapsed" || quiet || critical || Boolean(message));
+  const { acceptDevice } = queue;
+  useEffect(() => { if (deviceChange) acceptDevice(deviceChange); }, [deviceChange, acceptDevice]);
+  const preview = message?.source === "qqMail" ? { ...message, detail: qqMail.previewContent,
+    detailLoading: qqMail.previewContentLoading, detailError: qqMail.previewContentError } : message;
+  return { qqNotifications, wechatReminders, qqMail, preview, hasMessagePreview: Boolean(preview),
+    deviceChange: shown?.kind === "device" ? shown.notice : null };
 }
 
 /**

@@ -30,7 +30,7 @@ export type IslandText = {
 };
 
 export const zhCN: IslandText = {
-  appName: "fly-island",
+  appName: "岛点下班",
   focusing: (taskTitle) => `正在专注：${taskTitle}`,
   pendingTodos: (count) => `剩余${count}个待办`,
   agentSession: (provider, title) => `${provider} 正在处理：${title}`,
@@ -57,7 +57,7 @@ export const zhCN: IslandText = {
 };
 
 export const en: IslandText = {
-  appName: "fly-island",
+  appName: "Clockout-island",
   focusing: (taskTitle) => `Focusing: ${taskTitle}`,
   pendingTodos: (count) => (count === 1 ? "1 todo left" : `${count} todos left`),
   agentSession: (provider, title) => `${provider} is working on: ${title}`,

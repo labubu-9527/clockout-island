@@ -1,0 +1,20 @@
+/* DotIsle renderer.rs compact_music + surface.rs: ported metrics and neutral reading plane. */
+.island--music-capsule.island--collapsed:not(.island--tucked) {
+  --island-corner-shape: round;
+  --task-text-color: var(--capsule-text);
+  --text-1: var(--capsule-text);
+  --text-2: var(--capsule-secondary);
+  color: var(--capsule-text);
+  box-shadow: 0 5px 14.667px #00000038;
+}
+.island--music-capsule .island__collapsed--music { padding-inline: 10px 10px; gap: 8px; }
+.island--music-capsule .island__collapsed--music .island__open-button { gap: 8px; }
+/* The message wrapper's ordinary 28px viewport clips the 37px double lyric stack. */
+.island__collapsed--music .island__summary { height: 100%; }
+.island--music-capsule .collapsed-lyric { color: var(--capsule-text); }
+.island--music-capsule .music-wave-button { width: 20px; flex-basis: 20px; gap: 2px; color: var(--capsule-accent); }
+.island--music-capsule .music-wave-button span { width: 2px; }
+.island--music-capsule .music-wave-button span:nth-child(n+4) { display: none; }
+.island--music-capsule .music-wave-button span:nth-child(1) { height: 10px; }
+.island--music-capsule .music-wave-button span:nth-child(2) { height: 14px; }
+.island--music-capsule .music-wave-button span:nth-child(3) { height: 8px; }

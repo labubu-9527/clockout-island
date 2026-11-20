@@ -1,7 +1,8 @@
 <div align="center">
-  <img src="src-tauri/icons/mark.svg" alt="Fly Island logo" width="96" height="96">
+  <img src="src-tauri/icons/mark.svg" alt="岛点下班 logo" width="96" height="96">
 
-  <h1>fly-island</h1>
+  <h1>岛点下班</h1>
+  <p>Clockout-island · 基于 Fly Island 开发，持续同步 GitHub 上游。</p>
 
   <p>Windows灵动岛：微信、QQ、邮箱消息，多会话 AI Agent 与额度环，音乐播放器、待办、剪贴板、文件中转等常用功能，需要时展开，用完收起。</p>
 
@@ -26,16 +27,15 @@
   </p>
 
   <a href="https://island.flyliu.org/">
-    <img src="docs/assets/promo-preview.webp" alt="fly-island 宣传片：微信消息弹到岛上、在岛上批准 Claude Code 权限、查看 Claude 与 Codex 额度、文件中转、待办、音乐与翻译" width="860">
+    <img src="docs/assets/promo-preview.webp" alt="岛点下班 宣传片：微信消息弹到岛上、在岛上批准 Claude Code 权限、查看 Claude 与 Codex 额度、文件中转、待办、音乐与翻译" width="860">
   </a>
 
   <p>如果它帮你少切了几次窗口，欢迎点个 ⭐ <b>Star</b>，让更多人看到它。</p>
-</div>  
-
+</div>
 
 ## 这是什么
 
-fly-island 是一款 Windows 优先的灵动岛。微信、QQ 和邮箱消息直接弹到岛上；Claude Code、Codex、DSH 等 Agent 跑到哪、要不要你审批，一眼就知道；同步歌词、文件中转、剪贴板历史、快捷翻译和待办，也都收在屏幕顶部这座小岛里。
+岛点下班 是一款 Windows 优先的灵动岛。微信、QQ 和邮箱消息直接弹到岛上；Claude Code、Codex、DSH 等 Agent 跑到哪、要不要你审批，一眼就知道；同步歌词、文件中转、剪贴板历史、快捷翻译和待办，也都收在屏幕顶部这座小岛里。
 
 它是一个极轻量、无边框、始终置顶的悬浮岛，内存占用约 0.2%~0.5%，需要时展开，用完收起。
 
@@ -45,7 +45,7 @@ fly-island 是一款 Windows 优先的灵动岛。微信、QQ 和邮箱消息直
 
 工作和学习时，我常常要在一个软件里写待办，开着音乐隔绝噪音，查翻译，反复复制粘贴代码，还得时不时看群聊和好友消息。在这些窗口之间来回切换，既慢又分心。
 
-iPhone 的灵动岛把通知、计时、媒体控制收在一个小岛上，缩短了获取信息的路。于是我想：能不能把这些高频功能也收进 Windows 上一个足够轻的地方？fly-island 就这样诞生了。
+iPhone 的灵动岛把通知、计时、媒体控制收在一个小岛上，缩短了获取信息的路。于是我想：能不能把这些高频功能也收进 Windows 上一个足够轻的地方？岛点下班 就这样诞生了。
 
 ## 平时它就这么小
 
@@ -109,9 +109,9 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 
 ## 几乎不占资源
 
-一直开着也不用心疼：在任务管理器里，fly-island 只占 0.3% 左右的内存。
+一直开着也不用心疼：在任务管理器里，岛点下班 只占 0.3% 左右的内存。
 
-<p align="center"><img src="docs/assets/screenshots/memory.webp" alt="任务管理器里 fly-island 的内存占用约 0.3%" width="620"></p>
+<p align="center"><img src="docs/assets/screenshots/memory.webp" alt="任务管理器里 岛点下班 的内存占用约 0.3%" width="620"></p>
 
 ## 下载安装
 
@@ -122,13 +122,13 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 <details>
 <summary><b>各功能怎么打开？</b></summary>
 
-| 功能 | 怎么开 |
-| --- | --- |
-| 微信提醒 | 电脑版微信登录着就行。[详细说明](docs/wechat-reminder-compatibility.md) |
-| QQ 提醒 | QQ 登录着，并在 QQ 里打开系统通知。[详细说明](docs/qq-notification-compatibility.md) |
-| 邮箱 | 在邮箱网页里开启 IMAP、拿到授权码，填到「设置 → 邮箱」。[详细说明](docs/mail.md) |
-| AI Agent | 「设置 → Agent」里点安装，然后重开一次终端。[详细说明](docs/agent-status-hooks.md) |
-| 翻译 | 默认就能用；想用 DeepSeek、通义千问等大模型，在「设置 → 翻译」填 API 密钥 |
+| 功能     | 怎么开                                                                               |
+| -------- | ------------------------------------------------------------------------------------ |
+| 微信提醒 | 电脑版微信登录着就行。[详细说明](docs/wechat-reminder-compatibility.md)              |
+| QQ 提醒  | QQ 登录着，并在 QQ 里打开系统通知。[详细说明](docs/qq-notification-compatibility.md) |
+| 邮箱     | 在邮箱网页里开启 IMAP、拿到授权码，填到「设置 → 邮箱」。[详细说明](docs/mail.md)     |
+| AI Agent | 「设置 → Agent」里点安装，然后重开一次终端。[详细说明](docs/agent-status-hooks.md)   |
+| 翻译     | 默认就能用；想用 DeepSeek、通义千问等大模型，在「设置 → 翻译」填 API 密钥            |
 
 </details>
 
@@ -143,7 +143,7 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 
 用微信扫码加入用户群，聊使用体验、反馈问题。应用里「设置 → 关于」也能找到这个二维码。
 
-<p align="center"><img src="docs/assets/wechat-community.jpg" alt="fly-island 微信交流群二维码" width="280"></p>
+<p align="center"><img src="docs/assets/wechat-community.jpg" alt="岛点下班 微信交流群二维码" width="280"></p>
 
 <p align="center"><sub>二维码 11 月 23 日前有效，失效了请在 <a href="https://github.com/flyl1u/fly-island/issues">Issue</a> 里说一声。</sub></p>
 
@@ -155,8 +155,8 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 需要 Windows 10/11、Node.js、pnpm、Rust、Visual Studio C++ Build Tools 和 WebView2 Runtime。
 
 ```powershell
-git clone https://github.com/flyl1u/fly-island.git
-cd fly-island
+git clone https://gitee.com/zhu-he666/Clockout-island.git
+cd Clockout-island
 pnpm install
 pnpm tauri dev
 ```

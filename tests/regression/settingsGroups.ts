@@ -33,7 +33,8 @@ export async function checkGroups(category: string, panel: HTMLElement, check: (
   const expected = GROUPS[category];
   if (!expected) return;
   const shown = [...panel.querySelectorAll<HTMLElement>(".settings-group__title")].map((title) => title.textContent);
-  check(shown.join("|") === expected.join("|"), `${category}: groups in order (${shown.join(" / ")})`);
+  if (category === "appearance") check(panel.querySelectorAll('.settings-tabs [role="tab"]').length === 5 && expected.every(title => shown.includes(title)), "Appearance: five tabs preserve every existing setting group");
+  else check(shown.join("|") === expected.join("|"), `${category}: groups in order (${shown.join(" / ")})`);
   if (category === "general") {
     check(titles(rowsOf(panel, "展开与收起")).join() === "展开方式,展开后自动收起,Ctrl + 滚轮切换页面", "General: opening, auto-collapse and Ctrl + wheel share a group");
     const game = () => rowsOf(panel, "游戏模式");

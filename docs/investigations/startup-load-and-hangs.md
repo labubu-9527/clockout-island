@@ -16,13 +16,13 @@
 
 ### 改动
 
-| 项 | 改动 | 位置 |
-|---|---|---|
-| 区分开机启动 | Run 值改写为 `"<exe>" --autostart`（值名不变，见 contracts.md）。旧值启动一分钟后在后台改写一次 | `system/startup.rs` |
-| 首次显示不抢焦点 | 开机启动时 `show_ready_island` 只显示、不 `focus_window` | `island/mod.rs` |
-| 错峰 | `hold_after_autostart(delay)`：开机启动时，后台线程等到进程启动后 `delay` 再开始；QQ 监听 30 秒、微信监听 45 秒、网易云插件自动安装 120 秒。手动启动不受影响 | `system/startup.rs`、`qq_notifications/listener.rs`、`wechat_reminders/mod.rs`、`media_plugins/auto.rs` |
-| 任务栏查询 | `top_taskbar_candidates` 缓存 3 秒 | `win32/taskbar_edge.rs` |
-| 低级鼠标钩子 | 先用纯算术判断点是否在上次采样的按钮矩形内，绝大多数点击不做任何系统调用就放行；只有落在按钮上才走原来的完整校验 | `win32/caption_close.rs` |
+| 项               | 改动                                                                                                                                                         | 位置                                                                                                    |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
+| 区分开机启动     | Run 值改写为 `"<exe>" --autostart`（值名不变，见 contracts.md）。旧值启动一分钟后在后台改写一次                                                              | `system/startup.rs`                                                                                     |
+| 首次显示不抢焦点 | 开机启动时 `show_ready_island` 只显示、不 `focus_window`                                                                                                     | `island/mod.rs`                                                                                         |
+| 错峰             | `hold_after_autostart(delay)`：开机启动时，后台线程等到进程启动后 `delay` 再开始；QQ 监听 30 秒、微信监听 45 秒、网易云插件自动安装 120 秒。手动启动不受影响 | `system/startup.rs`、`qq_notifications/listener.rs`、`wechat_reminders/mod.rs`、`media_plugins/auto.rs` |
+| 任务栏查询       | `top_taskbar_candidates` 缓存 3 秒                                                                                                                           | `win32/taskbar_edge.rs`                                                                                 |
+| 低级鼠标钩子     | 先用纯算术判断点是否在上次采样的按钮矩形内，绝大多数点击不做任何系统调用就放行；只有落在按钮上才走原来的完整校验                                             | `win32/caption_close.rs`                                                                                |
 
 微信相关只加延后，不改任何唤起 / 读取路径（遵守「第三方应用交互只加兜底不替换」）。
 
@@ -107,4 +107,4 @@
 
 `src-tauri/nsis/installer-hooks.nsh` 新增 `NSIS_HOOK_PREUNINSTALL`：仅在 `$DeleteAppDataCheckboxState = 1` 且 `$UpdateMode <> 1`（不是更新时的卸载）时，在删除可执行文件之前 `ExecWait "<exe>" --remove-agent-hooks`。变量名按当前 `@tauri-apps/cli` 2.11.4 的 NSIS 模板核对过。
 
-`--remove-agent-hooks` 在 `run()` 最前面处理（单实例插件之前），复用 `remove_managed_codex_hook_block`、`remove_managed_claude_code_hooks` 和回复标记的关闭逻辑，只删 Fly Island 写入的内容；读不了或解析不了的配置文件不碰（`agent_status/uninstall.rs`，有单元测试）。
+`--remove-agent-hooks` 在 `run()` 最前面处理（单实例插件之前），复用 `remove_managed_codex_hook_block`、`remove_managed_claude_code_hooks` 和回复标记的关闭逻辑，只删 岛点下班 写入的内容；读不了或解析不了的配置文件不碰（`agent_status/uninstall.rs`，有单元测试）。

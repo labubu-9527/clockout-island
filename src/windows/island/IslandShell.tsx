@@ -2,7 +2,9 @@ import { MessageRail } from "../../features/messages/MessageRail";
 import { IslandGlassLayers } from "./IslandGlassLayers";
 import type { MessageRailItem } from "../../features/messages/messageRailItems";
 import { isGlass } from "../../features/appearance/settings";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { useArtworkPalette } from "../../features/media/useArtworkPalette";
+import { referenceMusicSurface } from "../../features/media/referenceMusicSurface";
 import type { AgentSession } from "../../features/agent-status/session";
 import type { QuotaAlert } from "../../features/agent-status/quotaAlerts";
 import type { AgentVisualState } from "../../features/agent-status/status";
@@ -32,8 +34,16 @@ import "./IslandGlass.css";
 import "./IslandTuckStyle.css";
 import { useTuckMorph } from "./useTuckMorph";
 import { usePendingOfficeSource } from "../../features/messages/office-im/useOfficeIm";
+import { DEFAULT_ISLAND_EFFECTS, type IslandEffectsSettings } from "../../features/appearance/islandEffects";
+import { IslandGlow } from "./IslandGlow";
+import { islandMotionStyle } from "./islandMotionStyle";
+import "./MusicCapsule.css";
+import "./MusicSurface.css";
 
 type IslandShellProps = {
+  onMusicGeometry?: (geometry: { width: number; height: number }) => void;
+  effects?: IslandEffectsSettings;
+  glowTimerRunning?: boolean;
   deviceNotice?: ReactNode;
   slotVisibility?: Partial<Record<CollapsedSlot, boolean>>;
   messageItems?: readonly MessageRailItem[];
@@ -117,6 +127,9 @@ type IslandShellProps = {
 };
 
 export function IslandShell({
+  onMusicGeometry,
+  effects = DEFAULT_ISLAND_EFFECTS,
+  glowTimerRunning,
   deviceNotice,
   slotVisibility,
   messageItems = [],
@@ -192,17 +205,22 @@ export function IslandShell({
     }
   };
   const glass = isGlass(material);
+  const musicCapsule = features.music && mediaState.playbackStatus === "playing" && Boolean(mediaState.title) && !preview && !quotaAlert && !deviceNotice;
+  const palette = useArtworkPalette(mediaState.thumbnail);
+  const musicSurface = referenceMusicSurface(material, isExpanded, palette.background);
   const isLiquidGlass = material === "liquidGlass";
   const { handleGlassPointerMove, resetGlassPointer } = useGlassPointer(isLiquidGlass);
   const isPreparing = useIslandPreparing(isExpanded);
   const tuckMorphClass = useTuckMorph(isTucked, tuckStyle);
   const contentRef = usePageFadeIn<HTMLDivElement>(page, mode);
-  const panelRef = useMotionLayer<HTMLDivElement>(mode, page, expandedHeight);
+  const panelRef = useMotionLayer<HTMLDivElement>(mode, page, expandedHeight, isExpanded ? effects.motionDuration : effects.motionCollapseDuration);
   const qqNotificationCount = qqNotifications.snapshot.items.length;
   const wechatPending = wechatReminders.snapshot.pending;
   const officePending = usePendingOfficeSource();
   const className = [
     "island",
+    musicCapsule ? "island--music-capsule" : "",
+    musicCapsule || isExpanded && page === "music" && mediaState.title ? "island--music-surface" : "",
     `island--${mode}`,
     `island--shape-${islandShape}`,
     `island--${page}`,
@@ -228,12 +246,17 @@ export function IslandShell({
       ? t.messages.collapsedTask(collapsedTaskTitle)
       : collapsedTodoCount !== null
         ? t.island.pendingTodos(collapsedTodoCount)
-        : "fly-island"
-    : "fly-island";
+        : t.island.appName
+    : t.island.appName;
 
   return (
     <section
       className={className}
+      style={{ ...islandMotionStyle(effects, isExpanded), "--capsule-text": palette.text,
+        "--capsule-secondary": palette.secondary, "--capsule-accent": palette.primary,
+        "--music-surface-top": musicSurface.top, "--music-surface-bottom": musicSurface.bottom,
+        "--music-surface-alpha": musicSurface.alpha, "--music-surface-frost": musicSurface.frost,
+        "--music-surface-reflection": musicSurface.reflection } as CSSProperties}
       aria-label={collapsedLabel}
       onClick={(event) => {
         if (!isExpanded && event.target === event.currentTarget) {
@@ -249,11 +272,14 @@ export function IslandShell({
       }}
     >
       <span className="island__shoulders" aria-hidden="true" />
+      <IslandGlow settings={effects} music={features.music && (mediaState.playbackStatus === "playing" || mediaState.playbackStatus === "unavailable" && mediaState.audioActive)}
+        timer={glowTimerRunning ?? Boolean(todoTimer && !todoTimer.notified)} hidden={isTucked} artwork={mediaState.thumbnail} />
       {glass && <span className="island__glass-shadow" aria-hidden="true" />}
       <div className="island__surface">
         {/* Outside .island__glass, whose top fades out when attached (IslandTopEdge.css). */}
         {glass && <IslandGlassLayers liquid={isLiquidGlass} />}
         <IslandCollapsedBar
+          onMusicGeometry={onMusicGeometry}
           deviceNotice={deviceNotice}
           qqMail={qqMail}
           qqNotifications={qqNotifications}

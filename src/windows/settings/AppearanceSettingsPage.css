@@ -1,0 +1,7 @@
+.settings-tabs { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; margin: 0 0 2px; }
+.settings-tabs [role="tab"] { border: 0; border-radius: 10px; background: var(--settings-control); color: var(--settings-muted); padding: 8px 12px; font: inherit; font-size: 13px; line-height: 1.2; white-space: nowrap; cursor: pointer; }
+.settings-tabs [aria-selected="true"] { color: var(--settings-text); background: var(--settings-selected); font-weight: 600; }
+.settings-tabs [role="tab"]:focus-visible { outline: 2px solid var(--settings-accent); outline-offset: 2px; }
+.settings-tabs__description { margin: -4px 0 0; color: var(--settings-muted); font-size: 12px; line-height: 1.4; }
+.settings-tab-panel { display: grid; gap: 16px; min-width: 0; }
+.settings-tab-panel[hidden] { display: none; }

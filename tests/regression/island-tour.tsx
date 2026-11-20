@@ -4,6 +4,7 @@
 // interface, ?detached=1 floats the island below the top edge, ?capsule=1 picks the capsule shape. With ?test=1 it opens each page and
 // checks that nothing sticks out of the island's rounded shape.
 import { act, StrictMode } from "react";
+import { DEFAULT_ISLAND_EFFECTS } from "../../src/features/appearance/islandEffects";
 import { createRoot } from "react-dom/client";
 import { mockIPC, mockWindows } from "@tauri-apps/api/mocks";
 import "../../src/styles/tokens.css";
@@ -19,7 +20,8 @@ import { TOUR_CLIPBOARD, TOUR_KIMI_USAGE, TOUR_LRC, TOUR_MAIL, TOUR_QQ_ITEMS, TO
 const query = new URLSearchParams(location.search);
 const automated = query.has("test");
 const empty = query.has("empty");
-const media = (query.get("media") ?? "playing") as TourMedia;
+// Test saved shapes while paused; collapsed-presentation covers the playing capsule.
+const media = (query.get("media") ?? (automated ? "paused" : "playing")) as TourMedia;
 const customNotch = query.has("notch");
 const fontPercent = Number(query.get("font")) || 100;
 // ?theme=dark|light|system picks the colour scheme, ?bg=FFFFFF a background colour of the user's own,
@@ -54,6 +56,7 @@ localStorage.setItem("focusd-island-settings", JSON.stringify({
   ...(query.get("scale") ? { expandedScale: Number(query.get("scale")) } : {}),
   ...(customNotch ? { collapsedAutoWidth: false, collapsedWidth: 240, collapsedHeight: 32 } : {}),
   islandFontPercent: fontPercent,
+  ...(query.has("glow") ? { musicGlowEnabled: true, timerGlowEnabled: true, updateGlowEnabled: true } : {}),
   ...(query.get("theme") ? { colorScheme: query.get("theme") } : {}),
   ...(query.get("bg") ? { islandBackgroundColor: `#${query.get("bg")}` } : {}),
   ...(query.get("material") ? { material: query.get("material") } : {}),
@@ -142,7 +145,7 @@ const click = async (selector: string) => {
   const element = document.querySelector<HTMLElement>(selector);
   if (!element) throw new Error(`Missing ${selector}`);
   await act(async () => { element.click(); });
-  // The island's height and radius animate for 560ms; measure once they have settled.
+  // Wait for the default shape and panel transitions to settle.
   await settle(700);
 };
 
@@ -201,7 +204,7 @@ if (!automated) {
     const collapsed = island().getBoundingClientRect();
     const collapsedRadius = Number.parseFloat(getComputedStyle(island()).borderBottomLeftRadius);
     const expectedHeight = customNotch ? 32 : 38;
-    checkShapeMotion(0.38);
+    checkShapeMotion(DEFAULT_ISLAND_EFFECTS.motionCollapseDuration / 1000);
     checkCollapsedShape(query.has("capsule"), { island: island(), expectedHeight, interaction, check });
     const bar = document.querySelector<HTMLElement>(".island__collapsed")!;
     if (customNotch) {
@@ -224,11 +227,11 @@ if (!automated) {
       check(document.querySelector(".dot-button--todo .island-update-dot") && document.querySelector(".todo-update-dot"),
         "进入待办后入口红点和更新按钮红点都保留，直到安装");
     }
-    checkShapeMotion(0.56);
+    checkShapeMotion(DEFAULT_ISLAND_EFFECTS.motionDuration / 1000);
     if (query.has("theme") || query.has("bg")) checkTone(check, query.get("theme") === "light" || (query.get("bg") ?? "").toUpperCase() === "FFFFFF");
     if (query.get("material")) checkMaterial(check, query.get("material")!);
     const panelMotion = getComputedStyle(panel());
-    check(panelMotion.transitionProperty === "opacity, transform" && panelMotion.transitionDuration === "0.24s, 0.42s"
+    check(panelMotion.transitionProperty === "opacity, transform" && panelMotion.transitionDuration === "0.24s, 0.4s"
       && panelMotion.transitionDelay === "0.12s, 0.08s", "展开面板完整淡入，保留原时长与延迟");
     check(Number.parseFloat(getComputedStyle(island()).borderBottomLeftRadius) > collapsedRadius, "展开后的圆角比收起时更大");
     await checkTuckMorph({ tuckStyle, island, check, settle, interaction: () => interaction, click, checkShapeMotion });
@@ -354,7 +357,7 @@ if (!automated) {
       });
     }
     const savedLayout = JSON.parse(localStorage.getItem("focusd-island-settings") ?? "{}").collapsedLayout as string[] | undefined;
-    check(savedLayout?.join() === "music,text,mail,shelf,agents,cpu,memory,weather,clock,pet" && (media !== "paused" && media !== "none" ? barOrder().startsWith("island__text-slot,music-wave-button") : barOrder().startsWith("music-wave-button,island__text-slot")),
+    check(savedLayout?.join() === "music,text,mail,shelf,agents,cpu,memory,weather,clock,pet" && (media !== "paused" && media !== "none" ? barOrder().startsWith("island__text-slot,music-wave-button") : !barOrder().includes("music-wave-button")),
       `岛上的排列：音乐波形移到文字左边，收起的岛也跟着变（${barOrder()}）`);
     await click(".settings-sidebar__item[data-category='general']");
     const lockSwitch = () => [...document.querySelectorAll<HTMLElement>(".settings-row")]
@@ -362,7 +365,7 @@ if (!automated) {
     await act(async () => { lockSwitch().click(); });
     check(interaction.positionLocked === true, "锁定位置同步到原生窗口");
     await click(".island__collapse-target");
-    checkShapeMotion(0.38);
+    checkShapeMotion(DEFAULT_ISLAND_EFFECTS.motionCollapseDuration / 1000);
     const dragIsland = async (ctrlKey = false) => {
       const button = document.querySelector<HTMLElement>(".island__open-button")!;
       // Synthetic pointers do not have OS capture; the real hook still handles the events.

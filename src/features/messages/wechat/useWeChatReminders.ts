@@ -1,7 +1,7 @@
 import { useTranslation } from "../../../i18n";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { isTauri } from "@tauri-apps/api/core";
-import type { MessagePreview } from "../messagePreview";
+import type { MessageNoticeReceiver, MessagePreview } from "../messagePreview";
 import {
   clearWeChatReminders, dismissWeChatConversation, getWeChatReminderState, launchWeChat, launchWeChatConversation, listenWeChatReminderChanged,
   setWeChatMessagePreviewEnabled, setWeChatMinimizedTaskbarHidden, setWeChatRemindersEnabled, type ReminderSnapshot,
@@ -18,12 +18,14 @@ const EMPTY_SNAPSHOT: ReminderSnapshot = {
   previewEnabled: false, previewStatus: "off", hideMinimizedTaskbar: false, messages: [],
 };
 
-export function useWeChatReminders(canPreview: boolean, { restore = true, previewSeconds = 5 } = {}) {
+export function useWeChatReminders(canPreview: boolean, { restore = true, previewSeconds = 5, onNotice }: { restore?: boolean; previewSeconds?: number; onNotice?: MessageNoticeReceiver } = {}) {
   const t = useTranslation();
   const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT);
   const [busy, setBusy] = useState(isTauri);
   const [actionError, setActionError] = useState<string | null>(null);
   const [previewWindow, setPreviewWindow] = useState<{ receivedAt: number; expiresAt: number } | null>(null);
+  const onNoticeRef = useRef(onNotice);
+  onNoticeRef.current = onNotice;
   const previewSecondsRef = useRef(previewSeconds);
   const canPreviewRef = useRef(canPreview);
   const revisionRef = useRef(-1);
@@ -58,6 +60,12 @@ export function useWeChatReminders(canPreview: boolean, { restore = true, previe
           || payload.snapshot.status !== "listening" || !payload.windowVisible || !canPreviewRef.current) {
           setPreviewWindow(null);
         } else if (newlyPending) {
+          const receivedAt = payload.snapshot.lastAttentionAt ?? Date.now();
+          const messages = payload.snapshot.messages.filter((item) => item.receivedAt === receivedAt);
+          for (const message of messages.length ? messages : [undefined]) {
+            onNoticeRef.current?.({ source: "wechat", title: message?.contact ?? "", body: message?.body ?? "",
+              receivedAt, messageId: message?.id, wechatMessageId: message?.id });
+          }
           setPreviewWindow((previous) => {
             const receivedAt = Math.max(Date.now(), (previous?.receivedAt ?? 0) + 1);
             return { receivedAt, expiresAt: receivedAt + previewSecondsRef.current * 1_000 };

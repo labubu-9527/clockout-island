@@ -4,7 +4,8 @@ pub(crate) mod sizing;
 use sizing::Size;
 use std::{thread, time::Duration};
 use tauri::{
-    window::Color, AppHandle, Emitter, Manager, Monitor, PhysicalPosition, WebviewWindow, WebviewWindowBuilder, WindowEvent,
+    window::Color, AppHandle, Emitter, Manager, Monitor, PhysicalPosition, WebviewWindow,
+    WebviewWindowBuilder, WindowEvent,
 };
 
 pub const WINDOW_LABEL: &str = "settings";
@@ -177,10 +178,8 @@ pub async fn show_settings_window(app: AppHandle) -> Result<(), String> {
     reveal(&window)
 }
 
-/// The page's background before it paints and while the window is resized, per colour scheme
-/// (`--color-window` in src/styles/tokens.css).
-const DARK_BACKGROUND: Color = Color(0x17, 0x19, 0x1d, 0xff);
-const LIGHT_BACKGROUND: Color = Color(0xf3, 0xf3, 0xf6, 0xff);
+// The web content owns the rounded surface; an opaque native background would fill its corners.
+const TRANSPARENT_BACKGROUND: Color = Color(0, 0, 0, 0);
 
 /// Paints the settings window's title bar and background in the page's colour scheme. The window
 /// theme is left alone: setting it also sets the preferred colour scheme of the one WebView2
@@ -190,7 +189,7 @@ pub fn set_settings_window_theme(window: WebviewWindow, dark: bool) -> Result<()
     let hwnd = window.hwnd().map_err(|error| error.to_string())?;
     crate::win32::window::set_dark_title_bar(hwnd, dark);
     window
-        .set_background_color(Some(if dark { DARK_BACKGROUND } else { LIGHT_BACKGROUND }))
+        .set_background_color(Some(TRANSPARENT_BACKGROUND))
         .map_err(|error| error.to_string())
 }
 

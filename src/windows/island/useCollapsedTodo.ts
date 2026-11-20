@@ -92,15 +92,16 @@ export function useCollapsedTodo(
     const itemText = collapsedItem === "agent"
       ? AGENT_ICON_TEXT + agentTitle
       : collapsedItem === "todo" ? todoText : null;
-    const text = settings.showCollapsedText ? [settings.showTitle && collapsedItem !== "agent" ? "fly-island" : "", itemText].filter(Boolean).join(" ") : "";
+    const text = settings.showCollapsedText && settings.collapsedSlotVisibility.text
+      ? [settings.showTitle && collapsedItem !== "agent" && !widestTimer ? t.island.appName : "", itemText].filter(Boolean).join(" ") : "";
     return alignCollapsedIslandWidth(
-      getCollapsedIslandWidth(text, accessoryWidth + (widestTimer && collapsedItem === "todo" && settings.showCollapsedText ? timerPillWidth(widestTimer, fontScale) : 0), fontScale, maxWidth),
+      getCollapsedIslandWidth(text, accessoryWidth + (widestTimer && collapsedItem === "todo" ? timerPillWidth(widestTimer, fontScale) : 0), fontScale, maxWidth),
       window.innerWidth,
       window.devicePixelRatio,
       maxWidth,
     );
   }, [agentTitle, collapsedItem, collapsedTaskTitle, collapsedTodoCount, settings.collapsedAutoWidth,
-    settings.collapsedWidth, settings.islandFontPercent, settings.showCollapsedText, settings.showTitle,
+    settings.collapsedWidth, settings.islandFontPercent, settings.showCollapsedText, settings.showTitle, settings.collapsedSlotVisibility.text,
     accessoryWidth, t, timer, timers, rotating, rotationTodos]);
 
   return { collapsedTaskTitle, collapsedTodoCount, collapsedItem, collapsedIslandWidth, todoRotation, collapsedTimer };

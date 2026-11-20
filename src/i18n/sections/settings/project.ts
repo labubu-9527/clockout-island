@@ -75,7 +75,7 @@ export type SettingsProjectText = {
 
 export const zhCN: SettingsProjectText = {
   title: "关于小岛",
-  appName: "fly-island",
+  appName: "岛点下班",
   versionChip: (version) => `v${version}`,
   description: "在屏幕顶部集中待办、剪贴板、音乐、快捷翻译、AI 状态和消息提醒。",
   quit: "退出岛屿",
@@ -87,7 +87,7 @@ export const zhCN: SettingsProjectText = {
   community: "用户交流群",
   communityHint: "遇到问题、想要新功能，都可以来群里问问、聊聊",
   communityNew: "新",
-  communityCodeAlt: "fly-island 用户交流群的微信二维码",
+  communityCodeAlt: "岛点下班 用户交流群的微信二维码",
   communityScan: "用微信扫一扫加入。二维码每周更新，过期了重新点开这里就是新的。",
   communityLoadFailed: "二维码没加载出来，检查一下网络后再点开试试。",
   star: "觉得小岛还不错？",
@@ -140,7 +140,7 @@ export const zhCN: SettingsProjectText = {
 
 export const en: SettingsProjectText = {
   title: "About the island",
-  appName: "fly-island",
+  appName: "Clockout-island",
   versionChip: (version) => `v${version}`,
   description: "Todos, clipboard, music, quick translation, AI status, and message alerts, gathered at the top of the screen.",
   quit: "Quit the island",
@@ -152,7 +152,7 @@ export const en: SettingsProjectText = {
   community: "Community group",
   communityHint: "Questions, ideas or problems? Come ask and chat in the group",
   communityNew: "New",
-  communityCodeAlt: "WeChat QR code of the fly-island community group",
+  communityCodeAlt: "WeChat QR code of the Clockout-island community group",
   communityScan: "Scan with WeChat to join. The code changes every week; if it has expired, open this again for the new one.",
   communityLoadFailed: "Couldn't load the QR code. Check your connection and open this again.",
   star: "Enjoying your little island?",

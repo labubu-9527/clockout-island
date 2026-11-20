@@ -43,9 +43,13 @@ export type MusicText = {
   nextTrack: string;
   progress: string;
   openSettings: string;
+  toolbar: { playing: string; paused: string; mode: string; normal: string; shuffle: string; repeat: string; repeatOne: string;
+    unsupportedMode: string; favorite: string; unsupportedFavorite: string; volume: string; unavailableVolume: string; translation: string; noTranslation: string };
 };
 
 export const zhCN: MusicText = {
+  toolbar: { playing: "正在播放", paused: "已暂停", mode: "播放模式", normal: "顺序播放", shuffle: "随机播放", repeat: "列表循环", repeatOne: "单曲循环",
+    unsupportedMode: "当前播放器不支持切换播放模式", favorite: "收藏歌曲", unsupportedFavorite: "当前媒体接口不提供收藏，请在播放器中操作", volume: "系统输出音量", unavailableVolume: "无法读取系统输出音量", translation: "显示歌词译文", noTranslation: "当前歌曲没有歌词译文" },
   plugin: {
     player: "网易云音乐",
     install: "一键启用", uninstall: "卸载", confirmRemove: "确认卸载", retry: "重试", details: "了解详情",
@@ -106,6 +110,8 @@ export const zhCN: MusicText = {
 };
 
 export const en: MusicText = {
+  toolbar: { playing: "Playing", paused: "Paused", mode: "Playback mode", normal: "Sequential", shuffle: "Shuffle", repeat: "Repeat all", repeatOne: "Repeat one",
+    unsupportedMode: "This player does not support playback mode changes", favorite: "Favorite track", unsupportedFavorite: "This media interface does not expose favorites. Use the player to favorite this track.", volume: "System output volume", unavailableVolume: "System output volume is unavailable", translation: "Show lyric translation", noTranslation: "No translated lyrics are available for this track" },
   plugin: {
     player: "NetEase Cloud Music",
     install: "Enable precise progress", uninstall: "Uninstall", confirmRemove: "Confirm uninstall", retry: "Retry", details: "Learn more",

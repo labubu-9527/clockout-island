@@ -1,12 +1,11 @@
-import { useDeviceNotice } from '../../features/device-notices/useDeviceNotice';
+import type { DeviceNotice } from '../../features/device-notices/model';
 import { DeviceNoticeCard } from '../../features/device-notices/DeviceNoticeCard';
 import { useTranslation } from '../../i18n';
 import { getCollapsedTextUnits } from '../../utils/text';
 import type { IslandSettings } from '../../features/appearance/types';
 
 /** Window composition owns priority and sizing; the device feature only reports state changes. */
-export function useIslandDeviceNotice(settings: IslandSettings, blocked: boolean) {
-  const notice = useDeviceNotice(blocked);
+export function useIslandDeviceNotice(settings: IslandSettings, notice: DeviceNotice | null) {
   const text = useTranslation().deviceNotices;
   if (!notice) return null;
   const state = notice.kind === 'microphoneMuted' ? notice.value ? text.muted : text.unmuted : notice.value ? text.enabled : text.disabled;

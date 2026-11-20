@@ -19,12 +19,20 @@ test("auto width shrinks with text and hidden indicators, while music is stable"
   assert.equal(collapsedPresentationWidth({ textWidth: 36, pet: true, clockWidth: 0, statusCount: 0, weather: false, shelf: false, music: false, agents: false, messages: 0 }), 96);
   const ordinary = { textWidth: 96, pet: true, clockWidth: 44, statusCount: 2, weather: true, shelf: true, music: true, agents: true, messages: 1 };
   assert.ok(collapsedPresentationWidth(ordinary) > 280);
-  assert.equal(collapsedPresentationWidth({ ...ordinary, lyricMode: true }), 380);
-  assert.equal(collapsedPresentationWidth({ ...ordinary, lyricMode: true, pet: false, messages: 0 }), 300);
+  assert.equal(collapsedPresentationWidth({ ...ordinary, lyricMode: true }), 340);
+  assert.equal(collapsedPresentationWidth({ ...ordinary, lyricMode: true, pet: false, messages: 0 }), 260);
 });
 
 test("manual widths above 280 still yield auxiliary readings when occupied space exceeds them", () => {
   const options = { textWidth: 96, pet: true, clockWidth: 52, statusCount: 2, weather: false, shelf: false, music: true, agents: false, messages: 1 };
   assert.equal(collapsedPresentationLayout(options, 480).compact, false);
   assert.equal(collapsedPresentationLayout(options, 300).compact, true);
+});
+
+test("running timer is the primary activity and yields all ordinary metrics", () => {
+  assert.deepEqual(visibleCollapsedSlots(["cpu", "clock", "text", "music", "agents"], { text: false }, false, true), ["text"]);
+  const activity = { textWidth: 180, pet: true, clockWidth: 150, statusCount: 2, weather: true, shelf: true, music: true, agents: true, messages: 2, timer: true };
+  assert.equal(collapsedPresentationWidth(activity), 292);
+  assert.equal(collapsedPresentationLayout(activity).compact, true);
+  assert.deepEqual(visibleCollapsedSlots(["clock", "text", "cpu"], {}, false, false), ["clock", "text", "cpu"]);
 });

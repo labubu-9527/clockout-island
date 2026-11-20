@@ -67,15 +67,15 @@ const BLOCK_END: &str = "<!-- /focusd-island: reply marker -->";
 
 /// The instruction, in the island's own words.
 const BLOCK_BODY: &str = "\
-## Reply status marker (added by Fly Island)
+## Reply status marker (added by 岛点下班)
 
-End every reply with one extra line that holds only one of these characters, so Fly Island can show what this session is waiting for:
+End every reply with one extra line that holds only one of these characters, so 岛点下班 can show what this session is waiting for:
 
 - `↩` you asked the user a question, or need their decision or input, before you can go on
 - `⋯` you are waiting for a background task you started yourself (a background command, a subagent) and will continue on your own
 - `✓` the work is finished and nothing is needed from the user
 
-Write the character alone on the last line, without backticks, and nothing after it. To stop, switch off \"Reply status marker\" in Fly Island's Settings → AI Agent, which deletes this file.";
+Write the character alone on the last line, without backticks, and nothing after it. To stop, switch off \"Reply status marker\" in 岛点下班's Settings → AI Agent, which deletes this file.";
 
 pub(super) fn block() -> String {
     format!("{BLOCK_START}\n{BLOCK_BODY}\n{BLOCK_END}")
@@ -84,7 +84,7 @@ pub(super) fn block() -> String {
 /// The v2 rules file: the same words under the island's former name. Only the name changed, so
 /// a file still holding exactly this is rewritten on the next read without asking.
 fn v2_rules_file() -> String {
-    let body = BLOCK_BODY.replace("Fly Island", "FocuSD Island");
+    let body = BLOCK_BODY.replace("岛点下班", "FocuSD Island");
     format!("<!-- focusd-island: reply marker v2 -->\n{body}\n{BLOCK_END}\n")
 }
 

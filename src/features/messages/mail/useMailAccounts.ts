@@ -17,7 +17,7 @@ export function useMailAccounts({ restore, onSnapshot, onEvent }: {
   /** Called for each snapshot accepted, before it is shown. */
   onSnapshot?: (snapshot: MailSnapshot) => void;
   /** Called for each event whose snapshot was accepted. */
-  onEvent?: (event: MailEvent) => void;
+  onEvent?: (event: MailEvent, previous?: MailSnapshot) => void;
 }) {
   const t = useTranslation();
   const translationsRef = useRef(t);
@@ -26,6 +26,7 @@ export function useMailAccounts({ restore, onSnapshot, onEvent }: {
   const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(isTauri);
   const revisionsRef = useRef(new Map<string, number>());
+  const snapshotsRef = useRef(new Map<string, MailSnapshot>());
   const typedHostsRef = useRef(new Map<string, string>());
   const actionIdRef = useRef(0);
   const onSnapshotRef = useRef(onSnapshot);
@@ -37,6 +38,7 @@ export function useMailAccounts({ restore, onSnapshot, onEvent }: {
     const email = next.email;
     if (!email || next.revision < (revisionsRef.current.get(email) ?? -1)) return false;
     revisionsRef.current.set(email, next.revision);
+    snapshotsRef.current.set(email, next);
     onSnapshotRef.current?.(next);
     setMailboxes((current) => upsertMailbox(current, next));
     if (next.status === "connected" && !next.syncing) setActionError(null);
@@ -54,7 +56,8 @@ export function useMailAccounts({ restore, onSnapshot, onEvent }: {
     let unlisten: (() => void) | undefined;
     void (async () => {
       unlisten = await listenMailChanged(({ payload }) => {
-        if (!cancelled && acceptSnapshot(payload.snapshot)) onEventRef.current?.(payload);
+        const previous = payload.snapshot.email ? snapshotsRef.current.get(payload.snapshot.email) : undefined;
+        if (!cancelled && acceptSnapshot(payload.snapshot)) onEventRef.current?.(payload, previous);
       });
       if (cancelled) { unlisten(); return; }
       const saved = loadMailAccounts();

@@ -112,7 +112,7 @@ pub(crate) fn set_keyboard_observer(enabled: bool) -> windows::core::Result<()> 
             unsafe { SetWindowsHookExW(WH_KEYBOARD_LL, Some(keyboard_hook), Some(instance), 0) }?;
         // SAFETY: valid virtual-key constants; no pointers. Seed once on the
         // message-pumping thread, then observe global transitions independently
-        // of whether Fly Island or another application owns keyboard focus.
+        // of whether 岛点下班 or another application owns keyboard focus.
         let (caps, num) = unsafe {
             (
                 ToggleKey::new(

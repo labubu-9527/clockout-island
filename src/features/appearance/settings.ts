@@ -42,6 +42,9 @@ export { DEFAULT_SETTINGS } from "./settingsDefaults.ts";
  * so presets saved with those values no longer move the island or change the count.
  */
 export const APPEARANCE_SETTING_KEYS = [
+  "musicGlowEnabled", "timerGlowEnabled", "updateGlowEnabled", "musicGlowMode", "motionMode",
+  "motionDuration", "motionCollapseDuration", "motionCurve", "springMass", "springStiffness", "springDamping",
+  "pillCornerRadius",
   "material",
   "colorScheme",
   "fontFamily",

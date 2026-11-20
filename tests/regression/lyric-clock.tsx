@@ -36,7 +36,7 @@ function check(condition: unknown, message: string) {
   if (!condition) throw new Error(message);
   passed.push(`PASS ${message}`);
 }
-const text = () => document.querySelector(".collapsed-lyric")?.textContent;
+const text = () => document.querySelector(".collapsed-lyric__primary")?.textContent;
 try {
   await render("prefetched", false);
   check(calls.length === 1, "展开且未进入音乐页时预取，StrictMode 不重复请求");

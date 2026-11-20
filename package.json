@@ -1,5 +1,5 @@
 {
-  "name": "fly-island",
+  "name": "clockout-island",
   "private": true,
   "version": "3.2.8-beta",
   "type": "module",
@@ -18,6 +18,7 @@
     "check": "tsc && pnpm run check:tests-types && pnpm run lint && pnpm run check:size && pnpm run test"
   },
   "dependencies": {
+    "@material/material-color-utilities": "0.3.0",
     "@tauri-apps/api": "^2",
     "@tauri-apps/plugin-opener": "^2",
     "@tauri-apps/plugin-updater": "~2.12.0",

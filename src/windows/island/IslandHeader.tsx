@@ -135,7 +135,7 @@ export function IslandHeader({
         ) : (
           <span className={`island__agent-capsule ${agentStatusIconClassName}`} role="img" aria-label={agentStatusLabel} />
         )}
-        {showTitle && <span>fly-island</span>}
+        {showTitle && <span>{t.island.appName}</span>}
       </div>
 
       <div

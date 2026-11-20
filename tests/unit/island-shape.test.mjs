@@ -26,3 +26,13 @@ test("the capsule floats below the top edge as a full pill", () => {
 test("the shape travels with appearance presets", () => {
   assert.equal(withAppearanceFrom(normalizeSettings(null), capsule()).islandShape, "pill");
 });
+
+test("an explicit capsule corner overrides half-height and travels with presets", () => {
+  assert.equal(normalizeSettings(null).pillCornerRadius, null);
+  const settings = capsule({ pillCornerRadius: 8 });
+  assert.equal(shapedSettings(settings).collapsedCornerRadius, 8);
+  assert.equal(withAppearanceFrom(normalizeSettings(null), settings).pillCornerRadius, 8);
+  assert.equal(normalizeSettings({ pillCornerRadius: 80 }).pillCornerRadius, 48);
+  assert.equal(normalizeSettings({ pillCornerRadius: -4 }).pillCornerRadius, 0);
+  assert.equal(normalizeSettings({ pillCornerRadius: NaN }).pillCornerRadius, null);
+});

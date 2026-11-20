@@ -34,7 +34,7 @@ async function render(state: Partial<MediaState> = {}, active = true, fill = tru
   });
 }
 const words = () => [...document.querySelectorAll<HTMLElement>(".collapsed-lyric__word")];
-const text = () => document.querySelector<HTMLElement>(".collapsed-lyric")!;
+const text = () => document.querySelector<HTMLElement>(".collapsed-lyric__primary")!;
 const tick = () => act(async () => { await new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))); });
 function check(ok: unknown, label: string) {
   if (!ok) throw new Error(label);

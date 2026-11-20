@@ -1,5 +1,21 @@
-import { useEffect, useRef } from "react";
-import { CloudSun, ArrowUpRight, ClipboardList, Info, Languages, ListTodo, MessageCircle, MessagesSquare, Music, Palette, Plug, Puzzle, SlidersHorizontal, UserRound, type LucideIcon } from "lucide-react";
+import { useEffect, useRef, type ReactNode } from "react";
+import {
+  CloudSun,
+  ArrowUpRight,
+  ClipboardList,
+  Info,
+  Languages,
+  ListTodo,
+  MessageCircle,
+  MessagesSquare,
+  Music,
+  Palette,
+  Plug,
+  Puzzle,
+  SlidersHorizontal,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 import { isTauri } from "@tauri-apps/api/core";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { PROJECT_AUTHOR_URL } from "../../features/updater/projectLinks";
@@ -31,9 +47,11 @@ const CATEGORY_ICONS: Record<SettingsCategory, LucideIcon> = {
 export function SettingsSidebar({
   category,
   onCategoryChange,
+  search,
 }: {
   category: SettingsCategory;
   onCategoryChange: (category: SettingsCategory) => void;
+  search?: ReactNode;
 }) {
   const t = useTranslation();
   const text = t.settings.categories;
@@ -42,7 +60,9 @@ export function SettingsSidebar({
   const community = useCommunityInvite();
   // The list can outgrow a short window or the island; keep the open page in sight.
   useEffect(() => {
-    listRef.current?.querySelector(".settings-sidebar__item--active")?.scrollIntoView({ block: "nearest" });
+    listRef.current
+      ?.querySelector(".settings-sidebar__item--active")
+      ?.scrollIntoView({ block: "nearest" });
   }, [category]);
 
   const item = (entry: SettingsCategory) => {
@@ -61,9 +81,20 @@ export function SettingsSidebar({
             onCategoryChange(entry);
           }}
         >
-          <Icon size={16} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
+          <Icon
+            size={16}
+            strokeWidth={1.5}
+            absoluteStrokeWidth
+            aria-hidden="true"
+          />
           <span>{text[entry]}</span>
-          {entry === "about" && community.pending && <span className="settings-sidebar__dot" role="img" aria-label={t.settings.project.communityNew} />}
+          {entry === "about" && community.pending && (
+            <span
+              className="settings-sidebar__dot"
+              role="img"
+              aria-label={t.settings.project.communityNew}
+            />
+          )}
         </button>
       </li>
     );
@@ -71,6 +102,16 @@ export function SettingsSidebar({
 
   return (
     <nav className="settings-sidebar" aria-label={text.label}>
+      {search}
+      <div className="settings-sidebar__brand">
+        <span className="settings-sidebar__brand-icon" aria-hidden="true">
+          <Palette size={20} />
+        </span>
+        <div>
+          <strong>{t.island.appName}</strong>
+          <small>{t.settings.replica.brandDescription}</small>
+        </div>
+      </div>
       <div className="settings-sidebar__list" ref={listRef}>
         {SETTINGS_GROUPS.map((group) => (
           <section
@@ -83,15 +124,36 @@ export function SettingsSidebar({
               {group.label === null && (
                 // 不是设置页：点一下直接用系统浏览器打开作者的网站。
                 <li>
-                  <a className="settings-sidebar__item settings-sidebar__item--link" href={PROJECT_AUTHOR_URL} target="_blank" rel="noreferrer"
+                  <a
+                    className="settings-sidebar__item settings-sidebar__item--link"
+                    href={PROJECT_AUTHOR_URL}
+                    target="_blank"
+                    rel="noreferrer"
                     onClick={(event) => {
                       if (!isTauri()) return;
                       event.preventDefault();
-                      void openUrl(PROJECT_AUTHOR_URL).catch((error) => console.error("Failed to open the author's site", error));
-                    }}>
-                    <UserRound size={16} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
+                      void openUrl(PROJECT_AUTHOR_URL).catch((error) =>
+                        console.error(
+                          "Failed to open the author's site",
+                          error,
+                        ),
+                      );
+                    }}
+                  >
+                    <UserRound
+                      size={16}
+                      strokeWidth={1.5}
+                      absoluteStrokeWidth
+                      aria-hidden="true"
+                    />
                     <span>{t.settings.project.author}</span>
-                    <ArrowUpRight className="settings-sidebar__external" size={13} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />
+                    <ArrowUpRight
+                      className="settings-sidebar__external"
+                      size={13}
+                      strokeWidth={1.5}
+                      absoluteStrokeWidth
+                      aria-hidden="true"
+                    />
                   </a>
                 </li>
               )}

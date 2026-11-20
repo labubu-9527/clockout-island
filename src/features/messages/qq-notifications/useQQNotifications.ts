@@ -1,6 +1,7 @@
 import { useTranslation } from "../../../i18n";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { isTauri } from "@tauri-apps/api/core";
+import type { MessageNoticeReceiver } from "../messagePreview";
 import { nextQQPreview, type QQPreviewTiming } from "../qqNotificationTiming";
 import { clearQQNotifications, dismissQQContact, getQQNotificationState, launchQQ, listenQQNotificationsChanged, openQQNotificationSettings, requestQQNotificationAccess, setQQNotificationsEnabled, type QQNotificationSnapshot } from "./api";
 import { hasRequestedQQNotificationAccess, isQQNotificationsEnabled, markQQNotificationAccessRequested, saveQQNotificationsEnabled } from "./storage";
@@ -13,16 +14,19 @@ const EMPTY_SNAPSHOT: QQNotificationSnapshot = {
   error: null,
 };
 
-export function useQQNotifications(canPreview: boolean, previewSeconds = 5) {
+export function useQQNotifications(canPreview: boolean, previewSeconds = 5, onNotice?: MessageNoticeReceiver) {
   const t = useTranslation();
   const [snapshot, setSnapshot] = useState(EMPTY_SNAPSHOT);
   const [acknowledged, setAcknowledged] = useState<string[]>([]);
   const [actionError, setActionError] = useState<string | null>(null);
   const [busy, setBusy] = useState(isTauri);
   const [previewWindow, setPreviewWindow] = useState<{ id: string; expiresAt: number; receivedAt: number } | null>(null);
+  const onNoticeRef = useRef(onNotice);
+  onNoticeRef.current = onNotice;
   const canPreviewRef = useRef(canPreview);
   const previewSecondsRef = useRef(previewSeconds);
   const revisionRef = useRef(-1);
+  const snapshotRef = useRef<QQNotificationSnapshot | null>(null);
   const timingRef = useRef<QQPreviewTiming | null>(null);
   const actionPending = useRef(false);
 
@@ -42,6 +46,7 @@ export function useQQNotifications(canPreview: boolean, previewSeconds = 5) {
   const acceptSnapshot = useCallback((next: QQNotificationSnapshot) => {
     if (next.revision < revisionRef.current) return false;
     revisionRef.current = next.revision;
+    snapshotRef.current = next;
     setSnapshot(next);
     return true;
   }, []);
@@ -52,6 +57,7 @@ export function useQQNotifications(canPreview: boolean, previewSeconds = 5) {
     let unlisten: (() => void) | undefined;
     void (async () => {
       unlisten = await listenQQNotificationsChanged(({ payload }) => {
+        const previous = snapshotRef.current;
         if (cancelled || !acceptSnapshot(payload.snapshot)) return;
         if (!payload.snapshot.enabled || !payload.windowVisible || !canPreviewRef.current) {
           setPreviewWindow(null);
@@ -59,6 +65,11 @@ export function useQQNotifications(canPreview: boolean, previewSeconds = 5) {
           return;
         }
         if (payload.newestId) {
+          const previousIds = previous ? new Set(previous.items.map((item) => item.id)) : null;
+          const arrivals = payload.snapshot.items.filter((item) => item.id === payload.newestId
+            || (previousIds !== null && !previousIds.has(item.id))).sort((a, b) => a.createdAt - b.createdAt);
+          for (const message of arrivals) onNoticeRef.current?.({ source: "qq", title: message.title, body: message.body,
+            messageId: message.id, receivedAt: message.createdAt });
           const receivedAt = Date.now();
           const { timing, expiresAt } = nextQQPreview(timingRef.current, receivedAt, previewSecondsRef.current);
           timingRef.current = timing;

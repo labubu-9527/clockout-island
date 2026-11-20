@@ -8,6 +8,7 @@ import { useTranslation } from "../../i18n";
 import { dockSettingsWindow, setSettingsWindowTheme, showSettingsWindow } from "./api";
 import { saveDetachedSettings } from "./storage";
 import { SettingsPanel } from "./SettingsPanel";
+import { SettingsWindowChrome } from "./SettingsWindowChrome";
 import { useSettingsPresentation } from "./useSettingsPresentation";
 import "./SettingsWindow.css";
 
@@ -54,7 +55,7 @@ export function SettingsWindow() {
 
   useEffect(() => {
     void getCurrentWindow()
-      .setTitle(`fly-island ${t.settings.title}`)
+      .setTitle(`${t.island.appName} ${t.settings.title}`)
       .catch((error) => {
         console.error("Failed to set settings window title", error);
       });
@@ -73,6 +74,7 @@ export function SettingsWindow() {
 
   return (
     <main className={`settings-stage stage--font-${settings.fontFamily}`}>
+      <SettingsWindowChrome />
       <SettingsPanel
         settings={settings}
         onSettingsChange={setSettings}

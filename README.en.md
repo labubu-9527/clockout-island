@@ -1,7 +1,8 @@
 <div align="center">
-  <img src="src-tauri/icons/mark.svg" alt="Fly Island logo" width="96" height="96">
+  <img src="src-tauri/icons/mark.svg" alt="岛点下班 logo" width="96" height="96">
 
-  <h1>fly-island</h1>
+  <h1>Clockout-island</h1>
+  <p>岛点下班 · Based on Fly Island, with continued GitHub upstream synchronization.</p>
 
   <p>An ultra-lightweight Dynamic Island for Windows: WeChat, QQ and mail messages, multi-session AI agents with quota rings, a music player, to-dos, clipboard history, a file shelf and more. It expands when needed and tucks away when done.</p>
 
@@ -26,7 +27,7 @@
   </p>
 
   <a href="https://island.flyliu.org/">
-    <img src="docs/assets/promo-preview.webp" alt="fly-island promo: WeChat messages on the island, approving a Claude Code permission request, Claude and Codex usage, the file shelf, tasks, music and translation" width="860">
+    <img src="docs/assets/promo-preview.webp" alt="Clockout-island promo: WeChat messages on the island, approving a Claude Code permission request, Claude and Codex usage, the file shelf, tasks, music and translation" width="860">
   </a>
 
   <p><sub>Click to open the live preview and try it without installing (video captions are in Chinese)</sub></p>
@@ -36,7 +37,7 @@
 
 ## What is this?
 
-fly-island is a Windows-first Dynamic Island. WeChat, QQ and mail messages pop up right on the island. You can see at a glance what Claude Code, Codex or DSH is doing and whether it needs your approval. Synced lyrics, a file shelf, clipboard history, quick translation and to-dos all live in the same small island at the top of the screen.
+Clockout-island is a Windows-first Dynamic Island. WeChat, QQ and mail messages pop up right on the island. You can see at a glance what Claude Code, Codex or DSH is doing and whether it needs your approval. Synced lyrics, a file shelf, clipboard history, quick translation and to-dos all live in the same small island at the top of the screen.
 
 It is an ultra-light, frameless, always-on-top island using about 0.2–0.5% of memory. It expands when you need it and tucks away when you are done.
 
@@ -112,9 +113,9 @@ Three looks: Classic, Liquid Glass and Frosted Glass (the glass shows what's beh
 
 ## Barely there
 
-Leave it running all day: in Task Manager, fly-island uses only about 0.3% of memory.
+Leave it running all day: in Task Manager, Clockout-island uses only about 0.3% of memory.
 
-<p align="center"><img src="docs/assets/screenshots/memory.webp" alt="fly-island using about 0.3% memory in Task Manager" width="620"></p>
+<p align="center"><img src="docs/assets/screenshots/memory.webp" alt="Clockout-island using about 0.3% memory in Task Manager" width="620"></p>
 
 ## Install
 
@@ -125,13 +126,13 @@ Leave it running all day: in Task Manager, fly-island uses only about 0.3% of me
 <details>
 <summary><b>How do I turn on each feature?</b></summary>
 
-| Feature | How |
-| --- | --- |
-| WeChat alerts | Just stay signed in to WeChat for PC. [Details](docs/wechat-reminder-compatibility.md) |
-| QQ alerts | Stay signed in to QQ and enable system notifications in QQ. [Details](docs/qq-notification-compatibility.md) |
-| Mail | Enable IMAP in your mailbox's web settings, get an app password, and enter it in Settings → Mail. [Details](docs/mail.md) |
-| AI agents | Click Install in Settings → Agent, then restart your terminal. [Details](docs/agent-status-hooks.md) |
-| Translation | Works by default. To use DeepSeek, Qwen, OpenAI and other models, add an API key in Settings → Translation |
+| Feature       | How                                                                                                                       |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| WeChat alerts | Just stay signed in to WeChat for PC. [Details](docs/wechat-reminder-compatibility.md)                                    |
+| QQ alerts     | Stay signed in to QQ and enable system notifications in QQ. [Details](docs/qq-notification-compatibility.md)              |
+| Mail          | Enable IMAP in your mailbox's web settings, get an app password, and enter it in Settings → Mail. [Details](docs/mail.md) |
+| AI agents     | Click Install in Settings → Agent, then restart your terminal. [Details](docs/agent-status-hooks.md)                      |
+| Translation   | Works by default. To use DeepSeek, Qwen, OpenAI and other models, add an API key in Settings → Translation                |
 
 </details>
 
@@ -146,7 +147,7 @@ To-dos, clipboard history and settings stay on your own computer. WeChat and QQ 
 
 Scan the QR code with WeChat to join the user group (mostly Chinese-speaking). You can also find it in the app under Settings → About. English feedback is welcome in [Issues](https://github.com/flyl1u/fly-island/issues).
 
-<p align="center"><img src="docs/assets/wechat-community.jpg" alt="fly-island WeChat community QR code" width="280"></p>
+<p align="center"><img src="docs/assets/wechat-community.jpg" alt="Clockout-island WeChat community QR code" width="280"></p>
 
 <p align="center"><sub>The QR code is valid until November 23. If it has expired, please let us know in an <a href="https://github.com/flyl1u/fly-island/issues">Issue</a>.</sub></p>
 
@@ -158,8 +159,8 @@ Scan the QR code with WeChat to join the user group (mostly Chinese-speaking). Y
 You need Windows 10/11, Node.js, pnpm, Rust, Visual Studio C++ Build Tools and the WebView2 Runtime.
 
 ```powershell
-git clone https://github.com/flyl1u/fly-island.git
-cd fly-island
+git clone https://gitee.com/zhu-he666/Clockout-island.git
+cd Clockout-island
 pnpm install
 pnpm tauri dev
 ```

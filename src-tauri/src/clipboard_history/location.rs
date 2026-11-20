@@ -103,7 +103,7 @@ impl ClipboardHistoryService {
         let target = target.trim();
         let target = if target.is_empty() { self.app_dir.clone() } else { PathBuf::from(target) };
         if !target.is_absolute() {
-            return Err("请填写完整的文件夹路径，例如 D:\\Fly Island\\Clipboard。".to_string());
+            return Err("请填写完整的文件夹路径，例如 D:\\岛点下班\\Clipboard。".to_string());
         }
         // Lock order as everywhere else: the state, then the location.
         let mut state = self.state.lock().map_err(|error| error.to_string())?;

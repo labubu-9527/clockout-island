@@ -106,8 +106,8 @@ if (new URLSearchParams(location.search).get("view") === "diagnostic") {
 } else try {
   await render(track("晴天", 6000));
   await settle(450);
-  check(view() && document.querySelector(".music-player--lyrics") && artSize() === 52,
-    "找到歌词时封面缩小到歌名旁边，歌词占据中间");
+  check(view() && document.querySelector(".music-player--lyrics") && artSize() === 68,
+    "找到歌词时左侧显示68px封面，歌词在曲名下方");
   const times = () => [...document.querySelectorAll<HTMLElement>(".music-progress__time")].map((time) => time.textContent);
   check(times().join("|") === "0:06|−4:23" && document.querySelector<HTMLElement>(".music-progress")!.style.getPropertyValue("--music-progress") === "2.23%",
     "进度条下面左边是已播放时间、右边是剩余时间，填充比例跟随进度");
@@ -115,11 +115,11 @@ if (new URLSearchParams(location.search).get("view") === "diagnostic") {
   const query = queries[queries.length - 1];
   check(query.title === "晴天" && query.artist === "周杰伦" && query.album === "叶惠美" && query.durationMs === 269_000 && query.online === true, "按歌名、歌手、专辑和时长查找");
   const current = document.querySelector<HTMLElement>(".lyrics-view__line--current")!;
-  check(getComputedStyle(current).fontSize === "18px" && getComputedStyle(document.querySelector(".lyrics-view__line--side")!).fontSize === "13px", "当前句更大更亮");
+  check(getComputedStyle(current).fontSize === "17px" && getComputedStyle(document.querySelector(".lyrics-view__line--side")!).fontSize === "12px", "当前句更大更亮");
   const lyricsBox = box(".lyrics-view");
   const page = box(".music-player");
-  check(getComputedStyle(current).textAlign === "center" && Math.abs((lyricsBox.left + lyricsBox.right) / 2 - (page.left + page.right) / 2) < 1,
-    "歌词居中，和进度条、播放控制在同一条中线上");
+  check(getComputedStyle(current).textAlign === "left" && lyricsBox.left >= box(".music-player__meta").left && lyricsBox.right <= page.right,
+    "歌词左对齐在封面右侧，与歌曲信息同列");
   const fill = () => getComputedStyle(document.querySelector(".music-progress__fill")!).backgroundColor;
   check(fill() !== "rgb(236, 236, 242)", "进度条用封面的颜色");
 
@@ -127,9 +127,9 @@ if (new URLSearchParams(location.search).get("view") === "diagnostic") {
   const long = document.querySelector<HTMLElement>(".lyrics-view__line--current")!;
   check(long.scrollWidth > long.clientWidth && fixture.scrollWidth <= fixture.clientWidth, "长句单行省略，不撑宽页面");
   const card = box(".music-player");
-  check(box(".music-player__head").bottom <= box(".music-player__lyrics").top && box(".music-player__lyrics").bottom <= box(".music-progress").top &&
+  check(box(".music-player__track").bottom <= box(".music-player__lyrics").top && box(".music-player__lyrics").bottom <= box(".music-progress").top &&
     box(".music-progress").bottom <= box(".music-player__controls").top && box(".music-player__controls").bottom <= card.bottom + 0.5 && card.height <= 234.5,
-    "歌名、歌词、进度条、播放按钮从上到下排好，都完整放在 234px 高的页面里");
+    "曲名和歌词位于封面右侧，进度条与工具栏在下方，完整放在234px页面里");
   check(box(".music-player__artwork").right <= box(".music-player__meta").left, "封面在左，歌名和歌手在右");
 
   await render(track("晴天", 13_500));
@@ -146,8 +146,8 @@ if (new URLSearchParams(location.search).get("view") === "diagnostic") {
   const before = queries.length;
   await render(track("七里香", 6000));
   await settle(450);
-  check(!view() && !document.querySelector(".music-player--lyrics") && artSize() === 112 && queries.length === before + 1,
-    "找不到歌词时封面变大，占据歌词的位置");
+  check(!view() && !document.querySelector(".music-player--lyrics") && artSize() === 68 && queries.length === before + 1,
+    "找不到歌词时保留68px封面，不改变紧凑布局");
   const hint = () => document.querySelector<HTMLButtonElement>(".music-player__lyrics-hint");
   const panel = box(".music-player");
   check(hint()?.textContent === "没找到歌词 · 试试酷狗和网易云" && hint()!.getBoundingClientRect().left >= panel.left && hint()!.getBoundingClientRect().right <= panel.right,
@@ -265,6 +265,8 @@ if (new URLSearchParams(location.search).get("view") === "diagnostic") {
   fixture.style.width = "520px";
   await act(async () => document.querySelector<HTMLButtonElement>(".media-notice__close")!.click());
   check(!notice() && document.querySelector(".media-notice-button"), "收起提示卡后头部保留提示图标");
+  check(box(".music-player__track").right + 4 <= box(".media-notice-button").left,
+    "曲名为播放器诊断图标预留空间，不发生重叠");
   check(JSON.parse(localStorage.getItem("focusd-island-media-diagnostics-dismissed") ?? "[]").includes("cloudmusic.exeneteaseNeedsPlugin"), "按播放器和状态记住已收起，不再自动弹出");
   await act(async () => document.querySelector<HTMLButtonElement>(".media-notice-button")!.click());
   check(notice()?.textContent?.includes("网易云需要安装进度插件"), "点提示图标可以再次打开");

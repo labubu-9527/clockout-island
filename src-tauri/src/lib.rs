@@ -157,7 +157,7 @@ pub fn run() {
             })
         });
     if let Err(error) = result {
-        eprintln!("error while running Fly Island: {error}");
+        eprintln!("error while running 岛点下班: {error}");
         std::process::exit(1);
     }
 }

@@ -16,10 +16,14 @@ export type MessagePreview = {
   detailLoading?: boolean;
   detailError?: string | null;
   receivedAt: number;
+  messageId?: string;
+  pluginId?: string;
   wechatMessageId?: string;
   otpCode?: string | null;
   mailAccount?: string | null;
 };
+
+export type MessageNoticeReceiver = (preview: MessagePreview) => void;
 
 export const MESSAGE_SOURCE_LABELS: Record<MessageSource, string> = zhCN.messages.sourceLabels;
 

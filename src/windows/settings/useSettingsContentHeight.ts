@@ -1,13 +1,16 @@
 import { useLayoutEffect, useRef, type RefObject } from "react";
+import { settingsContentExtent } from "./settingsContentHeight";
 
 /**
- * The height an element's content needs, scrolled or not: its last child's bottom plus padding.
- * The element must be positioned, so its children's offsetTop is measured from it.
+ * Include every visible direct child: the final tab panel may be hidden.
  */
 function contentHeight(element: HTMLElement) {
-  const last = element.lastElementChild as HTMLElement | null;
+  const top = element.getBoundingClientRect().top;
   const padding = Number.parseFloat(getComputedStyle(element).paddingBottom) || 0;
-  return last ? last.offsetTop + last.offsetHeight + padding : element.clientHeight;
+  return settingsContentExtent([...element.children].map(child => ({
+    bottom: child.getBoundingClientRect().bottom - top + element.scrollTop,
+    visible: child.getClientRects().length > 0,
+  })), padding);
 }
 
 /**
@@ -33,9 +36,11 @@ export function useSettingsContentHeight(
     const measure = () => {
       // The list fills the column it is given, so its own height says nothing; its content does.
       const navStyle = getComputedStyle(nav);
-      const navHeight = (list ? contentHeight(list) : 0) +
-        (Number.parseFloat(navStyle.paddingTop) || 0) + (Number.parseFloat(navStyle.paddingBottom) || 0);
-      const height = Math.ceil(Math.max(contentHeight(page), navHeight));
+      const navHeight = list ? list.getBoundingClientRect().top - nav.getBoundingClientRect().top + contentHeight(list)
+        + (Number.parseFloat(navStyle.paddingBottom) || 0) : contentHeight(nav);
+      const layoutStyle = getComputedStyle(layout);
+      const height = Math.ceil(Math.max(contentHeight(page), navHeight)
+        + (Number.parseFloat(layoutStyle.paddingTop) || 0) + (Number.parseFloat(layoutStyle.paddingBottom) || 0));
       if (height !== reported.current) {
         reported.current = height;
         onHeight(height);
@@ -44,6 +49,7 @@ export function useSettingsContentHeight(
     measure();
     const observer = new ResizeObserver(measure);
     for (const child of page.children) observer.observe(child);
+    for (const child of nav.children) observer.observe(child);
     if (list) for (const child of list.children) observer.observe(child);
     return () => observer.disconnect();
   }, [layoutRef, pageKey, onHeight]);

@@ -294,7 +294,7 @@ fn read_qq_notification(
     // The island's own channel test, under its current name or the former one.
     if parts
         .first()
-        .is_some_and(|title| title == "Fly Island QQ notification diagnostic" || title == "FocuSD QQ notification diagnostic")
+        .is_some_and(|title| matches!(title.as_str(), "岛点下班 QQ notification diagnostic" | "Fly Island QQ notification diagnostic" | "FocuSD QQ notification diagnostic"))
         && parts
             .iter()
             .any(|body| body == "Local channel test; this is not a chat message.")

@@ -10,11 +10,13 @@ import {
 } from "./settingsLimits.ts";
 import type { IslandSettings } from "./types";
 import { DEFAULT_MESSAGE_VISIBILITY, DEFAULT_SLOT_VISIBILITY } from "./visibilitySettings.ts";
+import { DEFAULT_ISLAND_EFFECTS } from "./islandEffects.ts";
 
 // First-launch settings. A saved setting that lacks a newer field keeps the
 // fallback in normalizeSettings, which for behavior switches is what older
 // versions did, so upgrading never flips them.
 export const DEFAULT_SETTINGS: IslandSettings = {
+  ...DEFAULT_ISLAND_EFFECTS,
   topEdgeLayoutVersion: 1,
   material: "classic",
   colorScheme: "dark",

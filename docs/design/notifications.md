@@ -1,5 +1,22 @@
 # 通知阅读与选中
 
+| 项目 | 内容 |
+| --- | --- |
+| 文档名称 | 通知阅读与选中设计约定 |
+| 制作人 | XiaoZhu |
+| 日期 | 2026-11-20 |
+| 版本号 | v1.1.0 |
+
+## 统一提醒调度（2026-11-20）
+
+QQ、微信、邮箱、办公消息、插件与设备提示由窗口层的内存队列统一展示。验证码优先，普通消息按接纳顺序展示，设备提示最后；同一快照中的全部新增消息按接收时间入队。插件同ID正文变化只更新内容，不重新播放或重置停留时间。
+
+悬停或选中文字时暂停消息计时并推迟插队；释放后高优先级提醒可插入，被打断消息先恢复剩余时间，再展示后来的同级消息。设备提示约两秒且不因悬停延长，连续同类变化合并；有消息时仅更新设备基线，不补弹旧状态。
+
+待展示上限20条，普通消息等待60秒、验证码等待30秒后丢弃。来源关闭、已读或清空使对应记录失效。展开页面、Agent等待确认、额度提示、托盘隐藏与禁止提醒的游戏状态清理队列；游戏允许提醒时保持点击穿透并不启用悬停保持。邮件正文跟随队列当前邮件按需读取，打开与复制沿用原操作。
+
+English: A shared in-memory queue prioritizes verification codes, then FIFO messages, then short device changes. Hovering or selecting text pauses message time and preemption; interrupted messages resume their remaining time before later peers. Source invalidation and interaction boundaries discard stale entries. Mail bodies follow the visible queued message without marking it read.
+
 全局方向见 [DESIGN.md](../../DESIGN.md)。本次在现有岛屿中增加阅读与提醒流程，沿用系统字体、语义颜色、紧凑控件和岛屿弹簧过渡。（用户要求，2026-11-18）
 
 - 设置 → 消息 → 岛上通知的“长消息自适应展开”默认关闭。开启后短消息保留单行，稍长消息先加宽，达到最大宽度后改为换行阅读；宽高受用户上限和缩放后的舞台边界共同约束。最大宽度 320–720、默认 520px；最大高度 80–360、默认 180px；独立停留时间 3–60、默认 12 秒。正文超出高度后滚动，不压小文字。（用户需求；数值为 Agent 实现决定） 一行能否放下以收起条实际排版为准：估算之外再量一次文字被截掉的宽度（旁边的状态图标、实际字宽都算在内），仍被截断就继续加宽，超过最大宽度改为换行阅读。（用户手测发现开启后长消息不撑大岛屿，原因是只按估算判断，2026-11-18）

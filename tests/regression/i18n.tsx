@@ -110,7 +110,7 @@ else {
     const subscriptionsBefore = commands.filter(command => command.startsWith("set_qq_") || command === "set_wechat_reminders_enabled").length;
     await switchTo("en");
     check(document.documentElement.lang === "en" && localStorage.getItem(LOCALE_STORAGE_KEY) === "en", "Language changes immediately and persists");
-    check(document.querySelector(".settings-sidebar")?.textContent?.includes("Appearance"), "Settings categories are translated");
+    check(document.querySelector(".settings-sidebar")?.textContent?.includes(TRANSLATIONS.en.settings.categories.appearance), "Settings categories are translated");
     await click(".settings-sidebar__item[data-category='appearance']");
     check(document.querySelector(".editor-panel")?.textContent?.includes("Collapsed size") && document.querySelector(".editor-panel")?.textContent?.includes("Expanded size"), "Current size and font settings are translated");
     await click(".settings-sidebar__item[data-category='general']");

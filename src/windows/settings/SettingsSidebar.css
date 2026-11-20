@@ -1,13 +1,13 @@
 /* Darker than the pages, with a clear edge, so the list reads as its own column. */
 .settings-sidebar {
   display: grid;
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-rows: auto auto minmax(0, 1fr);
   /* minmax(0, …) columns: a long English label must shrink to an ellipsis, not widen the column. */
   grid-template-columns: minmax(0, 1fr);
   min-height: 0;
-  padding: 12px var(--space-md) var(--space-md);
-  background: var(--color-window-sidebar);
-  border-right: 1px solid var(--color-white-a08);
+  padding: 0 12px 0 0;
+  background: transparent;
+  border-right: 1px solid var(--settings-line, var(--color-white-a08));
 }
 
 .settings-sidebar__list {
@@ -19,13 +19,12 @@
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
-  scrollbar-color: rgba(116, 214, 255, 0.38) transparent;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 
 /* Rows sit close together and groups apart: the gap, not a heading, shows the groups. */
 .settings-sidebar__group + .settings-sidebar__group {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .settings-sidebar ul {
@@ -47,15 +46,15 @@
   position: relative;
   width: 100%;
   min-width: 0;
-  min-height: 30px;
+  min-height: 40px;
   display: flex;
   align-items: center;
-  gap: 9px;
-  padding: 0 10px;
-  color: rgba(var(--overlay-rgb), 0.72);
+  gap: 10px;
+  padding: 0 8px;
+  color: var(--settings-text, var(--color-text));
   background: transparent;
   border: 0;
-  border-radius: var(--corner-md);
+  border-radius: 10px;
   corner-shape: var(--corner-shape);
   outline: none;
   font: inherit;
@@ -78,7 +77,12 @@
 
 .settings-sidebar__item > svg {
   flex: none;
-  opacity: 0.8;
+  opacity: 1;
+  box-sizing: content-box;
+  padding: 5px;
+  background: var(--settings-control, var(--color-white-a06));
+  border-radius: 8px;
+  color: var(--settings-muted, var(--color-text-muted));
 }
 
 .settings-sidebar__item--link { text-decoration: none; }
@@ -102,12 +106,12 @@
 .settings-sidebar__item--active,
 .settings-sidebar__item--active:hover {
   color: var(--color-fg-strong);
-  background: rgba(116, 214, 255, 0.14);
+  background: var(--settings-selected, var(--color-white-a08));
   font-weight: 600;
 }
 
 .settings-sidebar__item--active::before {
-  content: "";
+  content: none;
   position: absolute;
   left: 0;
   top: 7px;
@@ -127,9 +131,16 @@
 }
 
 .settings-sidebar__item--active > svg {
-  color: var(--color-accent);
+  color: var(--settings-card, #fff);
+  background: var(--settings-accent, var(--color-accent));
   opacity: 1;
 }
+
+.settings-sidebar__brand { display: flex; align-items: center; gap: 10px; padding: 0 8px 18px; }
+.settings-sidebar__brand > div { display: grid; gap: 2px; }
+.settings-sidebar__brand strong { color: var(--settings-text, var(--color-text)); font-size: 15px; font-weight: 600; }
+.settings-sidebar__brand small { color: var(--settings-muted, var(--color-text-muted)); font-size: 11px; }
+.settings-sidebar__brand-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 12px; color: var(--settings-accent, var(--color-accent)); background: var(--settings-control, var(--color-white-a06)); }
 
 .settings-sidebar__item:focus-visible {
   outline: 2px solid var(--color-focus-ring);

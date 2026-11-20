@@ -1,41 +1,73 @@
 /*
  * The music page, straight on the island (no card). A column: the song at the top, the lyrics
- * (only when there are any), progress, transport. Without lyrics the head grows into their room.
+ * (only when there are any), progress, transport. Artwork keeps the reference's compact size.
  */
 .music-player {
   /* The cover's accent as `r, g, b` (useArtworkTint); a soft white without a cover. */
-  --music-tint: 236, 236, 242;
-  --music-tint-light: 58, 58, 68;
+  --music-tint: 124, 214, 251;
+  --music-tint-light: 44, 104, 135;
   /* The accent drawn: the light variant on an island with a light background. */
-  --music-accent: color-mix(in srgb, rgb(var(--music-tint-light)) calc(var(--is-light) * 100%), rgb(var(--music-tint)));
+  --music-accent: color-mix(in srgb, var(--music-palette-light-accent) calc(var(--is-light) * 100%), var(--music-palette-accent));
   position: relative;
   height: 100%;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   isolation: isolate;
   color: var(--text-1);
+}
+
+/* Confined to the content area: the island still owns its surface and material. */
+.music-player__atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  border-radius: inherit;
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent),
+    linear-gradient(transparent, #000c 12%, #0007 80%, transparent);
+  mask-composite: intersect;
+  opacity: calc(0.36 - var(--is-light) * 0.12);
+  transition: opacity 400ms ease;
+}
+
+.music-player__atmosphere img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: blur(28px) saturate(0.85);
+  transform: scale(1.15);
+}
+
+.music-player:not(.music-player--playing) .music-player__atmosphere {
+  opacity: calc(0.22 - var(--is-light) * 0.08);
 }
 
 /* --- The song ------------------------------------------------------------------------- */
 
 .music-player__head {
+  position: relative;
   flex: 1 1 auto;
   min-height: 0;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 20px;
 }
 
 .music-player--lyrics .music-player__head {
-  flex: 0 0 auto;
-  gap: 12px;
+  flex: 1 1 auto;
+  gap: 20px;
 }
 
 /* The artwork and, under it, a blurred copy of itself: the cover's colours as its shadow. */
 .music-player__cover {
   position: relative;
   flex: 0 0 auto;
+  align-self: flex-start;
+  margin-top: 2px;
 }
 
 .music-player__glow {
@@ -46,17 +78,17 @@
   height: 98%;
   object-fit: cover;
   border-radius: 50%;
-  filter: blur(22px) saturate(1.6);
-  opacity: 0.55;
+  filter: blur(18px) saturate(0.85);
+  opacity: 0.28;
   transition: opacity 400ms ease;
 }
 
 .music-player:not(.music-player--playing) .music-player__glow {
-  opacity: 0.3;
+  opacity: 0.18;
 }
 
 .music-player__artwork {
-  --art: 112px;
+  --art: 68px;
   width: var(--art);
   height: var(--art);
   display: grid;
@@ -64,7 +96,7 @@
   overflow: hidden;
   color: var(--text-3);
   background: linear-gradient(150deg, color-mix(in srgb, #ececf1 calc(var(--is-light) * 100%), #2c2c33), color-mix(in srgb, #d9d9e0 calc(var(--is-light) * 100%), #19191d));
-  border-radius: var(--corner-2xl);
+  border-radius: min(calc(var(--art) / 2), calc(var(--island-radius, 30px) / 2));
   corner-shape: var(--island-corner-shape, round);
   box-shadow:
     0 10px 28px rgba(0, 0, 0, calc(0.45 - var(--is-light) * 0.3)),
@@ -72,10 +104,10 @@
   /* Paused, the cover settles back a little, as in Apple Music. */
   transform: scale(0.94);
   transition:
-    width 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    height 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    border-radius 360ms cubic-bezier(0.2, 0.8, 0.2, 1),
-    transform 360ms cubic-bezier(0.2, 0.8, 0.2, 1);
+    width 230ms ease-in-out,
+    height 230ms ease-in-out,
+    border-radius 230ms ease-in-out,
+    transform 230ms ease-in-out;
 }
 
 .music-player--playing .music-player__artwork {
@@ -83,8 +115,8 @@
 }
 
 .music-player--lyrics .music-player__artwork {
-  --art: 52px;
-  border-radius: var(--corner-xl);
+  --art: 68px;
+  border-radius: min(calc(var(--art) / 2), calc(var(--island-radius, 30px) / 2));
   corner-shape: var(--corner-shape);
 }
 
@@ -107,9 +139,9 @@
   display: -webkit-box;
   overflow: hidden;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   color: var(--text-1);
-  font-size: calc(20px * var(--island-font-scale, 1));
+  font-size: calc(17px * var(--island-font-scale, 1));
   font-weight: 600;
   line-height: 1.3;
   overflow-wrap: anywhere;
@@ -124,7 +156,7 @@
 
 .music-player__artist {
   color: var(--text-2);
-  font-size: calc(14px * var(--island-font-scale, 1));
+  font-size: calc(11px * var(--island-font-scale, 1));
 }
 
 .music-player__source {
@@ -147,6 +179,9 @@
 }
 
 .music-player__aside {
+  position: absolute;
+  top: 0;
+  right: 0;
   align-self: flex-start;
   display: flex;
   align-items: center;
@@ -205,7 +240,7 @@
 
 .music-player__lyrics {
   position: relative;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   align-items: center;
@@ -226,6 +261,7 @@
 }
 
 .music-player__error {
+  flex: 0 0 auto;
   margin: -4px 0;
   color: var(--color-error-text);
   font-size: calc(11px * var(--island-font-scale, 1));
@@ -239,18 +275,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
+  gap: 6px;
   flex: 0 0 auto;
 }
 
 /* Plain glyphs, the play button larger: weight from size, not from discs around them. */
 .music-control-button {
-  width: 40px;
+  width: 32px;
   height: 40px;
   display: inline-grid;
   place-items: center;
   padding: 0;
-  color: var(--text-1);
+  color: var(--music-accent);
   background: transparent;
   border: 0;
   border-radius: var(--radius-pill);
@@ -271,8 +307,31 @@
 }
 
 .music-control-button--primary {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
+  color: color-mix(in srgb, #fff calc(var(--is-light) * 100%), #17242b);
+  background: var(--music-accent);
+  border-radius: 13px;
+}
+
+.music-control-button--primary:hover:not(:disabled) { background: color-mix(in srgb, var(--music-accent) 85%, var(--text-1)); }
+.music-player__status { display: flex; align-items: center; justify-content: center; gap: 5px; margin-top: 8px; color: var(--text-2); font-size: calc(10px * var(--island-font-scale, 1)); white-space: nowrap; }
+.music-player__status i { width: 4px; height: 4px; flex: none; border-radius: 50%; background: var(--music-accent); }
+.music-player__meta { align-self: flex-start; padding-right: 36px; padding-top: 1px; }
+.music-player--lyrics .music-player__track { font-size: calc(17px * var(--island-font-scale, 1)); }
+.music-player--lyrics .music-player__artist { font-size: calc(11px * var(--island-font-scale, 1)); }
+.music-player__lyrics { margin-top: 7px; }
+.music-player__lyrics .lyrics-view { padding: 0; text-align: left; mask-image: none; row-gap: 3px; }
+.music-player__lyrics .lyrics-view > :first-child { display: none; }
+.music-player__lyrics .lyrics-view__line--current { text-align: left; font-size: calc(17px * var(--island-font-scale, 1)); }
+.music-player__lyrics .lyrics-view__line--side, .music-player__lyrics .lyrics-view__line--translation { text-align: left; font-size: calc(12px * var(--island-font-scale, 1)); }
+.music-player__lyrics .lyrics-offset { top: auto; bottom: 0; z-index: 2; }
+.music-player .music-progress__fill { background: var(--music-accent); }
+.music-player .music-progress__track { background: color-mix(in srgb, var(--music-accent) 22%, transparent); }
+.music-player__aside .music-equalizer { display: none; }
+@container (max-width: 360px) {
+  .music-player__head, .music-player--lyrics .music-player__head { gap: 12px; }
+  .music-player__controls { gap: 0; }
 }
 
 /* The play triangle looks centred a pixel right of the box's centre. */
@@ -296,6 +355,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .music-player__atmosphere {
+    transition: none;
+  }
+
   .music-control-button__track-change {
     animation: none;
   }

@@ -20,7 +20,11 @@ import { fileURLToPath } from "node:url";
 
 /** Each page with the query that starts its automated checks. */
 export const PAGES = [
+  "island-effects.html",
+  "settings-window-chrome.html",
   "collapsed-presentation.html",
+  "music-surface.html",
+  "notice-queue.html",
   "weather-location.html",
   "message-rail.html",
   "weather-system-indicators.html",
@@ -72,6 +76,7 @@ export const PAGES = [
   "plugins-settings.html?features=enabled",
   "plugins-settings.html?lang=en&features=enabled",
   "settings.html?test=1",
+  "settings-replica.html",
   "settings.html?test=1&features=enabled",
   "settings-sidebar.html",
   "settings-sidebar.html?features=enabled",

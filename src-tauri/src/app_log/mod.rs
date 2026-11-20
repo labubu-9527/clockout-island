@@ -116,7 +116,7 @@ fn write_header(reason: &str) {
     }
     let version = VERSION.get().map_or("?", String::as_str);
     let webview = tauri::webview_version().unwrap_or_else(|_| "?".into());
-    write_line("app", &format!("{reason}: Fly Island v{version}, WebView2 {webview}, {}", windows_version()));
+    write_line("app", &format!("{reason}: 岛点下班 v{version}, WebView2 {webview}, {}", windows_version()));
     // Goes the same way as every other `eprintln!`: its [rust] line shows that path works.
     if STDERR_PIPE.get().is_some() {
         eprintln!("标准错误已接入日志");

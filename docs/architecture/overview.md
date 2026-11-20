@@ -5,7 +5,9 @@
 | 文档名称 | 架构总览 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-20 |
-| 版本号 | v1.1.0 |
+| 版本号 | v1.2.0 |
+
+DotIsle 界面复刻（2026-11-20）：设置窗口由`SettingsWindowChrome`提供自绘窗口控制，`LayoutEditor`组合导航、真实设置搜索与分类内容；`settingsSearch.ts`负责跨页/标签检索，`settingsContentHeight.ts`计算可见内容高度。`features/appearance/islandEffects.ts`集中光效配置归一化、优先级及动效计算，`MotionCurveEditor`编辑并预览曲线；岛壳通过`islandMotionStyle`接入实际时长与时序，叶子组件`IslandGlow`独立更新光层与输出音量采样。音乐次要操作集中于`MusicPlayerToolbar`，复用media/api既有原生命令。
 
 形状与消息入口（2026-11-19）：appearance 归一化保存形状和可见性映射，messages/messageRailItems.ts 根据已启用来源、可见性与未处理状态生成固定顺序入口，MessageRail 渲染收起横排或展开侧栏。窗口层组合现有消息控制器，不新增消息服务。原生 island 状态兼容接收形状和侧栏数量，几何层负责胶囊偏移、侧栏边界，passthrough 只让实际圆角区域接收点击。
 

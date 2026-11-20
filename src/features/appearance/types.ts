@@ -1,3 +1,4 @@
+import type { IslandEffectsSettings } from "./islandEffects";
 export type TranslationTarget = "window" | "island";
 
 /**
@@ -56,7 +57,7 @@ export type CollapsedSlot = "text" | "mail" | "shelf" | "music" | "agents" | "cp
 /** The page dots in the expanded island's header, which the user can drag into any order. */
 export type PageDot = "todo" | "music" | "clipboard" | "shelf" | "translation" | "weather";
 
-export type IslandSettings = {
+export type IslandSettings = IslandEffectsSettings & {
   topEdgeLayoutVersion: 1;
   material: Material;
   colorScheme: ColorScheme;

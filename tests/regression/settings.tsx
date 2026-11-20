@@ -33,7 +33,7 @@ window.addEventListener("beforeunload", restore);
 localStorage.setItem(LOCALE_STORAGE_KEY, query.get("locale") === "en" ? "en" : "zh-CN");
 // The checks below expect a customized look plus a General page choice that a reset must keep.
 if (automated) localStorage.setItem("focusd-island-settings", JSON.stringify({ opacity: 60, carryOverIncompleteTodos: false, autoTuck: true }));
-else localStorage.removeItem("focusd-island-settings");
+else localStorage.setItem("focusd-island-settings", JSON.stringify({ colorScheme: query.get("theme") === "light" ? "light" : query.get("theme") === "dark" ? "dark" : "system" }));
 if (automated) prepareColorRegression();
 localStorage.setItem("focusd-island-save-directory", "");
 localStorage.setItem("focusd-island-qq-notification-access-requested", "true");
@@ -110,7 +110,7 @@ if (!automated) {
       // Appearance 16 -> 19: the page text colour row and the whole-look presets (empty state + name row).
       // General: v3.2.6 adds Ctrl + wheel and game mode's "still show notifications"; appearance +3 open and collapsed corners; clipboard +1 storage folder.
       // Appearance includes the four independently requested system-device reminder switches.
-      const maxRows = category === "agents" ? 13 : category === "general" ? 20 : category === "appearance" ? 44 : category === "clipboard" ? 9 : 8;
+      const maxRows = category === "agents" ? 13 : category === "general" ? 20 : category === "appearance" ? 64 : category === "clipboard" ? 9 : 8;
       if (category === "appearance") {
         const row = [...panel.querySelectorAll<HTMLElement>(".settings-row")].find((item) => item.textContent?.includes("贴边圆角"))!;
         const toggle = row.querySelector<HTMLInputElement>("[role='switch']")!;
@@ -349,7 +349,7 @@ if (!automated) {
     check(linkTitles.join() === "用户交流群,觉得小岛还不错？,打赏作者", `About lists the community group, the star and the tip in one group (${linkTitles.join()})`);
     const authorLink = document.querySelector<HTMLAnchorElement>(".settings-sidebar a.settings-sidebar__item--link");
     const sidebarItems = [...document.querySelectorAll<HTMLElement>(".settings-sidebar__item")].map((item) => item.textContent);
-    check(authorLink?.href === "https://flyliu.org/" && sidebarItems.slice(-2).join() === "关于,关于作者", "关于作者是侧栏里关于下面的一项，直接打开 flyliu.org");
+    check(authorLink?.href === "https://flyliu.org/" && sidebarItems.slice(-2).join() === "关于与更新,关于作者", "关于作者是侧栏里关于下面的一项，直接打开 flyliu.org");
     const communityToggle = element<HTMLButtonElement>(".community-group .support-author__toggle");
     check(communityToggle.textContent?.includes("遇到问题、想要新功能，都可以来群里问问、聊聊"), "The group row says questions go there");
     await act(async () => { communityToggle.click(); });

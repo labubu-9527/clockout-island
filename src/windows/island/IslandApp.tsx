@@ -50,6 +50,8 @@ import { useSettingsPageHeight } from "./useSettingsPageHeight";
 import { useIslandPickerOpen } from "../../lib/islandPicker";
 import { TODO_DATE_PICKER_EXPANDED_ISLAND_HEIGHT, alignCollapsedIslandWidth, getClockPetWidth } from "./layout";
 import { collapsedPresentationLayout } from "./collapsedPresentation";
+import { musicCapsuleSettings } from "./musicCapsule";
+import { useCompactMusicGeometry } from "./useCompactMusicGeometry";
 // Must stay the last import: IslandApp.css overrides the feature styles above.
 import "./IslandApp.css";
 
@@ -71,9 +73,7 @@ export function IslandApp() {
   const { settingsContentHeight, reportSettingsHeight } = useSettingsPageHeight();
   // Quiet while a full-screen app (usually a game) is in front, if game mode asks for it.
   const game = useGameMode(settings, { mode, isTucked, collapseIsland, tuckIsland, revealIsland });
-  const notices = useIslandNotices(settings, { mode, isTucked, quiet: game.quiet });
   useIdleUpdateInstall(mode === "collapsed", game.quiet);
-  const { qqNotifications, wechatReminders, qqMail, preview, hasMessagePreview } = notices;
   // The output level shows only on the collapsed island (its waveform).
   const media = useMediaState(settings.musicEnabled, mode === "collapsed");
   // Only the collapsed bar shows the reading, so only poll while it can be seen.
@@ -85,8 +85,11 @@ export function IslandApp() {
     quiet: game.quiet,
     canPopUp: !game.quiet && mode === "collapsed" && !isTucked,
   });
+  const notices = useIslandNotices(settings, { mode, isTucked, quiet: game.quiet,
+    critical: Boolean(quotaAlert) || agentSession?.phase === "waiting" });
+  const { qqNotifications, wechatReminders, qqMail, preview, hasMessagePreview } = notices;
   const { todos, activeTodoId, activeTodoIds, timer, timers, todoPageMode, todoListHeight, notebookProps } = useIslandTodos({ settings, navigation, quiet: game.quiet });
-  const deviceNotice = useIslandDeviceNotice(settings, mode !== "collapsed" || game.quiet || game.tuck || Boolean(preview || quotaAlert));
+  const deviceNotice = useIslandDeviceNotice(settings, game.tuck ? null : notices.deviceChange);
 
   const songPlaying = settings.musicEnabled && media.mediaState.playbackStatus === "playing" && Boolean(media.mediaState.title);
   const cover = settings.collapsedShowCover && songPlaying ? media.mediaState.thumbnail : null;
@@ -137,17 +140,19 @@ export function IslandApp() {
   });
   const { fileShelf, isShelfDropping } = useIslandShelf(settings, navigation);
   const lyricMode = songPlaying && !preview && !quotaAlert;
+  const compactMusic = useCompactMusicGeometry();
   const collapsedMessages = lyricMode ? messageItems.filter(item => item.pending) : messageItems;
   const slotVisible = (slot: keyof typeof settings.collapsedSlotVisibility) => settings.collapsedSlotVisibility[slot];
   const presentation = collapsedPresentationLayout({
-      textWidth: settings.showCollapsedText && (settings.showTitle || collapsedItem !== null) ? collapsedIslandWidth : 36,
+      textWidth: settings.showCollapsedText && slotVisible("text") && (settings.showTitle || collapsedItem !== null)
+        ? collapsedIslandWidth : collapsedTimer ? 96 : 36,
       pet: settings.petEnabled && slotVisible("pet"),
       clockWidth: settings.clockEnabled && slotVisible("clock") ? getClockPetWidth({ ...settings, petEnabled: false }) + 8 : 0,
       statusCount: Number(settings.cpuEnabled && slotVisible("cpu")) + Number(settings.memoryEnabled && slotVisible("memory")),
       weather: weather.settings.enabled && slotVisible("weather"),
       shelf: settings.shelfEnabled && settings.shelfShowCount && fileShelf.items.length > 0 && slotVisible("shelf"),
-      music: features.music && slotVisible("music"), agents: (!features.agents || activeAgentSessionCount > 0) && slotVisible("agents"),
-      messages: collapsedMessages.length, lyricMode, timer: Boolean(collapsedTimer),
+      music: features.music && media.mediaState.playbackStatus === "playing" && slotVisible("music"), agents: (!features.agents || activeAgentSessionCount > 0) && slotVisible("agents"),
+      messages: collapsedMessages.length, lyricMode, musicWidth: compactMusic.geometry.width, timer: Boolean(collapsedTimer) && !preview && !quotaAlert,
     }, settings.collapsedAutoWidth ? 480 : settings.collapsedWidth);
   const visibleCollapsedWidth = settings.collapsedAutoWidth
     ? alignCollapsedIslandWidth(presentation.width, window.innerWidth, window.devicePixelRatio, 480) : collapsedIslandWidth;
@@ -185,9 +190,10 @@ export function IslandApp() {
   }));
   const scheme = useDocumentTheme(settings);
   const colors = useMemo(() => resolveSchemeColors(settings, scheme), [settings, scheme]);
+  const renderedSettings = useMemo(() => musicCapsuleSettings(settings, lyricMode && !deviceNotice, compactMusic.geometry.height), [settings, lyricMode, deviceNotice, compactMusic.geometry.height]);
   const stageStyle = useMemo(
-    () => getIslandStageStyle(settings, colors, deviceNotice?.size.width ?? notice.size?.width ?? visibleCollapsedWidth, expandedIslandHeight, deviceNotice?.size.height ?? notice.size?.height),
-    [visibleCollapsedWidth, colors, expandedIslandHeight, settings, notice.size, deviceNotice],
+    () => getIslandStageStyle(renderedSettings, colors, deviceNotice?.size.width ?? notice.size?.width ?? visibleCollapsedWidth, expandedIslandHeight, deviceNotice?.size.height ?? notice.size?.height),
+    [visibleCollapsedWidth, colors, expandedIslandHeight, renderedSettings, notice.size, deviceNotice],
   );
 
 
@@ -200,7 +206,8 @@ export function IslandApp() {
   } = useIslandWindow({
     mode,
     isTucked,
-    settings,
+    settings: renderedSettings,
+    savedSettings: settings,
     setSettings,
     expandedIslandHeight,
     collapsedIslandWidth: visibleCollapsedWidth,
@@ -245,6 +252,7 @@ export function IslandApp() {
   return (
     <main className={`stage stage--font-${settings.fontFamily}`} data-tone={colors.tone} style={stageStyle}>
       <IslandShell
+        onMusicGeometry={compactMusic.report}
         deviceNotice={deviceNotice?.content}
         slotVisibility={settings.collapsedSlotVisibility}
         messageItems={messageItems}
@@ -258,13 +266,15 @@ export function IslandApp() {
         page={page}
         expandedHeight={expandedIslandHeight}
         material={settings.material}
+        effects={settings}
+        glowTimerRunning={settings.todoEnabled && timers.some(round => !round.notified)}
         nativeGlassState={nativeGlassState}
         isTucked={isTucked}
         tuckStyle={settings.tuckStyle}
         topEdgeShoulders={settings.topEdgeShoulders}
         positionLocked={settings.positionLocked}
         isDetached={isPositionDetached || settings.marginY > 0}
-        islandShape={settings.islandShape}
+        islandShape={renderedSettings.islandShape}
         showTitle={settings.showTitle}
         showCollapsedText={settings.showCollapsedText}
         collapsedTaskTitle={collapsedTaskTitle}

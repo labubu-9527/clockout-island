@@ -1,10 +1,11 @@
-import { useState, type CSSProperties } from "react";
+import { useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import type { MediaState } from "./api";
 import { songOffsetKey, wordFill, type LyricWord } from "./lyrics/lrc";
 import { lyricClockAt } from "./lyrics/lyricClock";
 import { useLyricClock } from "./lyrics/useLyricClock";
 import { useLyrics, type LyricsSettings } from "./lyrics/useLyrics";
 import { useSongOffset } from "./lyrics/useSongOffset";
+import { capsuleGroupMetrics, compactSecondary } from "./compactLyrics";
 import "./CollapsedLyric.css";
 
 /** Snapshot the lyric clock on mount; CSS fills every frame without re-rendering the island. */
@@ -30,10 +31,12 @@ export function CollapsedLyric({
   mediaState,
   lyricsSettings,
   active,
+  onGeometry,
 }: {
   mediaState: MediaState;
-  lyricsSettings: LyricsSettings & { lyricsOffsetMs: number };
+  lyricsSettings: LyricsSettings & { lyricsOffsetMs: number; islandFontPercent?: number; fontFamily?: string };
   active: boolean;
+  onGeometry?: (geometry: { width: number; height: number }) => void;
 }) {
   const { lines } = useLyrics(mediaState, lyricsSettings);
   const [songOffsetMs] = useSongOffset(lines ? songOffsetKey(mediaState) : null);
@@ -42,11 +45,33 @@ export function CollapsedLyric({
   const song = [mediaState.title, mediaState.artist].filter(Boolean).join(" · ");
   const line = lines && index >= 0 ? lines[index] : null;
   const words = lyricsSettings.lyricWordFill === true && line?.text ? line.words : undefined;
+  const secondary = line ? compactSecondary(line.text, line.translation, lines?.[index + 1]?.text ?? "") : "";
+  const ref = useRef<HTMLSpanElement>(null);
+  const primary = line?.text || song;
+  const fontPercent = lyricsSettings.islandFontPercent ?? 100;
+  const fontFamily = lyricsSettings.fontFamily;
+  useLayoutEffect(() => {
+    if (!active || !ref.current || !onGeometry) return;
+    const context = document.createElement('canvas').getContext('2d');
+    if (!context) return;
+    const style = getComputedStyle(ref.current);
+    context.font = `500 ${style.fontSize} ${style.fontFamily}`;
+    const first = context.measureText(primary).width;
+    const font = parseFloat(style.fontSize);
+    context.font = `400 ${Math.max(9, Math.min(11.5, font * 0.78))}px ${style.fontFamily}`;
+    const second = context.measureText(secondary).width;
+    const metrics = capsuleGroupMetrics(font, window.devicePixelRatio || 1);
+    onGeometry({ width: Math.max(140, Math.min(420, Math.ceil(Math.max(first, second) + 76))),
+      height: secondary ? metrics.height : Math.max(40, metrics.primary + 6) });
+  }, [active, primary, secondary, fontPercent, fontFamily, onGeometry]);
 
   return (
-    <span className="collapsed-lyric">{words ? <CollapsedSungWords
+    <span ref={ref} className={`collapsed-lyric${secondary ? " collapsed-lyric--double" : ""}`}>
+      <span className="collapsed-lyric__primary">{words ? <CollapsedSungWords
       key={`${index}:${mediaState.updatedAt}:${offsetMs}:${active}:${playing}`}
       words={words} mediaState={mediaState} offsetMs={offsetMs} playing={playing && active}
     /> : line?.text || song}</span>
+      {secondary && <span className="collapsed-lyric__secondary">{secondary}</span>}
+    </span>
   );
 }

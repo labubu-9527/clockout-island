@@ -10,20 +10,22 @@
 
 ## 项目概览
 
-**Fly Island**（仓库名、安装包名 `fly-island`）是 Windows 优先的桌面效率工具，以透明、无边框、始终置顶的 Tauri 悬浮岛形式运行。主要功能：待办、每日笔记与归档，外观设置与预设，媒体控制，剪贴板历史，快捷翻译，QQ 通知、QQ 邮箱和微信提醒，AI 代理状态，以及自动更新。
+知识库项目映射：岛点下班 / Clockout-island 沿用 `07_问题记录/fly-island/` 的已有笔记与索引，不拆分历史问题记录。
 
-**命名**：产品名一律写 **Fly Island**（文件名、包名、链接里写 `fly-island`）。README、文章、发布说明、安装包、界面文案和新代码里都不要再写旧名 FocuSD。旧名只留在不能改的对外契约里（`com.focusd.island`、`focusd-island-*` localStorage key、开机自启值 `FocuSD Island`、`focusd-agent-*` hook 脚本、`FOCUSD_*` 环境变量等，见下文「对外契约」），看到这些不要据此把产品叫成 FocuSD。
+**岛点下班**（英文名与安装包产品名 `Clockout-island`，npm 包名 `clockout-island`）是 Windows 优先的桌面效率工具，以透明、无边框、始终置顶的 Tauri 悬浮岛形式运行。主要功能：待办、每日笔记与归档，外观设置与预设，媒体控制，剪贴板历史，快捷翻译，QQ 通知、QQ 邮箱和微信提醒，AI 代理状态，以及自动更新。
+
+**命名**：中文产品名为 **岛点下班**，英文名为 **Clockout-island**。Gitee 仓库为 `zhu-he666/Clockout-island`，GitHub 上游仍为 `flyl1u/fly-island`。Rust crate、可执行文件 `fly-island`、已有数据格式及上游链接保留兼容，不进行盲目全局替换。README、文章、发布说明、安装包、界面文案和新代码里都不要再写旧名 FocuSD。旧名只留在不能改的对外契约里（`com.focusd.island`、`focusd-island-*` localStorage key、开机自启值 `FocuSD Island`、`focusd-agent-*` hook 脚本、`FOCUSD_*` 环境变量等，见下文「对外契约」），看到这些不要据此把产品叫成 FocuSD。
 
 **配图**：写 README、文章、发布说明时，只用 README 当前引用的图片；仓库外或 git 历史里的旧截图、旧宣传素材都已过时，不要拿来参考。
 
 应用有四个窗口，前端通过同一入口的 `?window=` 参数分发：
 
-| 窗口 label | 前端入口 | 说明 |
-|---|---|---|
-| `main` | 默认 | 悬浮岛本体，折叠态 / 展开态 / 贴边收起 |
-| `translation` | `?window=translation` | 快捷翻译窗口，常驻、隐藏显示 |
-| `clipboard` | `?window=clipboard` | 剪贴板历史独立窗口，`create: false`，设置里开启后按需创建，默认置顶 |
-| `settings` | `?window=settings` | 设置窗口，`create: false`，按需创建 |
+| 窗口 label    | 前端入口              | 说明                                                                |
+| ------------- | --------------------- | ------------------------------------------------------------------- |
+| `main`        | 默认                  | 悬浮岛本体，折叠态 / 展开态 / 贴边收起                              |
+| `translation` | `?window=translation` | 快捷翻译窗口，常驻、隐藏显示                                        |
+| `clipboard`   | `?window=clipboard`   | 剪贴板历史独立窗口，`create: false`，设置里开启后按需创建，默认置顶 |
+| `settings`    | `?window=settings`    | 设置窗口，`create: false`，按需创建                                 |
 
 **结构重构已完成（Phase 0–6，收尾与待人工验收项见 [refactor-plan.md](docs/architecture/refactor-plan.md)）。** 代码已按 [overview.md](docs/architecture/overview.md) 的目标结构组织：Rust 侧的 `unsafe` 只在 `src-tauri/src/win32/` 中，生产代码不用 `unwrap` / `expect`，clippy 与 ESLint 均为 0 告警。新代码沿用这套结构与子目录规则。
 
@@ -58,23 +60,23 @@
 
 ## 常用命令
 
-| 用途 | 命令 |
-|---|---|
-| 安装依赖 | `pnpm install` |
-| 前端开发服务器 | `pnpm dev` |
-| 桌面开发模式 | `pnpm tauri dev` |
-| 类型检查并构建前端 | `pnpm build` |
-| 构建官网实时演示 | `pnpm build:web-demo`（写到 `dist-web-demo/`；岛的界面或 Tauri 命令变了之后，到官网仓库运行 `node scripts/sync-island-demo.mjs`） |
-| 前端单元测试 | `pnpm test`（即 `node --test "tests/**/*.test.mjs"`） |
-| 前端静态检查 | `pnpm lint`（ESLint，配置见 `eslint.config.js`） |
-| 文件行数检查 | `pnpm check:size` |
-| 回归页类型检查 | `pnpm check:tests-types`（`tsconfig.tests.json`，检查 `tests/regression/*.tsx`） |
-| 浏览器回归页 | `pnpm test:regression [页面名中的词]`（自带 Vite，用无头 Chrome / Edge 跑 `tests/regression/` 下全部回归页并汇总结果，约 20 秒） |
-| 提交前总检查 | `pnpm check`（类型检查 + 回归页类型检查 + lint + 行数检查 + 单元测试） |
-| Rust 单元测试 | `cargo test --manifest-path src-tauri/Cargo.toml` |
-| 仅生成 release 可执行文件 | `pnpm tauri build --no-bundle`（写到 `src-tauri/target/release`） |
-| 完整打包 | `pnpm tauri build` |
-| 发布 | `pnpm release`（流程见 `docs/updater.md`） |
+| 用途                      | 命令                                                                                                                              |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 安装依赖                  | `pnpm install`                                                                                                                    |
+| 前端开发服务器            | `pnpm dev`                                                                                                                        |
+| 桌面开发模式              | `pnpm tauri dev`                                                                                                                  |
+| 类型检查并构建前端        | `pnpm build`                                                                                                                      |
+| 构建官网实时演示          | `pnpm build:web-demo`（写到 `dist-web-demo/`；岛的界面或 Tauri 命令变了之后，到官网仓库运行 `node scripts/sync-island-demo.mjs`） |
+| 前端单元测试              | `pnpm test`（即 `node --test "tests/**/*.test.mjs"`）                                                                             |
+| 前端静态检查              | `pnpm lint`（ESLint，配置见 `eslint.config.js`）                                                                                  |
+| 文件行数检查              | `pnpm check:size`                                                                                                                 |
+| 回归页类型检查            | `pnpm check:tests-types`（`tsconfig.tests.json`，检查 `tests/regression/*.tsx`）                                                  |
+| 浏览器回归页              | `pnpm test:regression [页面名中的词]`（自带 Vite，用无头 Chrome / Edge 跑 `tests/regression/` 下全部回归页并汇总结果，约 20 秒）  |
+| 提交前总检查              | `pnpm check`（类型检查 + 回归页类型检查 + lint + 行数检查 + 单元测试）                                                            |
+| Rust 单元测试             | `cargo test --manifest-path src-tauri/Cargo.toml`                                                                                 |
+| 仅生成 release 可执行文件 | `pnpm tauri build --no-bundle`（写到 `src-tauri/target/release`）                                                                 |
+| 完整打包                  | `pnpm tauri build`                                                                                                                |
+| 发布                      | `pnpm release`（流程见 `docs/updater.md`）                                                                                        |
 
 如果运行环境禁止派生子进程（例如受限沙箱），`node --test` 需要加 `--test-isolation=none`。此时 `tests/scripts/release-manifest.test.mjs` 仍会因 `spawnSync` 被拦截而失败，这是环境限制，报告时应如实说明。如果 `vite build` 报错无法删除系统临时目录中的 esbuild 文件（Access is denied），可以把 `TEMP` / `TMP` 指向 `node_modules/.cache/` 下的目录后重试。
 
@@ -82,12 +84,12 @@
 
 单个文件的行数上限（按物理行计）：
 
-| 文件类型 | 上限 |
-|---|---|
-| `.ts` / `.tsx` / `.mjs` | 400 行 |
-| `.css` | 500 行 |
-| `.rs` | 800 行，只计生产代码（不含内联测试模块）；内联测试模块上限 150 行，超过时移到同目录的 `tests.rs`，`tests.rs` 不设上限 |
-| `.ps1` / `.cmd` | 400 行 |
+| 文件类型                | 上限                                                                                                                  |
+| ----------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `.ts` / `.tsx` / `.mjs` | 400 行                                                                                                                |
+| `.css`                  | 500 行                                                                                                                |
+| `.rs`                   | 800 行，只计生产代码（不含内联测试模块）；内联测试模块上限 150 行，超过时移到同目录的 `tests.rs`，`tests.rs` 不设上限 |
+| `.ps1` / `.cmd`         | 400 行                                                                                                                |
 
 - **豁免**：`src/i18n/locales/*.ts`、`src/i18n/sections/**/*.ts`、`src/i18n/types.ts`（文案字典），锁文件、二进制资源和生成产物。
 - **存量白名单（只减不增）**：重构前已经超限的文件登记在 `scripts/file-size-allowlist.json` 中，并记录当前行数作为上限。白名单内的文件**不得变得更长**；变短后把记录值同步改小；降到上限以下或文件被移走后，必须删除对应条目。只允许调小或删除白名单记录，不得调大或新增。
@@ -132,12 +134,12 @@
 
 验证范围必须覆盖改动范围。纯搬迁的重构提交同样需要完整验证。
 
-| 改动范围 | 必须运行 |
-|---|---|
-| 仅文档 | 无需构建，确认 Markdown 可读 |
-| 前端逻辑、样式、依赖或脚本 | `pnpm check` + `pnpm build` |
+| 改动范围                                                    | 必须运行                                                                           |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 仅文档                                                      | 无需构建，确认 Markdown 可读                                                       |
+| 前端逻辑、样式、依赖或脚本                                  | `pnpm check` + `pnpm build`                                                        |
 | Rust、Tauri 命令、窗口、托盘、注册表、Windows API、桌面配置 | `cargo test --manifest-path src-tauri/Cargo.toml` + `pnpm tauri build --no-bundle` |
-| 发布相关 | 完整的 `pnpm tauri build` |
+| 发布相关                                                    | 完整的 `pnpm tauri build`                                                          |
 
 - 改动岛屿、消息、设置窗口等界面组件或它们的 `api.ts` 类型时，再运行 `pnpm test:regression`；回归页的 mock 落后于代码时页面会失败，要同步更新。其余界面或窗口行为在风险需要时用 `pnpm tauri dev` 手动检查。
 - 不得因为构建耗时而跳过必要验证。必要构建失败或受环境阻塞时，必须明确报告原因，不得把未完成的验证描述为已验证。

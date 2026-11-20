@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { isTauri } from "@tauri-apps/api/core";
 import { useNativePlugins } from "../../plugins";
-import { OFFICE_SOURCES, type MessagePreview, type OfficeSource } from "../messagePreview";
+import { OFFICE_SOURCES, type MessageNoticeReceiver, type MessagePreview, type OfficeSource } from "../messagePreview";
 import { clearOfficeIm, getOfficeImState, listenOfficeImChanged, openOfficeIm, setOfficeImEnabled, type OfficeClientState, type OfficeImSnapshot } from "./api";
 import { loadOfficeImEnabled, OFFICE_IM_ENABLED_KEY, saveOfficeImEnabled, type OfficeImEnabled } from "./storage";
 
@@ -94,12 +94,12 @@ export async function clearOfficeClient(source: OfficeSource) {
  * The island's side (main window only): starts and stops the native listener to match the
  * switches, and pops up a preview when a client starts flashing.
  */
-export function useOfficeIm(canPreview: boolean, previewSeconds: number) {
+export function useOfficeIm(canPreview: boolean, previewSeconds: number, onNotice?: MessageNoticeReceiver) {
   const snapshot = useOfficeImSnapshot();
   const wanted = useOfficeSources();
   const [previewWindow, setPreviewWindow] = useState<{ source: OfficeSource; receivedAt: number; expiresAt: number } | null>(null);
-  const options = useRef({ canPreview, previewSeconds });
-  useEffect(() => { options.current = { canPreview, previewSeconds }; }, [canPreview, previewSeconds]);
+  const options = useRef({ canPreview, previewSeconds, onNotice });
+  options.current = { canPreview, previewSeconds, onNotice };
 
   const ready = snapshot.revision >= 0;
   const { dingtalk, feishu, wecom } = wanted;
@@ -113,7 +113,8 @@ export function useOfficeIm(canPreview: boolean, previewSeconds: number) {
 
   useEffect(() => {
     const onAttention = (source: OfficeSource) => {
-      if (!options.current.canPreview) return;
+      if (!options.current.canPreview || !current[source].enabled) return;
+      options.current.onNotice?.({ source, title: "", body: "", receivedAt: current[source].lastAttentionAt ?? Date.now() });
       setPreviewWindow((previous) => {
         const receivedAt = Math.max(Date.now(), (previous?.receivedAt ?? 0) + 1);
         return { source, receivedAt, expiresAt: receivedAt + options.current.previewSeconds * 1_000 };

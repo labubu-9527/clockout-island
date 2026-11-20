@@ -31,6 +31,7 @@ import { visibleCollapsedSlots } from "./collapsedPresentation";
 import "./IslandCollapsedBar.css";
 
 type IslandCollapsedBarProps = {
+  onMusicGeometry?: (geometry: { width: number; height: number }) => void;
   deviceNotice?: ReactNode;
   qqMail: MailController;
   qqNotifications: QQNotificationsController;
@@ -91,6 +92,7 @@ type IslandCollapsedBarProps = {
 
 /** The collapsed island: agent pulse, todo or message summary, mail badge, music button and tuck handle. */
 export function IslandCollapsedBar({
+  onMusicGeometry,
   deviceNotice,
   qqMail,
   qqNotifications,
@@ -139,8 +141,9 @@ export function IslandCollapsedBar({
     useWindowDragGesture(isTucked || positionLocked, onWindowDragStart);
   const isMusicPlaying = mediaState.playbackStatus === "playing";
   const lyricMode = showMusic && isMusicPlaying && Boolean(mediaState.title) && !preview && !quotaAlert;
+  const timerMode = Boolean(todoTimer) && !lyricMode && !preview && !quotaAlert;
   const ordinaryText = showCollapsedText && slotVisibility.text !== false && !lyricMode;
-  const shownAgent = collapsedItem === "agent" ? agentSession : null;
+  const shownAgent = !timerMode && collapsedItem === "agent" ? agentSession : null;
   // Opens where the previewed message lives: the mail reader, or QQ / WeChat (else their page).
   const openPreview = (shown: MessagePreview) => {
     const source = shown.source;
@@ -149,9 +152,10 @@ export function IslandCollapsedBar({
       void openOfficeClient(source).catch(() => onOpenMessages(source));
       return;
     }
-    if (source === "qqMail" && qqMail.preview) {
+    if (source === "qqMail") {
       onOpenMessages("qqMail");
-      void qqMail.readMail(qqMail.preview, qqMail.previewAccount);
+      const mail = shown.messageId ? qqMail.mailboxes.find(box => box.email === shown.mailAccount)?.items.find(item => item.id === shown.messageId) : qqMail.preview;
+      if (mail) void qqMail.readMail(mail, shown.mailAccount ?? qqMail.previewAccount);
       return;
     }
     const opening = source === "qq"
@@ -205,7 +209,7 @@ export function IslandCollapsedBar({
               if (preview) {
                 openPreview(preview);
               } else {
-                onOpenPage(shownAgent ? "agents" : page);
+                onOpenPage(lyricMode ? "music" : timerMode ? "todo" : shownAgent ? "agents" : page);
               }
             }
           }}
@@ -216,8 +220,8 @@ export function IslandCollapsedBar({
             {quotaAlert ? (
               <QuotaAlertPopup alert={quotaAlert} />
             ) : <>
-            {ordinaryText && showTitle && !shownAgent && (
-              <span className="island__brand">fly-island</span>
+            {ordinaryText && showTitle && !shownAgent && !timerMode && (
+              <span className="island__brand">{t.island.appName}</span>
             )}
             {ordinaryText && shownAgent && (
               <span className="island__agent-session" key={`${shownAgent.label}:${shownAgent.phase}`}>
@@ -230,19 +234,18 @@ export function IslandCollapsedBar({
               </span>
             )}
             {lyricMode && (
-              <CollapsedLyric mediaState={mediaState} lyricsSettings={lyricsSettings} active={!isExpanded} />
+              <CollapsedLyric mediaState={mediaState} lyricsSettings={lyricsSettings} active={!isExpanded} onGeometry={onMusicGeometry} />
             )}
-            {ordinaryText && collapsedItem === "todo" && collapsedTaskTitle && (todoTimer && !todoRotation ? (
+            {(ordinaryText || timerMode) && (collapsedItem === "todo" || timerMode) && collapsedTaskTitle && (todoTimer && (!ordinaryText || !todoRotation) ? (
               <span className={`island__active-task island__active-task--timed${isTodoTimerEndingSoon(todoTimer) ? " island__active-task--ending" : ""}`} key={collapsedTaskTitle}>
-                {showTitle ? "· " : ""}
                 <>
-                  <span className="island__active-task-title">{collapsedTaskTitle}</span>
+                  {ordinaryText && <span className="island__active-task-title">{collapsedTaskTitle}</span>}
                   <span className="island__timer-pill">
                     {todoTimer.notified ? t.todo.timeUp : <TodoCountdown endsAt={todoTimer.endsAt} warning={isTodoTimerEndingSoon(todoTimer)} />}
                   </span>
                 </>
               </span>
-            ) : <CollapsedTodoContent title={collapsedTaskTitle} prefix={showTitle ? "· " : ""} rotation={todoRotation} />)}
+            ) : <CollapsedTodoContent title={collapsedTaskTitle} prefix={showTitle && !timerMode ? "· " : ""} rotation={todoRotation} />)}
             {ordinaryText && collapsedItem === "todo" && !collapsedTaskTitle && collapsedTodoCount !== null && (
               <span className="island__todo-count">
                 {showTitle ? "· " : ""}
@@ -251,7 +254,7 @@ export function IslandCollapsedBar({
             )}
             </>}
           </CollapsedMessageContent>
-          {lyricMode && todoTimer && <span className="island__timer-pill">
+          {(lyricMode || timerMode && !collapsedTaskTitle) && todoTimer && <span className="island__timer-pill">
             {todoTimer.notified ? t.todo.timeUp : <TodoCountdown endsAt={todoTimer.endsAt} warning={isTodoTimerEndingSoon(todoTimer)} />}
           </span>}
         </button>
@@ -266,7 +269,7 @@ export function IslandCollapsedBar({
         <span>{shelfCount}</span>
       </button>
       ),
-    music: showMusic && (!compactCollapsed || lyricMode) && (
+    music: showMusic && isMusicPlaying && (!compactCollapsed || lyricMode) && (
       <MusicWaveButton
         isAvailable={mediaState.available || mediaState.audioActive}
         isPlaying={isMusicPlaying}
@@ -321,7 +324,8 @@ export function IslandCollapsedBar({
       }}
     >
       {leadingPet}
-      {visibleCollapsedSlots(collapsedLayout, slotVisibility, lyricMode).map((slot) => <Fragment key={slot}>{slots[slot]}</Fragment>)}
+      {visibleCollapsedSlots(collapsedLayout, slotVisibility, lyricMode, timerMode).map((slot) => <Fragment key={slot}>{slots[slot]}</Fragment>)}
+      {(timerMode || lyricMode) && agentSessionCount === null && slotVisibility.agents !== false && collapsedLayout.includes("agents") && slots.agents}
       {messageRail}
     </div>
   );

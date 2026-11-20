@@ -1,5 +1,6 @@
 import { invoke } from "@tauri-apps/api/core";
 import { emitTo, listen } from "@tauri-apps/api/event";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 import { loadDetachedSettings, requestSettingsFocus, type SettingsFocusSection } from "./storage";
 
 // Mirrors SETTINGS_OPEN_REQUESTED_EVENT in src-tauri/src/settings_window/mod.rs: the tray
@@ -48,6 +49,14 @@ export function setSettingsWindowTheme(dark: boolean) {
 /** Shows this window, which a fresh open creates hidden until the page has painted. */
 export function showSettingsWindow() {
   return invoke("show_settings_window");
+}
+
+export function closeSettingsWindow() {
+  return getCurrentWindow().close();
+}
+
+export function startSettingsWindowDrag() {
+  return getCurrentWindow().startDragging();
 }
 
 export function readLaunchAtStartup() {

@@ -4,7 +4,7 @@ import { mailContentText } from "./mailText";
 import { useTranslation } from "../../../i18n";
 
 /** Only the visible adaptive mail notice reads a body; late responses cannot replace a newer mail. */
-export function useMailPreviewContent(preview: MailMessage | null, account: string | null, enabled: boolean) {
+export function useMailPreviewContent(preview: Pick<MailMessage, "id"> | null, account: string | null, enabled: boolean) {
   const changed = useTranslation().mail.changed;
   const [loaded, setLoaded] = useState<{ key: string; text: string | null; error: string | null } | null>(null);
   const [attempt, setAttempt] = useState(0);

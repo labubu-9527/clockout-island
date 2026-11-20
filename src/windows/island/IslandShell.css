@@ -75,7 +75,7 @@
 
 .island--shape-pill:not(.island--tucked) { --island-corner-shape: round; corner-shape: round; }
 .island--shape-pill.island--collapsed:not(.island--tucked) {
-  border-radius: calc(var(--collapsed-island-height) * var(--island-collapsed-scale) / 2);
+  border-radius: calc(var(--island-collapsed-corner-radius-size, 19) * 1px * var(--island-collapsed-scale));
 }
 .island--shape-pill.island--expanded:not(.island--tucked) {
   border-radius: var(--island-shape-radius);
@@ -274,7 +274,7 @@
      out once, not on every frame); the shape's own height transition uncovers or trims it. */
   transition:
     opacity var(--island-panel-open-fade-duration) ease-out var(--island-panel-open-fade-delay),
-    transform var(--island-panel-open-slide-duration) var(--island-spring-open) var(--island-panel-open-slide-delay);
+    transform var(--island-panel-open-slide-duration) var(--island-motion) var(--island-panel-open-slide-delay);
 }
 
 /* Translation opens on the same spring as the other pages, but its panel only fades in: on the

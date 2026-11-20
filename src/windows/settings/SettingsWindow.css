@@ -1,7 +1,9 @@
 .settings-stage {
+  position: relative;
   height: 100%;
+  padding: 16px;
   color: var(--color-page-text);
-  background: var(--color-window);
+  background: transparent;
 }
 
 .settings-stage select {
@@ -11,13 +13,19 @@
 /* Pages stop at a readable width (rows read as label + control, not a stretched line); a wider
    window leaves the rest empty on the right. */
 .settings-stage .editor-panel {
-  grid-template-columns: minmax(0, 600px);
+  grid-template-columns: minmax(0, 1fr);
   height: 100%;
   min-height: 0;
-  padding: 14px 20px 20px;
+  padding: 6px 12px 24px 26px;
   border-radius: 0;
   background: transparent;
-  gap: var(--space-xl);
+  gap: 16px;
+}
+
+.settings-stage .settings-layout { box-shadow: 0 8px 28px #0003; }
+@media (max-width: 700px) {
+  .settings-stage { padding: 10px; }
+  .settings-stage .editor-panel { padding-left: 16px; }
 }
 
 .settings-stage .preset-name-input {

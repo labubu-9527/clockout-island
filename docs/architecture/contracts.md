@@ -5,7 +5,7 @@
 | 文档名称 | 对外契约清单 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-20 |
-| 版本号 | v1.2.0 |
+| 版本号 | v1.4.0 |
 
 2026-11-20 兼容补充：已有 `collapsedLayout` 的 `pet` 值继续容错读取与保留，展示改为固定前导位置，设置中只保留其显示开关。`messageSourceVisibility` 增加 `dingtalk`、`feishu`、`wecom`，旧配置缺失时默认显示；不改变已有来源开关。远端 `islandShape: "capsule"` 兼容读取为本地 `"pill"`，原生统一负责 6px 间距。`set_island_interaction` 折叠宽度允许最小 96px，以支持按实际可见内容收缩；手动设置仍至少 240px，通知预览仍至少 240px。
 
@@ -226,6 +226,12 @@ Codex 会话摘要（2026-11-15）：`list_agent_sessions` 可选返回 `lastCom
 
 ## 插件 API v1
 
+### 岛体光效与设置框架（2026-11-20）
+
+`focusd-island-settings` 兼容新增外观字段，均进入外观预设：`musicGlowEnabled`、`timerGlowEnabled`、`updateGlowEnabled`（默认false）；`musicGlowMode`（breath/rhythm，默认breath）；`motionMode`（curve/spring，默认spring）；`motionDuration`（250–1200ms，默认480）；`motionCollapseDuration`（150–700ms，默认440）；`motionCurve`（四个0–1控制点，默认[0.2,0,0,1]）；`springMass`（0.3–2，默认1）、`springStiffness`（100–1000，默认380）、`springDamping`（10–80，默认约31.97，即阻尼比0.82）；`pillCornerRadius`（null或0–48，默认null沿用旧版半高胶囊）。缺失或非法字段通过normalize兼容读取，旧key和事件不变。
+
+`set_island_interaction.collapsedCornerRadius` 的原生接受上限扩至48，旧的刘海设置范围不变。透明舞台收缩等待1280ms，覆盖最长展开动画及80ms余量。设置窗口label及入口不变，改为透明无边框、自绘拖动/关闭，新增核心权限`core:window:allow-close`；`set_settings_window_theme(dark)`签名不变，窗口背景保持透明。音乐工具栏复用已有`media_toggle_shuffle`、`media_cycle_repeat`、`media_set_volume`，未新增原生命令。
+
 ### 形状与图标可见性（2026-11-19）
 
 天气定位扩展（2026-11-19）：新增 `locate_weather_city({ language })` 返回现有 `WeatherCity`（按网络出口定位，坐标供两类天气提供商共用）。`WeatherDay` 兼容增加可选 Unix 秒字段 `sunrise` / `sunset`；旧缓存缺失时显示 `--`，不从本机时区推测。`island-hover-changed` 事件名与布尔格式不变，其区域包括展开消息栏与主体之间的连接间隙；点击命中区域仍保持实际圆角区域。
@@ -241,3 +247,11 @@ Codex 会话摘要（2026-11-15）：`list_agent_sessions` 可选返回 `lastCom
 - 事件：`plugins-changed`（无敏感数据；前端重新 get_plugins）。stdio RPC：`initialize`、`action`、`publish`，停止时可发送无 id 的可选 `shutdown` 通知；旧 v1 插件仍由宿主限时结束，完整 schema 见 `docs/plugins/api.md`。
 - manifest：`fly-island-plugin.json`；发布索引：`plugins-index.json`。现有命令、事件、窗口、localStorage key、latest.json 格式和更新端点保持兼容。
 - v3.2.6（2026-11-18，第三轮手测后）：`focusd-island-settings` 兼容新增 `todoVisibleRows`（整数 3–12，默认 8，即默认面板高度上限原本就放得下的行数，老用户观感不变）。新增命令 `add_file_shelf_welcome(fileName, content)`：首次启动时把欢迎说明写到应用数据目录 `welcome/<fileName>.txt` 并放进文件中转。首次启动（从未保存过设置和待办）时待办列表带一条欢迎待办，按普通待办保存在 `focusd-island-todos`。
+
+## 产品名称与分支来源（2026-11-20）
+
+中文名为「岛点下班」，英文名与 Tauri productName 为 `Clockout-island`，npm 包名为 `clockout-island`。中文/英文界面分别使用对应名称，品牌标题统一从翻译字典读取。
+
+Gitee `origin` 为 `https://gitee.com/zhu-he666/Clockout-island.git`，发布本分支使用 `git push origin master`；GitHub `upstream` 保留 `https://github.com/flyl1u/fly-island.git`，master 继续跟踪 upstream/main，不使用 push -u 改写拉取来源。
+
+Rust crate/可执行文件 `fly-island`、`fly_island_lib`、应用标识 `com.focusd.island`、现有存储key、主题文件格式、更新端点与插件清单名保留兼容。旧 FocuSD/Fly Island Codex hook 状态文案都识别为有效配置，旧通知诊断标题继续过滤；默认待办导出目录优先复用已经存在的 FocuSD 或 Fly Island 文件夹，新安装使用岛点下班。源码与素材原作者署名保留。

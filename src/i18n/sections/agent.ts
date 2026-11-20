@@ -1,5 +1,10 @@
 export type AgentText = {
-  dshHosts: { official: string; desktop: string; dataelement: string; anywhere: string };
+  dshHosts: {
+    official: string;
+    desktop: string;
+    dataelement: string;
+    anywhere: string;
+  };
   running: (provider: string) => string;
   failed: (provider: string) => string;
   stale: (provider: string) => string;
@@ -24,7 +29,11 @@ export type AgentText = {
     yourPrompt: (prompt: string) => string;
     minutesAgo: (minutes: number) => string;
     activeCount: (count: number) => string;
-    duration: (parts: { hours: number; minutes: number; seconds: number }) => string;
+    duration: (parts: {
+      hours: number;
+      minutes: number;
+      seconds: number;
+    }) => string;
     elapsedRunning: (duration: string) => string;
     elapsedDone: (duration: string) => string;
     /** Badges for the modes in which a session acts without asking; the default mode has none. */
@@ -62,7 +71,12 @@ export type AgentText = {
     label: string;
     codexLabel: string;
     dshLabel: string;
-    dshWallet: (currency: string, total: string, toppedUp: string, granted: string) => string;
+    dshWallet: (
+      currency: string,
+      total: string,
+      toppedUp: string,
+      granted: string,
+    ) => string;
     dshWalletTotal: (currency: string, total: string) => string;
     dshWalletParts: (toppedUp: string, granted: string) => string;
     dshAvailable: string;
@@ -71,12 +85,33 @@ export type AgentText = {
     fromDshApi: string;
     fromDshAccount: string;
     /** Why DSH is set up but shows no balance: a word or two beside the empty ring, then the hover detail. */
-    dshProblem: Record<"noSession" | "customProvider" | "customRoute" | "credential" | "timeout" | "network" | "auth" | "http" | "format", { short: string; detail: string }>;
-    workbuddy: { label: string; credits: (value: string) => string; balance: (remaining: string, total: string) => string; percent: (value: number) => string; source: string };
+    dshProblem: Record<
+      | "noSession"
+      | "customProvider"
+      | "customRoute"
+      | "credential"
+      | "timeout"
+      | "network"
+      | "auth"
+      | "http"
+      | "format",
+      { short: string; detail: string }
+    >;
+    workbuddy: {
+      label: string;
+      credits: (value: string) => string;
+      balance: (remaining: string, total: string) => string;
+      percent: (value: number) => string;
+      source: string;
+    };
     fiveHour: string;
     sevenDay: string;
     /** Compact time left: "1d10h", "3h20m", "42m". */
-    resetsIn: (parts: { days: number; hours: number; minutes: number }) => string;
+    resetsIn: (parts: {
+      days: number;
+      hours: number;
+      minutes: number;
+    }) => string;
     /** Read out after the line when the snapshot is old. */
     stale: string;
     updatedAgo: (minutes: number) => string;
@@ -132,7 +167,12 @@ export type AgentText = {
 };
 
 export const zhCN: AgentText = {
-  dshHosts: { official: "DSH", desktop: "DSH Desktop", dataelement: "DSH Desktop (dataelement)", anywhere: "DSH Desktop (anywhere)" },
+  dshHosts: {
+    official: "DSH",
+    desktop: "DSH Desktop",
+    dataelement: "DSH Desktop (dataelement)",
+    anywhere: "DSH Desktop (anywhere)",
+  },
   running: (provider) => `${provider} 正在运行`,
   failed: (provider) => `${provider} 运行失败`,
   stale: (provider) => `${provider} 可能已中断`,
@@ -149,19 +189,30 @@ export const zhCN: AgentText = {
     title: "Agent 会话",
     open: "查看 Agent 会话",
     empty: "最近 2 小时没有 Agent 会话",
-    emptyHint: "在 Claude Code / Codex / DeepSeek Harness 里开始对话后会显示在这里",
+    emptyHint:
+      "在 Claude Code / Codex / DeepSeek Harness 里开始对话后会显示在这里",
     focus: (title) => `切换到「${title}」所在的窗口`,
     notFound: "没找到对应的窗口",
     notFoundEnded: "没找到对应的窗口，会话可能已经关掉了",
     justNow: "刚刚",
     yourPrompt: (prompt) => `你：${prompt}`,
-    minutesAgo: (minutes) => (minutes < 60 ? `${minutes} 分` : `${Math.floor(minutes / 60)} 小时`),
+    minutesAgo: (minutes) =>
+      minutes < 60 ? `${minutes} 分` : `${Math.floor(minutes / 60)} 小时`,
     activeCount: (count) => `${count} 个 Agent 会话正在运行，点击查看`,
     duration: ({ hours, minutes, seconds }) =>
-      hours > 0 ? `${hours} 小时 ${minutes} 分` : minutes > 0 ? `${minutes} 分 ${seconds} 秒` : `${seconds} 秒`,
+      hours > 0
+        ? `${hours} 小时 ${minutes} 分`
+        : minutes > 0
+          ? `${minutes} 分 ${seconds} 秒`
+          : `${seconds} 秒`,
     elapsedRunning: (duration) => `已运行 ${duration}`,
     elapsedDone: (duration) => `用时 ${duration}`,
-    permissionModes: { auto: "自动", bypass: "跳过确认", acceptEdits: "自动改文件", plan: "计划" },
+    permissionModes: {
+      auto: "自动",
+      bypass: "跳过确认",
+      acceptEdits: "自动改文件",
+      plan: "计划",
+    },
     subagents: (count) => `${count} 个子 Agent`,
     todos: (done, total) => `${done}/${total} 步`,
     todosCurrent: (step) => `正在：${step}`,
@@ -175,7 +226,11 @@ export const zhCN: AgentText = {
       label: "排列会话",
       sort: "排序",
       group: "分组",
-      sortOptions: { status: "状态优先", recent: "最近活动", firstSeen: "首次出现" },
+      sortOptions: {
+        status: "状态优先",
+        recent: "最近活动",
+        firstSeen: "首次出现",
+      },
       groupOptions: { computer: "按电脑", project: "按项目", none: "不分组" },
     },
     removed: "已归档",
@@ -187,24 +242,58 @@ export const zhCN: AgentText = {
     label: "Claude 用量",
     codexLabel: "Codex 用量",
     dshLabel: "DSH 余额",
-    dshWallet: (currency, total, toppedUp, granted) => `${currency} 余额 ${total}（充值 ${toppedUp} · 赠送 ${granted}）`,
+    dshWallet: (currency, total, toppedUp, granted) =>
+      `${currency} 余额 ${total}（充值 ${toppedUp} · 赠送 ${granted}）`,
     dshWalletTotal: (currency, total) => `${currency} 余额 ${total}`,
     dshWalletParts: (toppedUp, granted) => `充值 ${toppedUp} · 赠送 ${granted}`,
     dshAvailable: "余额可用",
     dshEmpty: "余额不足",
-    dshLegend: ["内外两圈：余额可用", "实心表示可用，不代表百分比。", "余额不是订阅额度，没有重置窗口。"],
+    dshLegend: [
+      "内外两圈：余额可用",
+      "实心表示可用，不代表百分比。",
+      "余额不是订阅额度，没有重置窗口。",
+    ],
     fromDshApi: "DeepSeek API 余额接口",
     fromDshAccount: "DSH 账户余额接口",
     dshProblem: {
-      noSession: { short: "暂无会话", detail: "DSH 还没有用过官方模型的会话，无法确定计费账户。" },
-      customProvider: { short: "第三方模型", detail: "最近的 DSH 会话使用第三方模型，没有 DeepSeek 官方余额可查。" },
-      customRoute: { short: "自定义接口", detail: "DSH 设置了自定义接口地址，为保护密钥，不向官方查询余额。" },
-      credential: { short: "未找到凭据", detail: "没有读到 DSH 保存的 DeepSeek 凭据，请在 DSH 里重新登录或填写 API key。" },
-      timeout: { short: "查询超时", detail: "查询余额超时，请检查网络或代理，稍后会自动重试。" },
-      network: { short: "无法连接", detail: "连不上 DeepSeek，请检查网络或代理，稍后会自动重试。" },
-      auth: { short: "凭据失效", detail: "DeepSeek 拒绝了 DSH 的凭据，请在 DSH 里重新登录或更换 API key。" },
-      http: { short: "服务出错", detail: "DeepSeek 余额接口返回错误，稍后会自动重试。" },
-      format: { short: "无法识别", detail: "余额接口返回的格式无法识别，可能需要更新 Fly Island。" },
+      noSession: {
+        short: "暂无会话",
+        detail: "DSH 还没有用过官方模型的会话，无法确定计费账户。",
+      },
+      customProvider: {
+        short: "第三方模型",
+        detail: "最近的 DSH 会话使用第三方模型，没有 DeepSeek 官方余额可查。",
+      },
+      customRoute: {
+        short: "自定义接口",
+        detail: "DSH 设置了自定义接口地址，为保护密钥，不向官方查询余额。",
+      },
+      credential: {
+        short: "未找到凭据",
+        detail:
+          "没有读到 DSH 保存的 DeepSeek 凭据，请在 DSH 里重新登录或填写 API key。",
+      },
+      timeout: {
+        short: "查询超时",
+        detail: "查询余额超时，请检查网络或代理，稍后会自动重试。",
+      },
+      network: {
+        short: "无法连接",
+        detail: "连不上 DeepSeek，请检查网络或代理，稍后会自动重试。",
+      },
+      auth: {
+        short: "凭据失效",
+        detail:
+          "DeepSeek 拒绝了 DSH 的凭据，请在 DSH 里重新登录或更换 API key。",
+      },
+      http: {
+        short: "服务出错",
+        detail: "DeepSeek 余额接口返回错误，稍后会自动重试。",
+      },
+      format: {
+        short: "无法识别",
+        detail: "余额接口返回的格式无法识别，可能需要更新 岛点下班。",
+      },
     },
     workbuddy: {
       label: "WorkBuddy 积分",
@@ -216,9 +305,18 @@ export const zhCN: AgentText = {
     fiveHour: "5 小时",
     sevenDay: "7 天",
     resetsIn: ({ days, hours, minutes }) =>
-      days > 0 ? `${days} 天 ${hours} 小时后重置` : hours > 0 ? `${hours} 小时 ${minutes} 分后重置` : `${minutes} 分后重置`,
+      days > 0
+        ? `${days} 天 ${hours} 小时后重置`
+        : hours > 0
+          ? `${hours} 小时 ${minutes} 分后重置`
+          : `${minutes} 分后重置`,
     stale: "可能已过时",
-    updatedAgo: (minutes) => (minutes < 1 ? "刚刚更新" : minutes < 60 ? `${minutes} 分钟前更新` : `${Math.floor(minutes / 60)} 小时前更新`),
+    updatedAgo: (minutes) =>
+      minutes < 1
+        ? "刚刚更新"
+        : minutes < 60
+          ? `${minutes} 分钟前更新`
+          : `${Math.floor(minutes / 60)} 小时前更新`,
     fromHud: "来自 claude-hud",
     fromMagpie: "来自 magpie",
     fromCodex: "来自 Codex 会话记录",
@@ -265,7 +363,12 @@ export const zhCN: AgentText = {
 };
 
 export const en: AgentText = {
-  dshHosts: { official: "DSH", desktop: "DSH Desktop", dataelement: "DSH Desktop (dataelement)", anywhere: "DSH Desktop (anywhere)" },
+  dshHosts: {
+    official: "DSH",
+    desktop: "DSH Desktop",
+    dataelement: "DSH Desktop (dataelement)",
+    anywhere: "DSH Desktop (anywhere)",
+  },
   running: (provider) => `${provider} is running`,
   failed: (provider) => `${provider} failed`,
   stale: (provider) => `${provider} may have stalled`,
@@ -282,23 +385,38 @@ export const en: AgentText = {
     title: "Agent sessions",
     open: "Show agent sessions",
     empty: "No agent sessions in the last 2 hours",
-    emptyHint: "Conversations in Claude Code, Codex or DeepSeek Harness show up here",
+    emptyHint:
+      "Conversations in Claude Code, Codex or DeepSeek Harness show up here",
     focus: (title) => `Switch to the window running "${title}"`,
     notFound: "No matching window found",
     notFoundEnded: "No matching window; the session may have been closed",
     justNow: "<1m",
     yourPrompt: (prompt) => `You: ${prompt}`,
-    minutesAgo: (minutes) => (minutes < 60 ? `${minutes}m` : `${Math.floor(minutes / 60)}h`),
-    activeCount: (count) => (count === 1 ? "1 agent session running; click to view" : `${count} agent sessions running; click to view`),
+    minutesAgo: (minutes) =>
+      minutes < 60 ? `${minutes}m` : `${Math.floor(minutes / 60)}h`,
+    activeCount: (count) =>
+      count === 1
+        ? "1 agent session running; click to view"
+        : `${count} agent sessions running; click to view`,
     duration: ({ hours, minutes, seconds }) =>
-      hours > 0 ? `${hours}h ${minutes}m` : minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`,
+      hours > 0
+        ? `${hours}h ${minutes}m`
+        : minutes > 0
+          ? `${minutes}m ${seconds}s`
+          : `${seconds}s`,
     elapsedRunning: (duration) => `running ${duration}`,
     elapsedDone: (duration) => `took ${duration}`,
-    permissionModes: { auto: "Auto", bypass: "Bypass", acceptEdits: "Accept edits", plan: "Plan" },
+    permissionModes: {
+      auto: "Auto",
+      bypass: "Bypass",
+      acceptEdits: "Accept edits",
+      plan: "Plan",
+    },
     subagents: (count) => (count === 1 ? "1 subagent" : `${count} subagents`),
     todos: (done, total) => `${done}/${total} steps`,
     todosCurrent: (step) => `Now: ${step}`,
-    backgroundTasks: (count) => (count === 1 ? "1 background task" : `${count} background tasks`),
+    backgroundTasks: (count) =>
+      count === 1 ? "1 background task" : `${count} background tasks`,
     contextTokens: (size) => `${size} tokens`,
     remove: (title) => `Archive "${title}"`,
     remoteOnly: (host) => `No terminal or editor window connected to ${host}`,
@@ -308,7 +426,11 @@ export const en: AgentText = {
       label: "Arrange sessions",
       sort: "Sort",
       group: "Group",
-      sortOptions: { status: "Status", recent: "Recent", firstSeen: "First seen" },
+      sortOptions: {
+        status: "Status",
+        recent: "Recent",
+        firstSeen: "First seen",
+      },
       groupOptions: { computer: "Computer", project: "Project", none: "None" },
     },
     removed: "Archived",
@@ -320,24 +442,66 @@ export const en: AgentText = {
     label: "Claude usage",
     codexLabel: "Codex usage",
     dshLabel: "DSH balance",
-    dshWallet: (currency, total, toppedUp, granted) => `${currency} balance ${total} (topped up ${toppedUp} · bonus ${granted})`,
+    dshWallet: (currency, total, toppedUp, granted) =>
+      `${currency} balance ${total} (topped up ${toppedUp} · bonus ${granted})`,
     dshWalletTotal: (currency, total) => `${currency} balance ${total}`,
-    dshWalletParts: (toppedUp, granted) => `Topped up ${toppedUp} · Bonus ${granted}`,
+    dshWalletParts: (toppedUp, granted) =>
+      `Topped up ${toppedUp} · Bonus ${granted}`,
     dshAvailable: "Balance available",
     dshEmpty: "Insufficient balance",
-    dshLegend: ["Both rings: usable balance", "Filled = available; no percentage.", "Prepaid, no subscription window."],
+    dshLegend: [
+      "Both rings: usable balance",
+      "Filled = available; no percentage.",
+      "Prepaid, no subscription window.",
+    ],
     fromDshApi: "DeepSeek API balance endpoint",
     fromDshAccount: "DSH account balance endpoint",
     dshProblem: {
-      noSession: { short: "No session", detail: "No DSH session with an official model yet, so the billed account is unknown." },
-      customProvider: { short: "Third-party", detail: "The latest DSH session uses a third-party model; there is no DeepSeek balance to read." },
-      customRoute: { short: "Custom API", detail: "DSH uses a custom endpoint; to protect its key, the official balance is not queried." },
-      credential: { short: "No credential", detail: "DSH's saved DeepSeek credential was not found. Sign in again or add an API key in DSH." },
-      timeout: { short: "Timed out", detail: "The balance request timed out. Check your network or proxy; it retries shortly." },
-      network: { short: "Offline", detail: "Can't reach DeepSeek. Check your network or proxy; it retries shortly." },
-      auth: { short: "Expired", detail: "DeepSeek rejected DSH's credential. Sign in again or replace the API key in DSH." },
-      http: { short: "Server error", detail: "DeepSeek's balance endpoint returned an error; it retries shortly." },
-      format: { short: "Unrecognized", detail: "The balance response was not recognized; Fly Island may need an update." },
+      noSession: {
+        short: "No session",
+        detail:
+          "No DSH session with an official model yet, so the billed account is unknown.",
+      },
+      customProvider: {
+        short: "Third-party",
+        detail:
+          "The latest DSH session uses a third-party model; there is no DeepSeek balance to read.",
+      },
+      customRoute: {
+        short: "Custom API",
+        detail:
+          "DSH uses a custom endpoint; to protect its key, the official balance is not queried.",
+      },
+      credential: {
+        short: "No credential",
+        detail:
+          "DSH's saved DeepSeek credential was not found. Sign in again or add an API key in DSH.",
+      },
+      timeout: {
+        short: "Timed out",
+        detail:
+          "The balance request timed out. Check your network or proxy; it retries shortly.",
+      },
+      network: {
+        short: "Offline",
+        detail:
+          "Can't reach DeepSeek. Check your network or proxy; it retries shortly.",
+      },
+      auth: {
+        short: "Expired",
+        detail:
+          "DeepSeek rejected DSH's credential. Sign in again or replace the API key in DSH.",
+      },
+      http: {
+        short: "Server error",
+        detail:
+          "DeepSeek's balance endpoint returned an error; it retries shortly.",
+      },
+      format: {
+        short: "Unrecognized",
+        detail:
+          "The balance response was not recognized; Clockout-island may need an update.",
+      },
     },
     workbuddy: {
       label: "WorkBuddy credits",
@@ -348,9 +512,19 @@ export const en: AgentText = {
     },
     fiveHour: "5h",
     sevenDay: "7d",
-    resetsIn: ({ days, hours, minutes }) => (days > 0 ? `resets in ${days}d${hours}h` : hours > 0 ? `resets in ${hours}h${minutes}m` : `resets in ${minutes}m`),
+    resetsIn: ({ days, hours, minutes }) =>
+      days > 0
+        ? `resets in ${days}d${hours}h`
+        : hours > 0
+          ? `resets in ${hours}h${minutes}m`
+          : `resets in ${minutes}m`,
     stale: "may be stale",
-    updatedAgo: (minutes) => (minutes < 1 ? "updated just now" : minutes < 60 ? `updated ${minutes} min ago` : `updated ${Math.floor(minutes / 60)} h ago`),
+    updatedAgo: (minutes) =>
+      minutes < 1
+        ? "updated just now"
+        : minutes < 60
+          ? `updated ${minutes} min ago`
+          : `updated ${Math.floor(minutes / 60)} h ago`,
     fromHud: "via claude-hud",
     fromMagpie: "from magpie",
     fromCodex: "from Codex's session logs",

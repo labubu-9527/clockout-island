@@ -119,7 +119,7 @@
 }
 
 .island-preview__island--pill.island-preview__island--collapsed {
-  border-radius: var(--radius-pill);
+  border-radius: var(--preview-radius-collapsed);
   corner-shape: round;
 }
 

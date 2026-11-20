@@ -2,6 +2,7 @@
 // Line shrinks the shape itself into a 72 x 5 bar and hidden fades it out; sampled halfway, neither
 // has jumped to its end, and both cover Rust's hot zone so the page's mouseenter still reveals.
 import { act } from "react";
+import { DEFAULT_ISLAND_EFFECTS } from "../../src/features/appearance/islandEffects";
 
 type TuckTour = {
   tuckStyle: string;
@@ -27,7 +28,7 @@ export async function checkTuckMorph({ tuckStyle, island, check, settle, interac
   const morphs = tuckStyle !== "edge";
   const expandedWidth = Number.parseFloat(getComputedStyle(island()).width);
   await (morphs ? clickLive : click)('[aria-label="收起到屏幕顶部"]');
-  checkShapeMotion(0.38);
+  checkShapeMotion(morphs ? 0.38 : DEFAULT_ISLAND_EFFECTS.motionCollapseDuration / 1000);
   check(interaction().isTucked === true, "贴边收起请求保留位置动画");
   if (!morphs) {
     check(interaction().tuckStyle === "edge" && !/island--tuck-/.test(island().className), "贴边样式 edge：传给原生窗口，岛屿保持原样");

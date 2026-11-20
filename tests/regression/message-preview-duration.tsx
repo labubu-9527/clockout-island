@@ -95,12 +95,16 @@ try {
   check(shown().every(Boolean), "adaptive notices use their own longer duration");
   await advance(1);
   check(shown().every(value => !value), "adaptive notices end at their own deadline");
-  // The cursor on the island keeps the preview past its seconds; leaving lets it go.
+  // Hover pauses the queue's display clock; leaving resumes its remaining budget.
   await act(async () => { await emit("island-hover-changed", true); });
   await advance(1); await notify(); await advance(12_000);
   check(!notice.qqNotifications.preview && notice.preview !== null && notice.hasMessagePreview, "hovered preview stays past its seconds");
+  const held = notice.preview;
   await act(async () => { await emit("island-hover-changed", false); });
-  check(notice.preview === null && !notice.hasMessagePreview, "the kept preview goes once the cursor leaves");
+  check(notice.preview !== null && notice.hasMessagePreview, "leaving resumes the held preview instead of discarding its remaining time");
+  await advance(12_000); await render();
+  check(notice.preview?.source !== held?.source || notice.preview?.messageId !== held?.messageId || notice.preview?.receivedAt !== held?.receivedAt,
+    `the resumed preview yields to the next queued message after its remaining duration (${JSON.stringify(held)} -> ${JSON.stringify(notice.preview)})`);
   quiet = true; tucked = true;
   await render(); await notify();
   check(shown().every(value => !value), "quiet mode blocks notices by default");

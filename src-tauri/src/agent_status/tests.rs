@@ -610,6 +610,10 @@ fn hooks_state_matches_what_the_installers_write() {
         codex_hooks_state(Some(&current), running, status, None),
         HookInstallState::Current
     );
+    for former in ["Fly Island", "FocuSD"] {
+        let legacy_name = current.replace("Updating 岛点下班 agent status", &format!("Updating {former} agent status"));
+        assert_eq!(codex_hooks_state(Some(&legacy_name), running, status, None), HookInstallState::Current);
+    }
     let old = current.replace(" codex\\\"", " codex capture\\\"");
     assert_ne!(old, current);
     assert_eq!(

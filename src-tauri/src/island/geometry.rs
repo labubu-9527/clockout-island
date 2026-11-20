@@ -38,9 +38,9 @@ pub(super) const EXPANDED_RADIUS: f64 = 30.0;
 // (src/features/appearance/settingsLimits.ts).
 pub(super) const MIN_CORNER_RADIUS: f64 = 8.0;
 pub(super) const MAX_CORNER_RADIUS: f64 = 96.0;
-// Range accepted for the collapsed bar's own radius (COLLAPSED_CORNER_RADIUS in settingsLimits.ts).
+// Includes the optional 0–48px capsule radius; the legacy notch slider keeps its 0–40px range.
 pub(super) const MIN_COLLAPSED_CORNER_RADIUS: f64 = 0.0;
-pub(super) const MAX_COLLAPSED_CORNER_RADIUS: f64 = 40.0;
+pub(super) const MAX_COLLAPSED_CORNER_RADIUS: f64 = 48.0;
 pub(super) const STAGE_WINDOW_PADDING_Y: f64 = 24.0;
 /// The strip of the island left on screen by the "edge" tuck: 10px by default, set in
 /// Settings → General (tuckEdgeHeight, src/features/appearance/settingsLimits.ts TUCK_EDGE_HEIGHT).
@@ -59,10 +59,9 @@ static RUNNING_SLIDE: Mutex<Option<(u64, (i32, i32))>> = Mutex::new(None);
 pub(super) fn continues_slide(running: Option<(u64, (i32, i32))>, current_generation: u64, target: (i32, i32), animate: bool) -> bool {
     !animate && running == Some((current_generation, target))
 }
-// A shorter stage waits for the island's 560ms height transition (.island in
-// src/windows/island/IslandShell.css) to finish; shrinking at once would cut off the
-// bottom of the island while it is still animating down from a taller page.
-const STAGE_SHRINK_DELAY: Duration = Duration::from_millis(600);
+// The longest configurable shape transition is 1200ms, plus its 80ms cleanup guard.
+// Keeping the transparent stage longer does not enlarge the island's native hit-test area.
+const STAGE_SHRINK_DELAY: Duration = Duration::from_millis(1280);
 static STAGE_SHRINK_GENERATION: AtomicU64 = AtomicU64::new(0);
 
 pub(crate) fn apply_stage_geometry(

@@ -2,6 +2,7 @@ import { useTranslation } from "../../../i18n";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { nextQQPreview, type QQPreviewTiming } from "../qqNotificationTiming";
+import type { MessageNoticeReceiver } from "../messagePreview";
 import type { MailEvent, MailMessage, MailSnapshot } from "./api";
 import { mailWebUrl } from "./mailDomain";
 import { useMailAccounts } from "./useMailAccounts";
@@ -18,11 +19,16 @@ const EMPTY_SNAPSHOT: MailSnapshot = {
 type PreviewWindow = { email: string; id: string; receivedAt: number; expiresAt: number };
 
 /** The island's mail: which mailbox tab is shown, new-mail previews and the reader. */
-export function useMail(canPreview: boolean, { previewSeconds = 5, autoCopyOtp = true, previewBody = false } = {}) {
+export function useMail(canPreview: boolean, { previewSeconds = 5, autoCopyOtp = true, previewBody = false, onNotice, managedPreview }: {
+  previewSeconds?: number; autoCopyOtp?: boolean; previewBody?: boolean; onNotice?: MessageNoticeReceiver;
+  managedPreview?: { account: string; id: string } | null;
+} = {}) {
   const t = useTranslation();
   const [selectedEmail, setSelectedEmail] = useState<string | null>(null);
   const [previewWindow, setPreviewWindow] = useState<PreviewWindow | null>(null);
   const previewRef = useRef<PreviewWindow | null>(null);
+  const onNoticeRef = useRef(onNotice);
+  onNoticeRef.current = onNotice;
   const canPreviewRef = useRef(canPreview);
   const previewSecondsRef = useRef(previewSeconds);
   const timingRef = useRef<QQPreviewTiming | null>(null);
@@ -52,12 +58,19 @@ export function useMail(canPreview: boolean, { previewSeconds = 5, autoCopyOtp =
     if (previewRef.current?.email === next.email && (!next.enabled || next.status !== "connected")) clearPreview();
     if (readerAccountRef.current === next.email && (!next.configured || next.status === "authRequired")) closeReader();
   }, [clearPreview, closeReader]);
-  const onEvent = useCallback((event: MailEvent) => {
+  const onEvent = useCallback((event: MailEvent, previous?: MailSnapshot) => {
     copyArrival(event);
     if (!canPreviewRef.current || !event.windowVisible) { clearPreview(); return; }
     const { email, enabled, status } = event.snapshot;
     if (event.newestId && email && enabled && status === "connected") {
       const receivedAt = Date.now();
+      const previousIds = previous ? new Set(previous.items.map((item) => item.id)) : null;
+      const arrivals = event.snapshot.items.filter((item) => item.unread && (item.id === event.newestId
+        || (previousIds !== null && !previousIds.has(item.id))))
+        .sort((a, b) => (a.receivedAt ?? 0) - (b.receivedAt ?? 0) || a.uid - b.uid);
+      for (const message of arrivals) onNoticeRef.current?.({ source: "qqMail", title: message.sender, body: message.subject,
+        mailAccount: email, messageId: message.id, otpCode: message.otpCode,
+        receivedAt });
       const { timing, expiresAt } = nextQQPreview(timingRef.current, receivedAt, previewSecondsRef.current);
       timingRef.current = timing;
       showPreview(expiresAt === null ? null : { email, id: event.newestId, receivedAt, expiresAt });
@@ -109,7 +122,9 @@ export function useMail(canPreview: boolean, { previewSeconds = 5, autoCopyOtp =
   const preview = canPreview && previewWindow && previewBox?.enabled && previewBox.status === "connected"
     ? previewBox.items.find((item) => item.id === previewWindow.id && item.unread) ?? null : null;
   const previewAccount = preview ? previewWindow?.email ?? null : null;
-  const previewContent = useMailPreviewContent(preview, previewAccount, previewBody);
+  const contentMessage = managedPreview === undefined ? preview : managedPreview;
+  const contentAccount = managedPreview === undefined ? previewAccount : managedPreview?.account ?? null;
+  const previewContent = useMailPreviewContent(contentMessage, contentAccount, previewBody);
 
   return {
     ...accounts, ...reader, snapshot, setEnabled, refresh, selectMailbox, readMail, openMail, markAllRead,

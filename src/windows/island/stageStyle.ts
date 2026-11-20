@@ -5,6 +5,7 @@ import type { ColorPalette } from "../../features/appearance/colorPalette";
 import type { IslandSettings } from "../../features/appearance/types";
 import { inkOn, rgbChannels } from "../../utils/color";
 import { getGlassStyle } from "./glassStyle";
+import { shapedSettings } from "../../features/appearance/islandShape";
 
 /**
  * CSS custom properties for the island stage, derived from the appearance settings, the colours
@@ -31,7 +32,7 @@ export function getIslandStageStyle(
     "--island-font-scale": settings.islandFontPercent / 100,
     // Unitless; IslandShell.css derives the collapsed, detached and inner panel radii from it.
     "--island-corner-radius-size": settings.islandCornerRadius,
-    "--island-collapsed-corner-radius-size": settings.collapsedCornerRadius,
+    "--island-collapsed-corner-radius-size": shapedSettings(settings).collapsedCornerRadius,
     // The corner-shape of the island and every layer that inherits its radius (IslandShell.css).
     "--island-corner-shape": cornerShapeCss(settings.islandCornerShape),
     "--island-shoulder-size-target": `${settings.topEdgeShoulderSize}px`,
