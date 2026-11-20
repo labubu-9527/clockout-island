@@ -74,6 +74,27 @@ try {
   check(!document.querySelector(".island__collapsed .island-pet") && width() < musicWidth, "pet switch removes the face and closes its reserved space");
   media = { ...media, playbackStatus: "paused", updatedAt: Date.now() };
   await wait(2600);
+  await act(async () => {
+    localStorage.setItem("focusd-island-weather-settings", JSON.stringify({ enabled: true }));
+    window.dispatchEvent(new StorageEvent("storage", { key: "focusd-island-weather-settings" }));
+  });
+  await patch({ clockEnabled: true, clockShowSeconds: true, clockPeriod: "none", islandFontPercent: 120, cpuEnabled: false, memoryEnabled: false, petEnabled: false, collapsedSlotVisibility: { text: false, pet: false, clock: true, cpu: false, memory: false, weather: true, music: true, agents: false } });
+  const clock = document.querySelector<HTMLElement>(".clock-indicator")!;
+  check(clock && clock.scrollWidth <= clock.clientWidth + 1, `clock preserves complete digits beside controls (${clock?.scrollWidth}/${clock?.clientWidth})`);
+  for (const clockPeriod of ["none", "ampm", "detailed"]) {
+    for (const clockHour12 of [false, true]) {
+      await patch({ clockPeriod, clockHour12 });
+      const time = document.querySelector<HTMLElement>(".clock-indicator")!;
+      const clockBar = document.querySelector<HTMLElement>(".island__collapsed")!;
+      check(time.scrollWidth <= time.clientWidth + 1 && clockBar.scrollWidth <= clockBar.clientWidth + 1,
+        `complete ${clockPeriod} ${clockHour12 ? 12 : 24}-hour clock fits beside weather and music`);
+    }
+  }
+  await act(async () => {
+    localStorage.setItem("focusd-island-weather-settings", JSON.stringify({ enabled: false }));
+    window.dispatchEvent(new StorageEvent("storage", { key: "focusd-island-weather-settings" }));
+  });
+  await patch({ clockShowSeconds: false, clockPeriod: "none", clockHour12: false, islandFontPercent: 100 });
   await patch({ clockEnabled: false, cpuEnabled: false, memoryEnabled: false, collapsedSlotVisibility: { text: false, pet: false, clock: false, cpu: false, memory: false, music: false, agents: false } });
   check(!document.querySelector(".collapsed-lyric"), "pausing music restores ordinary presentation");
   check(width() === 96, `empty auto width shrinks to 96px (${width()})`);

@@ -9,3 +9,9 @@
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
 }
+
+/* Digits must remain readable; the adjacent text and weather can yield space. */
+.island__collapsed .clock-indicator {
+  flex: 0 0 auto;
+  max-width: none;
+}
