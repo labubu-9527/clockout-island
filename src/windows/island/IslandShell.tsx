@@ -1,4 +1,5 @@
 import { MessageRail } from "../../features/messages/MessageRail";
+import { IslandGlassLayers } from "./IslandGlassLayers";
 import type { MessageRailItem } from "../../features/messages/messageRailItems";
 import { isGlass } from "../../features/appearance/settings";
 import type { ReactNode } from "react";
@@ -249,13 +250,7 @@ export function IslandShell({
       {glass && <span className="island__glass-shadow" aria-hidden="true" />}
       <div className="island__surface">
         {/* Outside .island__glass, whose top fades out when attached (IslandTopEdge.css). */}
-        {glass && <div className="island__glass-backdrop" aria-hidden="true"><canvas /></div>}
-        {glass && (
-          <div className="island__glass" aria-hidden="true">
-            {isLiquidGlass && <span className="island__glass-refraction" />}
-            {isLiquidGlass && <span className="island__glass-highlight" />}
-          </div>
-        )}
+        {glass && <IslandGlassLayers liquid={isLiquidGlass} />}
         <IslandCollapsedBar
           qqMail={qqMail}
           qqNotifications={qqNotifications}
@@ -334,7 +329,8 @@ export function IslandShell({
           <div ref={contentRef} className="island__content">{children}</div>
         </div>
       </div>
-      {isExpanded && !isTucked && <MessageRail items={messageItems} mailAccount={railMailAccount} expanded onOpen={openRailSource} />}
+      {isExpanded && !isTucked && <MessageRail items={messageItems} mailAccount={railMailAccount} expanded onOpen={openRailSource}
+        surface={glass && <IslandGlassLayers liquid={isLiquidGlass} rail />} />}
     </section>
   );
 }

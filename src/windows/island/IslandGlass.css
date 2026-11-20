@@ -94,6 +94,13 @@
   display: none;
 }
 
+/* The external notification capsule shares the selected pane, including its fallback tint. */
+.island:is(.island--material-liquidGlass, .island--material-frostedGlass) > .message-rail--expanded {
+  --island-corner-shape: round;
+  background: inherit;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, var(--glass-shadow-alpha));
+}
+
 :root[data-glass-backdrop] .island__glass-backdrop {
   position: absolute;
   top: var(--glass-frame-y, 0px);
@@ -102,6 +109,13 @@
   width: var(--glass-frame-width, 100vw);
   height: var(--glass-frame-height, 100vh);
   pointer-events: none;
+}
+
+/* This canvas is already cropped to the scaled rail's viewport rectangle. */
+:root[data-glass-backdrop] .island__glass-backdrop--rail {
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
 /* Its own layer while the island opens or closes (data-moving, useMotionLayer.ts): inside the
@@ -303,8 +317,8 @@
   background: var(--glass-tint-color);
 }
 
-:root[data-island-top-edge="attached"] .island:not(.island--shape-pill) .island__glass-highlight,
-:root:not([data-island-top-edge]) .island--docked:not(.island--shape-pill) .island__glass-highlight {
+:root[data-island-top-edge="attached"] .island:not(.island--shape-pill) .island__surface .island__glass-highlight,
+:root:not([data-island-top-edge]) .island--docked:not(.island--shape-pill) .island__surface .island__glass-highlight {
   top: auto;
   bottom: 1px;
 }

@@ -33,6 +33,14 @@ export function checkTone(check: (condition: unknown, message: string) => void, 
 export function checkMaterial(check: (condition: unknown, message: string) => void, material: string) {
   const island = document.querySelector<HTMLElement>(".island")!;
   const style = getComputedStyle(island);
+  const rail = island.querySelector<HTMLElement>(".message-rail--expanded");
+  check(rail && rail.querySelector(".island__glass-backdrop canvas") && rail.querySelector(".island__glass"),
+    "展开消息栏也有桌面玻璃背景与材质边缘");
+  if (rail) {
+    const railStyle = getComputedStyle(rail);
+    check(railStyle.backgroundColor === style.backgroundColor && railStyle.backgroundImage === style.backgroundImage,
+      "消息栏跟随主岛材质底色，不使用经典实色背景");
+  }
   check(island.classList.contains(`island--material-${material}`) && document.documentElement.dataset.material === material,
     `岛屿和页面都标上了质感（${material}）`);
   check(document.querySelector(".island__glass") && style.backdropFilter === "none", "玻璃只用 CSS 画，不模糊桌面");

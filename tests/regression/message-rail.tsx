@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { I18nProvider, LOCALE_STORAGE_KEY } from '../../src/i18n';
 import { MessageRail } from '../../src/features/messages/MessageRail';
 import { getMessageRailItems } from '../../src/features/messages/messageRailItems';
+import { paintRailBackdrop } from '../../src/windows/island/railGlassBackdrop';
 import '../../src/styles/tokens.css';
 import '../../src/styles/base.css';
 
@@ -52,6 +53,30 @@ try {
   check(Boolean(document.querySelector('[data-source="qqMail"] [data-mail-provider="generic"]')), 'other mailboxes use a generic mail icon');
   await render(false, false, undefined, false);
   check(!document.querySelector('.message-rail'), 'no unread messages leaves no notification rail or reserved controls');
+  const fixture = document.createElement('div');
+  fixture.style.cssText = 'position:fixed;left:120px;top:60px;width:36px;height:104px;transform-origin:top left';
+  fixture.innerHTML = '<div class="island__glass-backdrop--rail"><canvas></canvas></div>';
+  document.body.append(fixture);
+  const source = document.createElement('canvas');
+  source.width = 1000; source.height = 500;
+  const pixels = new Uint8ClampedArray(1000 * 500 * 4);
+  for (let y = 0; y < 500; y++) for (let x = 0; x < 1000; x++) {
+    const at = (y * 1000 + x) * 4;
+    pixels.set([x % 256, y % 256, 0, 255], at);
+  }
+  source.getContext('2d')!.putImageData(new ImageData(pixels, 1000, 500), 0, 0);
+  const frame = { left: -100, top: -50, right: 900, bottom: 450, width: 1000, height: 500, pixels };
+  for (const scale of [0.85, 1.2]) {
+    fixture.style.transform = `scale(${scale})`;
+    paintRailBackdrop(source, frame, 0.4);
+    const target = fixture.querySelector('canvas')!;
+    const pixel = target.getContext('2d')!.getImageData(0, 0, 1, 1).data;
+    const ratio = window.devicePixelRatio || 1;
+    check(Math.abs(pixel[0] - (120 * ratio + 100) % 256) < 3 && Math.abs(pixel[1] - (60 * ratio + 50) % 256) < 3,
+      `rail desktop crop stays aligned at scale ${scale}`);
+    check(target.width === Math.round(36 * scale * ratio), `rail canvas follows scaled physical width ${scale}`);
+  }
+  fixture.remove();
   document.documentElement.dataset.testResult = 'passed';
 } catch (error) {
   checks.push(`FAIL ${String(error)}`);

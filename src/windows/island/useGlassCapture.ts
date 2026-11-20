@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import { Channel, isTauri } from "@tauri-apps/api/core";
 import { setGlassCaptureRegion, startGlassCapture, stopGlassCapture } from "./api";
 import { backdropLuma, glassFramePlacement, parseGlassFrame } from "./glassFrame";
+import { paintRailBackdrop } from "./railGlassBackdrop";
 
 const PLACEMENT = ["--glass-frame-x", "--glass-frame-y", "--glass-frame-width", "--glass-frame-height", "--glass-backdrop-luma"];
 
@@ -44,10 +45,39 @@ export function useGlassCapture(enabled: boolean, paused: boolean, blur: number)
     const channel = new Channel<ArrayBuffer | number[]>();
     let canvas: HTMLCanvasElement | null = null;
     let host: HTMLElement | null = null;
+    let lastFrame: ReturnType<typeof parseGlassFrame> = null;
+    let luma = 0;
+    const paintRail = () => {
+      if (!didCancel && !pausedRef.current && canvas && lastFrame) paintRailBackdrop(canvas, lastFrame, luma);
+    };
+    const resizeObserver = new ResizeObserver(paintRail);
+    let observedIsland: Element | null = null;
+    let observedRail: Element | null = null;
+    const syncTargets = () => {
+      const island = document.querySelector('.island');
+      const rail = document.querySelector('.message-rail--expanded');
+      if (island !== observedIsland) {
+        if (observedIsland) resizeObserver.unobserve(observedIsland);
+        if (island) resizeObserver.observe(island);
+        observedIsland = island;
+      }
+      if (rail !== observedRail) {
+        if (observedRail) resizeObserver.unobserve(observedRail);
+        if (rail) resizeObserver.observe(rail);
+        observedRail = rail;
+      }
+      paintRail();
+    };
+    // Captures are sent only on desktop changes. Newly mounted rails must also get the last frame.
+    const observer = new MutationObserver(syncTargets);
+    observer.observe(document.body, { childList: true, subtree: true });
+    syncTargets();
+    window.addEventListener('resize', paintRail);
     channel.onmessage = (data) => {
       if (didCancel || pausedRef.current) return;
       const frame = parseGlassFrame(data);
       if (!frame) {
+        lastFrame = null;
         hideBackdrop(root);
         return;
       }
@@ -57,11 +87,14 @@ export function useGlassCapture(enabled: boolean, paused: boolean, blur: number)
       if (canvas.width !== frame.width) canvas.width = frame.width;
       if (canvas.height !== frame.height) canvas.height = frame.height;
       context.putImageData(new ImageData(frame.pixels, frame.width, frame.height), 0, 0);
+      lastFrame = frame;
+      luma = backdropLuma(frame);
       host = canvas.parentElement;
       if (host) {
         for (const [name, value] of Object.entries(glassFramePlacement(frame, window.devicePixelRatio))) writeVariable(host, name, value);
-        writeVariable(host, "--glass-backdrop-luma", String(backdropLuma(frame)));
+        writeVariable(host, "--glass-backdrop-luma", String(luma));
       }
+      paintRail();
       if (root.dataset.glassBackdrop !== "live") root.dataset.glassBackdrop = "live";
     };
     void startGlassCapture(channel)
@@ -72,6 +105,9 @@ export function useGlassCapture(enabled: boolean, paused: boolean, blur: number)
       .catch((error) => console.warn("Glass capture unavailable", error));
     return () => {
       didCancel = true;
+      observer.disconnect();
+      resizeObserver.disconnect();
+      window.removeEventListener('resize', paintRail);
       hideBackdrop(root);
       for (const name of PLACEMENT) host?.style.removeProperty(name);
       void stopGlassCapture().catch(() => {});

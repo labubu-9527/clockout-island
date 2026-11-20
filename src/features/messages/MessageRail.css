@@ -5,4 +5,5 @@
 .message-rail__button:hover { background: rgba(128,128,128,.18); }
 .message-rail__button:focus-visible { outline: 2px solid currentColor; outline-offset: -2px; }
 .message-rail__dot { position: absolute; right: 3px; top: 3px; width: 6px; height: 6px; border-radius: 50%; background: #ff4f5f; }
-.message-rail--expanded { position: absolute; left: calc(100% + 8px * var(--island-expanded-scale)); top: 0; flex-direction: column; width: 36px; padding: 4px 2px; border-radius: 18px; background: var(--island-fill, var(--island-background-color)); transform: scale(var(--island-expanded-scale)); transform-origin: top left; box-shadow: 0 4px 16px #0002; }
+.message-rail--expanded { position: absolute; left: calc(100% + 8px * var(--island-expanded-scale)); top: 0; flex-direction: column; width: 36px; padding: 4px 2px; border-radius: 18px; background: var(--island-fill, var(--island-background-color)); transform: scale(var(--island-expanded-scale)); transform-origin: top left; box-shadow: 0 4px 16px #0002; overflow: clip; isolation: isolate; }
+.message-rail--expanded .message-rail__button { z-index: 2; }

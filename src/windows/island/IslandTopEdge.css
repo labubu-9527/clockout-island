@@ -56,8 +56,8 @@
   --island-shoulder-curve: var(--island-spring-open);
 }
 
-:root[data-island-top-edge="attached"] .island--shoulders .island__glass,
-:root:not([data-island-top-edge]) .island--docked.island--shoulders .island__glass {
+:root[data-island-top-edge="attached"] .island--shoulders .island__surface > .island__glass,
+:root:not([data-island-top-edge]) .island--docked.island--shoulders .island__surface > .island__glass {
   mask-image: linear-gradient(transparent var(--island-shoulder-size-target), var(--color-black) 30px);
 }
 
@@ -88,8 +88,8 @@
 }
 
 /* The screen edge replaces the lit top rim. */
-:root[data-island-top-edge="attached"] .island:not(.island--shape-pill) .island__glass-refraction,
-:root:not([data-island-top-edge]) .island--docked:not(.island--shape-pill) .island__glass-refraction {
+:root[data-island-top-edge="attached"] .island:not(.island--shape-pill) .island__surface .island__glass-refraction,
+:root:not([data-island-top-edge]) .island--docked:not(.island--shape-pill) .island__surface .island__glass-refraction {
   --refraction-band: 0px;
   /*
    * Clip rather than mask: a masked refraction changes how the screen-blended
@@ -128,8 +128,8 @@
  * on the whole glass layer, not the refraction alone, which composites differently when masked.
  * With shoulders the rule above already fades the glass further down.
  */
-:root[data-island-top-edge="attached"] .island:not(.island--shape-pill):is(.island--material-liquidGlass, .island--material-frostedGlass):not(.island--shoulders):not(.island--shape-pill) .island__glass,
-:root:not([data-island-top-edge]) .island--docked:not(.island--shape-pill):is(.island--material-liquidGlass, .island--material-frostedGlass):not(.island--shoulders):not(.island--shape-pill) .island__glass {
+:root[data-island-top-edge="attached"] .island:not(.island--shape-pill):is(.island--material-liquidGlass, .island--material-frostedGlass):not(.island--shoulders):not(.island--shape-pill) .island__surface > .island__glass,
+:root:not([data-island-top-edge]) .island--docked:not(.island--shape-pill):is(.island--material-liquidGlass, .island--material-frostedGlass):not(.island--shoulders):not(.island--shape-pill) .island__surface > .island__glass {
   -webkit-mask-image: linear-gradient(transparent 2px, #000 30px);
   mask-image: linear-gradient(transparent 2px, #000 30px);
 }
