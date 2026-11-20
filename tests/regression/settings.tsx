@@ -349,7 +349,7 @@ if (!automated) {
     check(linkTitles.join() === "用户交流群,觉得小岛还不错？,打赏作者", `About lists the community group, the star and the tip in one group (${linkTitles.join()})`);
     const authorLink = document.querySelector<HTMLAnchorElement>(".settings-sidebar a.settings-sidebar__item--link");
     const sidebarItems = [...document.querySelectorAll<HTMLElement>(".settings-sidebar__item")].map((item) => item.textContent);
-    check(authorLink?.href === "https://flyliu.org/" && sidebarItems.slice(-2).join() === "关于与更新,关于作者", "关于作者是侧栏里关于下面的一项，直接打开 flyliu.org");
+    check(!authorLink && sidebarItems.slice(-1).join() === "关于与更新", "关于作者入口暂时隐藏，侧栏最后一项是关于与更新");
     const communityToggle = element<HTMLButtonElement>(".community-group .support-author__toggle");
     check(communityToggle.textContent?.includes("遇到问题、想要新功能，都可以来群里问问、聊聊"), "The group row says questions go there");
     await act(async () => { communityToggle.click(); });

@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import {
   CloudSun,
-  ArrowUpRight,
+  // ArrowUpRight, // 暂随「关于作者」入口隐藏，恢复入口时一并取消注释
   ClipboardList,
   Info,
   Languages,
@@ -13,12 +13,12 @@ import {
   Plug,
   Puzzle,
   SlidersHorizontal,
-  UserRound,
+  // UserRound, // 暂随「关于作者」入口隐藏，恢复入口时一并取消注释
   type LucideIcon,
 } from "lucide-react";
-import { isTauri } from "@tauri-apps/api/core";
-import { openUrl } from "@tauri-apps/plugin-opener";
-import { PROJECT_AUTHOR_URL } from "../../features/updater/projectLinks";
+// import { isTauri } from "@tauri-apps/api/core"; // 暂随「关于作者」入口隐藏
+// import { openUrl } from "@tauri-apps/plugin-opener"; // 暂随「关于作者」入口隐藏
+// import { PROJECT_AUTHOR_URL } from "../../features/updater/projectLinks"; // 暂随「关于作者」入口隐藏
 import { useCommunityInvite } from "../../features/updater/useCommunityInvite";
 import { useTranslation } from "../../i18n";
 import { SETTINGS_GROUPS, type SettingsCategory } from "./categories";
@@ -41,8 +41,8 @@ const CATEGORY_ICONS: Record<SettingsCategory, LucideIcon> = {
 
 /**
  * The settings page list: icon and name per page, the groups set apart by a gap rather than
- * headings. Plugins and About follow the AI Agent pages, and under About is a link to the
- * author's site rather than a page.
+ * headings. Plugins and About follow the AI Agent pages. The author's-site link under About is
+ * temporarily hidden until its click hint is implemented.
  */
 export function SettingsSidebar({
   category,
@@ -121,6 +121,7 @@ export function SettingsSidebar({
           >
             <ul>
               {group.categories.map(item)}
+              {/* 暂时隐藏「关于作者」：点击后的提示还没实现，等提示做好再恢复下面这段。
               {group.label === null && (
                 // 不是设置页：点一下直接用系统浏览器打开作者的网站。
                 <li>
@@ -157,6 +158,7 @@ export function SettingsSidebar({
                   </a>
                 </li>
               )}
+              */}
             </ul>
           </section>
         ))}
