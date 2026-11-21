@@ -1,4 +1,5 @@
 import "../../src/styles/tokens.css";
+import "../../src/styles/base.css";
 import { act } from "react";
 import { createRoot } from "react-dom/client";
 import { mockIPC } from "@tauri-apps/api/mocks";
@@ -6,6 +7,9 @@ import { I18nProvider } from "../../src/i18n";
 import { DEFAULT_MEDIA_STATE } from "../../src/features/media/mediaState";
 import { MusicPlayerPanel } from "../../src/features/media/MusicPlayerPanel";
 import type { MediaState } from "../../src/features/media/api";
+import { MUSIC_LAYOUTS, musicLayoutMetrics, normalizeMusicLayout, type MusicLayout } from "../../src/features/media/musicLayouts";
+import { MusicLayoutSettings } from "../../src/features/media/MusicLayoutSettings";
+import { DEFAULT_SETTINGS, normalizeSettings } from "../../src/features/appearance/settings";
 
 Object.assign(globalThis, { isTauri: true, IS_REACT_ACT_ENVIRONMENT: true });
 const screenshot = new URLSearchParams(location.search).get("view") === "replica";
@@ -35,9 +39,9 @@ const track: MediaState = { ...DEFAULT_MEDIA_STATE, available: true, title: "A s
 const messages: string[] = [];
 const box = (selector: string) => fixture.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
 function check(value: unknown, label: string) { if (!value) throw new Error(label); messages.push(`PASS ${label}`); }
-async function render(state = track, lyrics = false, error = false) {
+async function render(state = track, lyrics = false, error = false, layout: MusicLayout = "SideBySide") {
   await act(async () => {
-    root.render(<I18nProvider><MusicPlayerPanel mediaState={state} isTrackChanging={false} commandError={error ? "failed" : null}
+    root.render(<I18nProvider><MusicPlayerPanel layout={layout} mediaState={state} isTrackChanging={false} commandError={error ? "failed" : null}
       onOpenSettings={() => {}} onPlayPause={() => {}} onNext={() => {}} onPrevious={() => {}} onSeek={() => {}}
       lyricsSettings={{ lyricsFolder: "", lyricsOnline: lyrics, lyricsOffsetMs: 0 }} /></I18nProvider>);
     await new Promise((resolve) => setTimeout(resolve, 100));
@@ -51,8 +55,10 @@ if (screenshot) {
   fixture.style.background = "#193744";
   fixture.style.setProperty("--is-light", "0");
   const blueCover = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#52b6df"/><path d="M0 55 Q30 45 60 57 T100 52 V100 H0" fill="#1b779e"/><path d="M0 78 Q40 65 100 84 V100 H0" fill="#e1bd7e"/></svg>')}`;
+  const previewLayout = normalizeMusicLayout(new URLSearchParams(location.search).get('layout'));
+  fixture.style.height = `${190 + musicLayoutMetrics(previewLayout).extraHeight}px`;
   await render({ ...track, title: "陪你度过漫长岁月", artist: "陈奕迅", thumbnail: blueCover,
-    positionMs: 192000, durationMs: 242000, updatedAt: Date.now(), canShuffle: true, canRepeat: true }, true);
+    positionMs: 192000, durationMs: 242000, updatedAt: Date.now(), canShuffle: true, canRepeat: true }, true, false, previewLayout);
   fixture.dataset.ready = "true";
 } else try {
   await render({ ...track, volume: -1 });
@@ -126,13 +132,57 @@ if (screenshot) {
   }
   await render({ ...track, playbackStatus: "paused" });
   check(!fixture.querySelector(".music-player--playing"), "pause keeps its real playback state");
+  for (const layout of MUSIC_LAYOUTS) for (const panelWidth of [320, 520]) for (const font of [1, 1.5]) {
+    fixture.style.width = `${panelWidth}px`;
+    fixture.style.height = `${190 + musicLayoutMetrics(layout).extraHeight + (font - 1) * 100 + 24}px`;
+    fixture.style.setProperty('--island-font-scale', String(font));
+    fixture.style.transform = 'none';
+    await render(track, true, true, layout);
+    const panel = box('.music-player'), current = box('.lyrics-view__line--current');
+    const controls = box('.music-player__controls');
+    check(current.bottom <= box('.music-progress').top && controls.bottom <= panel.bottom + 1,
+      `${layout} width ${panelWidth} font ${font}: lyrics and transport fit without overlapping`);
+    check(current.left >= panel.left && current.right <= panel.right + 1
+      && controls.left >= panel.left && controls.right <= panel.right + 1,
+      `${layout} width ${panelWidth} font ${font}: text and controls stay inside the panel`);
+    check(box('.music-player__artist').bottom <= current.top,
+      `${layout} width ${panelWidth} font ${font}: lyrics clear the artist at enlarged font sizes`);
+    if (layout === 'Immersive') check(box('.music-player__artist').right <= box('.music-player__status').left,
+      'immersive long artist leaves room for playback status');
+    if (layout === 'LyricRight') check(box('.music-player__artwork').left > current.right, 'right artwork clears the lyrics');
+    if (layout === 'Immersive') check(box('.music-player__artwork').width === 0, 'immersive layout hides artwork without a placeholder');
+    if (layout === 'LyricFocus') check(getComputedStyle(fixture.querySelector('.lyrics-view__line--current')!).textAlign === 'center', 'focus layout centers lyrics');
+    const primary = fixture.querySelector<HTMLElement>('.music-control-button--primary')!;
+    const hit = primary.getBoundingClientRect();
+    check(primary.contains(document.elementFromPoint(hit.x + hit.width / 2, hit.y + hit.height / 2)), 'layout keeps playback hit targets usable');
+  }
+  fixture.style.width = '520px';
+  fixture.style.setProperty('--island-font-scale', '1');
+  for (const layout of MUSIC_LAYOUTS) {
+    fixture.style.height = `${190 + musicLayoutMetrics(layout).extraHeight}px`;
+    await render({ ...track, playbackStatus: 'paused', thumbnail: null, durationMs: 0, hasTimeline: false }, false, false, layout);
+    check(!fixture.querySelector('.music-player__lyrics, .music-progress')
+      && fixture.querySelector('.music-player__track')?.textContent === track.title,
+    `${layout}: paused track without lyrics or timeline retains real metadata`);
+    check(box('.music-player__controls').bottom <= box('.music-player').bottom + 1,
+      `${layout}: missing artwork and lyrics do not displace transport`);
+  }
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
     check(getComputedStyle(fixture.querySelector(".music-player__atmosphere")!).transitionDuration === "0s", "reduced motion stops atmosphere transitions");
+    check(getComputedStyle(fixture.querySelector('.music-player__meta')!).transitionDuration.split(',').every(value => parseFloat(value) === 0),
+      'reduced motion stops preset position transitions through the shared style rule');
   }
   await render({ ...track, thumbnail: null, durationMs: 0, hasTimeline: false });
   check(!fixture.querySelector(".music-player__atmosphere") && !fixture.querySelector(".music-progress"), "no cover or timeline has no atmosphere or fabricated progress");
   await render(DEFAULT_MEDIA_STATE);
   check(!fixture.querySelector(".music-player__atmosphere") && fixture.querySelector(".music-idle"), "idle removes artwork atmosphere");
+  let selectedLayout = DEFAULT_SETTINGS;
+  await act(async () => root.render(<I18nProvider><MusicLayoutSettings settings={selectedLayout}
+    onSettingsChange={value => { selectedLayout = value; }} /></I18nProvider>));
+  await act(async () => fixture.querySelector<HTMLButtonElement>('[role="combobox"]')!.click());
+  check(fixture.querySelectorAll('[role="option"]').length === 5, 'settings exposes all five source layouts');
+  await act(async () => fixture.querySelector<HTMLElement>('[data-value="Immersive"]')!.click());
+  check(normalizeSettings(JSON.parse(JSON.stringify(selectedLayout))).musicLayout === 'Immersive', 'selected layout survives saved-settings normalization');
   const params = new URLSearchParams(location.search);
   document.documentElement.dataset.theme = params.get("theme") === "light" ? "light" : "dark";
   fixture.style.setProperty("--is-light", params.get("theme") === "light" ? "1" : "0");

@@ -128,6 +128,7 @@ export const DEFAULT_SETTINGS: IslandSettings = {
   memoryEnabled: true,
   todoEnabled: true,
   musicEnabled: true,
+  musicLayout: "SideBySide",
   agentStatusEnabled: true,
   agentTitleEnabled: true,
   collapsedPriority: [...COLLAPSED_ITEMS],

@@ -17,10 +17,13 @@ import { hasTimeline } from "./trackClock";
 import { useMediaDiagnostics } from "./useMediaDiagnostics";
 import { MediaNotice, MediaNoticeButton, useMediaNotice } from "./MediaNotice";
 import { MusicPlayerToolbar } from "./MusicPlayerToolbar";
+import { musicLayoutVariables, type MusicLayout } from "./musicLayouts";
+import "./MusicLayouts.css";
 
 const NO_LYRICS = { lyricsFolder: "", lyricsOnline: false, lyricsOffsetMs: 0 };
 
 type MusicPlayerPanelProps = {
+  layout?: MusicLayout;
   mediaState: MediaState;
   isTrackChanging: boolean;
   commandError: string | null;
@@ -44,6 +47,7 @@ type MusicPlayerPanelProps = {
  * not an empty player.
  */
 export function MusicPlayerPanel({
+  layout = "SideBySide",
   mediaState,
   isTrackChanging,
   commandError,
@@ -76,11 +80,18 @@ export function MusicPlayerPanel({
   const nextDisabled = mediaState.available && !mediaState.canNext;
   const className = [
     "music-player",
+    `music-player--layout-${layout}`,
     lyrics ? "music-player--lyrics" : "",
     isPlaying ? "music-player--playing" : "",
     hasTrack ? "" : "music-player--idle",
   ].filter(Boolean).join(" ");
-  const style = { "--music-palette-accent": palette.accent, "--music-palette-light-accent": palette.lightAccent } as CSSProperties;
+  const style = { ...musicLayoutVariables(layout), "--music-palette-accent": palette.accent, "--music-palette-light-accent": palette.lightAccent } as CSSProperties;
+  const playbackStatus = <span className="music-player__status"><i />{isPlaying ? t.music.toolbar.playing : t.music.toolbar.paused}</span>;
+  const lyricContent = lyrics && <div className="music-player__lyrics">
+    <LyricsView lines={lyrics} mediaState={mediaState} offsetMs={lyricsSettings.lyricsOffsetMs + songOffsetMs}
+      wordFillEnabled={lyricsSettings.lyricWordFill === true} showTranslation={showTranslation} onPosition={onLyricPosition} />
+    <LyricsOffsetControl offsetMs={songOffsetMs} onChange={setSongOffsetMs} />
+  </div>;
 
   return (
     <section className={className} style={style} aria-label={t.music.playerLabel}>
@@ -96,16 +107,11 @@ export function MusicPlayerPanel({
             <div className="music-player__artwork">
               {mediaState.thumbnail ? <img src={mediaState.thumbnail} alt="" draggable={false} /> : <Music2 size={24} strokeWidth={1.5} absoluteStrokeWidth />}
             </div>
-            <span className="music-player__status"><i />{isPlaying ? t.music.toolbar.playing : t.music.toolbar.paused}</span>
+            {layout === "SideBySide" && playbackStatus}
           </div>
           <div className="music-player__meta">
             <span className="music-player__track">{mediaState.title}</span>
             <span className="music-player__artist">{artist}</span>
-            {lyrics && <div className="music-player__lyrics">
-              <LyricsView lines={lyrics} mediaState={mediaState} offsetMs={lyricsSettings.lyricsOffsetMs + songOffsetMs}
-                wordFillEnabled={lyricsSettings.lyricWordFill === true} showTranslation={showTranslation} onPosition={onLyricPosition} />
-              <LyricsOffsetControl offsetMs={songOffsetMs} onChange={setSongOffsetMs} />
-            </div>}
             {!lyrics && (chineseHint ? (
               <button className="music-player__lyrics-hint" type="button" aria-label={t.music.lyricsChineseHint.label} onClick={onOpenSettings}>
                 {t.music.lyricsChineseHint.text}
@@ -114,6 +120,8 @@ export function MusicPlayerPanel({
               <span className="music-player__source">{[mediaState.album, source].filter(Boolean).join(" · ")}</span>
             ))}
           </div>
+          {layout !== "SideBySide" && playbackStatus}
+          {lyricContent}
           <div className="music-player__aside">
             {notice.player && <MediaNoticeButton open={notice.open} onClick={notice.toggle} />}
             <MusicEqualizer playing={isPlaying} />

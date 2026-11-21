@@ -175,6 +175,7 @@ export function IslandApp() {
     todos,
     todoListHeight,
     hasMediaCommandError: Boolean(media.mediaCommandError),
+      musicLayout: settings.musicLayout,
     messageSource,
     isReadingMail: qqMail.wantsTallPanel,
     maxPanelHeight: settings.maxPanelHeight,

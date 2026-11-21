@@ -114,6 +114,13 @@ try {
   await act(async () => document.querySelector<HTMLButtonElement>('.island__open-button')!.click());
   await wait(900);
   check(document.querySelector('.island--expanded.island--music.island--music-surface'), "expanded music keeps its reference surface");
+  const musicHeight = parseFloat(document.querySelector<HTMLElement>('.stage')!.style.getPropertyValue('--expanded-island-height'));
+  await patch({ musicLayout: 'Immersive' });
+  await wait(650);
+  check(document.querySelector('.music-player--layout-Immersive')
+    && parseFloat(document.querySelector<HTMLElement>('.stage')!.style.getPropertyValue('--expanded-island-height')) === musicHeight + 16,
+    'saved immersive layout reaches the actual player and reserves its extra height');
+  await patch({ musicLayout: 'SideBySide' });
   await act(async () => document.querySelector<HTMLButtonElement>('.dot-button--todo')!.click());
   await wait(900);
   check(document.querySelector('.island--expanded.island--todo') && !document.querySelector('.island--music-surface'),

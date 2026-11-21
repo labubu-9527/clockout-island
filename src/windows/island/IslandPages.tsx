@@ -122,6 +122,7 @@ export function IslandPages({
       {page === "weather" && weather && <WeatherPanel weather={weather} />}
       {page === "music" && (
         <MusicPlayerPanel
+          layout={settings.musicLayout}
           mediaState={mediaState}
           isTrackChanging={isMediaTrackChanging}
           commandError={mediaCommandError}
