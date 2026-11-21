@@ -4,8 +4,10 @@
 | --- | --- |
 | 文档名称 | 架构总览 |
 | 制作人 | XiaoZhu |
-| 日期 | 2026-11-20 |
-| 版本号 | v1.2.0 |
+| 日期 | 2026-11-21 |
+| 版本号 | v1.3.0 |
+
+音乐布局与提醒（2026-11-21）：`appearance/musicLayout.ts`定义可保存的五布局与归一化，通过`appearance/index.ts`公开；`media/musicLayouts.ts`与`MusicLayouts.css`适配参考几何，设置页、播放器和展开高度共用选项。`todos/quickReminder.ts`只解析明确时间前缀，`QuickReminderPreview`显示预览，`useTodoReminders`独立轮询投递，`useScheduledTodos`按时间把计划移到今日；现有`useIslandTodos`拥有是否静默/隐藏与声音、开页决策，提醒字段沿用现有JSON保存链路。
 
 DotIsle 界面复刻（2026-11-20）：设置窗口由`SettingsWindowChrome`提供自绘窗口控制，`LayoutEditor`组合导航、真实设置搜索与分类内容；`settingsSearch.ts`负责跨页/标签检索，`settingsContentHeight.ts`计算可见内容高度。`features/appearance/islandEffects.ts`集中光效配置归一化、优先级及动效计算，`MotionCurveEditor`编辑并预览曲线；岛壳通过`islandMotionStyle`接入实际时长与时序，叶子组件`IslandGlow`独立更新光层与输出音量采样。音乐次要操作集中于`MusicPlayerToolbar`，复用media/api既有原生命令。
 

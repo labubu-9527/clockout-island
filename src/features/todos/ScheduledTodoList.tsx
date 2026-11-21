@@ -1,3 +1,4 @@
+import { TodoReminderTime } from "./TodoReminderTime";
 import { Trash2 } from "lucide-react";
 import { useTranslation } from "../../i18n";
 import type { ScheduledTodo } from "./types";
@@ -32,7 +33,7 @@ export function ScheduledTodoList({
             <div className="scheduled-list__date">{label}</div>
             {items.map((todo) => (
               <div key={todo.id} className="scheduled-list__item" role="listitem">
-                <span>{todo.title}</span>
+                <span>{todo.title}<TodoReminderTime remindAt={todo.remindAt} reminded={todo.reminded} /></span>
                 <button
                   type="button"
                   aria-label={t.notebook.deleteScheduled(todo.title)}

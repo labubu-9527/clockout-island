@@ -1,3 +1,4 @@
+import { reminderFields } from "./reminders.ts";
 import type { ScheduledTodo, TodoArchive, TodoItem } from "./types";
 import { getLocalDateString } from "../../utils/date.ts";
 import { normalizeScheduledTodo, sortScheduledTodos } from "./schedule.ts";
@@ -21,6 +22,7 @@ export function normalizeTodo(todo: Partial<TodoItem>): TodoItem {
     id: typeof todo.id === "string" && todo.id ? todo.id : createTodoId(),
     title: todo.title?.trim() ?? "",
     completed: Boolean(todo.completed),
+    ...reminderFields(todo),
     createdAt: typeof todo.createdAt === "number" ? todo.createdAt : Date.now(),
   };
 }

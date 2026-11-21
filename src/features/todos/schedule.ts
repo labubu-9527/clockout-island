@@ -1,3 +1,4 @@
+import { reminderFields } from "./reminders.ts";
 import { getLocalDateString } from "../../utils/date.ts";
 import type { ScheduledTodo, TodoItem } from "./types";
 
@@ -22,18 +23,16 @@ export function sortScheduledTodos(todos: ScheduledTodo[]) {
   return [...todos].sort((a, b) => a.date.localeCompare(b.date) || a.createdAt - b.createdAt);
 }
 
-/** Splits scheduled todos into those due on or before `date` and those still ahead. */
-export function splitDueTodos(todos: ScheduledTodo[], date: string) {
+/** Timed reminders follow their absolute instant even after a timezone change; ordinary plans follow the local day. */
+export function splitDueTodos(todos: ScheduledTodo[], date: string, now = Date.now()) {
   const sorted = sortScheduledTodos(todos);
-  return {
-    due: sorted.filter((todo) => todo.date <= date),
-    later: sorted.filter((todo) => todo.date > date),
-  };
+  const isDue = (todo: ScheduledTodo) => todo.remindAt === undefined ? todo.date <= date : todo.remindAt <= now;
+  return { due: sorted.filter(isDue), later: sorted.filter((todo) => !isDue(todo)) };
 }
 
 /** Due scheduled todos as list items, earliest first at the top of the list. */
 export function toTodoItems(todos: ScheduledTodo[]): TodoItem[] {
-  return todos.map(({ id, title, createdAt }) => ({ id, title, completed: false, createdAt }));
+  return todos.map(({ id, title, createdAt, ...fields }) => ({ id, title, completed: false, createdAt, ...reminderFields(fields) }));
 }
 
 export function normalizeScheduledTodo(value: Partial<ScheduledTodo>): ScheduledTodo | null {
@@ -41,6 +40,7 @@ export function normalizeScheduledTodo(value: Partial<ScheduledTodo>): Scheduled
   if (!title || !isDateString(value.date) || typeof value.id !== "string" || !value.id) return null;
   return {
     id: value.id,
+    ...reminderFields(value),
     title,
     date: value.date,
     createdAt: typeof value.createdAt === "number" ? value.createdAt : 0,

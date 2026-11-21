@@ -1,0 +1,9 @@
+.todo-reminder-preview {
+  padding: 0 8px 6px;
+  color: var(--text-2);
+  font-size: 11px;
+  overflow-wrap: anywhere;
+}
+.todo-reminder-preview--error { color: var(--color-error-text); }
+.todo-reminder-time { display: block; color: var(--text-2); font-size: 10px; line-height: 15px; font-weight: normal; }
+.todo-reminder-preview .todo-reminder-time { display: inline; font-size: inherit; }

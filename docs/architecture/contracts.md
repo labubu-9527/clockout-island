@@ -4,8 +4,8 @@
 | --- | --- |
 | 文档名称 | 对外契约清单 |
 | 制作人 | XiaoZhu |
-| 日期 | 2026-11-20 |
-| 版本号 | v1.4.0 |
+| 日期 | 2026-11-21 |
+| 版本号 | v1.5.0 |
 
 2026-11-20 兼容补充：已有 `collapsedLayout` 的 `pet` 值继续容错读取与保留，展示改为固定前导位置，设置中只保留其显示开关。`messageSourceVisibility` 增加 `dingtalk`、`feishu`、`wecom`，旧配置缺失时默认显示；不改变已有来源开关。远端 `islandShape: "capsule"` 兼容读取为本地 `"pill"`，原生统一负责 6px 间距。`set_island_interaction` 折叠宽度允许最小 96px，以支持按实际可见内容收缩；手动设置仍至少 240px，通知预览仍至少 240px。
 
@@ -255,3 +255,11 @@ Codex 会话摘要（2026-11-15）：`list_agent_sessions` 可选返回 `lastCom
 Gitee `origin` 为 `https://gitee.com/zhu-he666/Clockout-island.git`，发布本分支使用 `git push origin master`；GitHub `upstream` 保留 `https://github.com/flyl1u/fly-island.git`，master 继续跟踪 upstream/main，不使用 push -u 改写拉取来源。
 
 Rust crate/可执行文件 `fly-island`、`fly_island_lib`、应用标识 `com.focusd.island`、现有存储key、主题文件格式、更新端点与插件清单名保留兼容。旧 FocuSD/Fly Island Codex hook 状态文案都识别为有效配置，旧通知诊断标题继续过滤；默认待办导出目录优先复用已经存在的 FocuSD 或 Fly Island 文件夹，新安装使用岛点下班。源码与素材原作者署名保留。
+
+## 音乐布局和一句话提醒（2026-11-21）
+
+`focusd-island-settings.musicLayout` 新增字符串枚举 `SideBySide | Separated | LyricFocus | LyricRight | Immersive`，缺失或非法值规范化为 `SideBySide`；纳入外观预设，其他设置、事件与IPC不变。
+
+`TodoItem` / `ScheduledTodo` 新增可选 `remindAt`（有效Unix epoch毫秒）和 `reminded`（布尔值）。沿用 `focusd-island-todos`、`focusd-island-scheduled-todos` 和归档键；没有时间字段的旧项仍是普通待办/按日计划。非法时间丢弃提醒字段；规范化、计划转今日、跨日保留有效字段。已完成、已删除、已提醒项不再次投递；静默、待办禁用或托盘隐藏时保留待提醒状态，恢复后补提醒；应用退出期间不运行提醒，重启后补发尚未投递的已到期项。
+
+一句话明确时间语法在提交前预览，提交时重新验证，以时间语法优先于日期选择器。普通输入保持原处理。相对时长最多7天；过去时刻、缺标题、非法日期/时刻不提交。Markdown保持原可读导出格式，不作为提醒恢复载体。

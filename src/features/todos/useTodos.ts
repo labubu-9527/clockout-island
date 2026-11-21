@@ -1,3 +1,6 @@
+import { getLocalDateString } from "../../utils/date";
+import { parseQuickReminder } from "./quickReminder";
+import { useTodoReminders, type DeliverTodoReminder } from "./useTodoReminders";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createTodoId, loadCurrentTodoDate, loadDailyNote, saveCurrentTodoDate, saveDailyNote } from "./storage";
 import type { TodoItem, TodoPageMode } from "./types";
@@ -15,6 +18,7 @@ type TodosOptions = {
   /** Called after a todo becomes the active one shown on the collapsed island. */
   onStartTodo: () => void;
   onTimerExpired?: () => void;
+  onQuickReminder?: DeliverTodoReminder;
   /** Starting a round may ask for a reminder before its end (todoTimerReminder); called when it is due. */
   timerReminder?: boolean;
   onTimerReminder?: (round: TodoTimer) => void;
@@ -29,6 +33,7 @@ export function useTodos({
   rotateTodos = false,
   onStartTodo,
   onTimerExpired,
+  onQuickReminder,
   timerReminder = false,
   onTimerReminder,
   onMissingSaveDirectory,
@@ -52,7 +57,24 @@ export function useTodos({
   const draftTodo = list.draftTodo;
   const addListTodo = list.addTodo;
 
+  const deliverReminder = useCallback<DeliverTodoReminder>(async (isCurrent) => {
+    if (!onQuickReminder || !await onQuickReminder(isCurrent)) return false;
+    setTodoPageMode("today");
+    return true;
+  }, [onQuickReminder]);
+  useTodoReminders(todos, currentTodoDate, setTodos, deliverReminder);
+
   const addTodo = useCallback(() => {
+    const parsed = parseQuickReminder(draftTodo);
+    if (parsed.kind === "error") return;
+    if (parsed.kind === "reminder") {
+      const date = getLocalDateString(new Date(parsed.remindAt));
+      if (date > currentTodoDate) scheduleTodo(parsed.title, date, parsed.remindAt);
+      else setTodos((current) => [{ id: createTodoId(), title: parsed.title, completed: false, createdAt: Date.now(), remindAt: parsed.remindAt, reminded: false }, ...current]);
+      setDraftTodo("");
+      setDraftDate(null);
+      return;
+    }
     const title = draftTodo.trim();
 
     if (draftDate && draftDate > currentTodoDate && title) {
@@ -62,7 +84,7 @@ export function useTodos({
       addListTodo();
     }
     setDraftDate(null);
-  }, [addListTodo, currentTodoDate, draftDate, draftTodo, scheduleTodo, setDraftTodo]);
+  }, [addListTodo, currentTodoDate, draftDate, draftTodo, scheduleTodo, setDraftTodo, setTodos]);
   const { saveDirectory, saveState, saveTodosToDisk, saveTodayTodos } =
     useTodoSaving({
       currentTodoDate,

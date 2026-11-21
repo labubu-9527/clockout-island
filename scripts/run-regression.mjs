@@ -20,6 +20,7 @@ import { fileURLToPath } from "node:url";
 
 /** Each page with the query that starts its automated checks. */
 export const PAGES = [
+  "todo-quick-reminder.html",
   "island-effects.html",
   "settings-window-chrome.html",
   "collapsed-presentation.html",

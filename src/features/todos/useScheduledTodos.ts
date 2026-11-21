@@ -20,26 +20,23 @@ export function useScheduledTodos(
   }, [scheduledTodos]);
 
   useEffect(() => {
-    if (currentTodoDate !== getLocalDateString()) {
-      return;
-    }
-
-    const { due, later } = splitDueTodos(scheduledTodos, currentTodoDate);
-
-    if (due.length === 0) {
-      return;
-    }
-
-    setScheduledTodos(later);
-    // Ids are kept, so a repeated run cannot add the same todo twice.
-    setTodos((currentTodos) => [
-      ...toTodoItems(due).filter((todo) => !currentTodos.some((item) => item.id === todo.id)),
-      ...currentTodos,
-    ]);
+    const moveDue = () => {
+      if (currentTodoDate !== getLocalDateString()) return;
+      const { due, later } = splitDueTodos(scheduledTodos, currentTodoDate);
+      if (!due.length) return;
+      setScheduledTodos(later);
+      setTodos((currentTodos) => [
+        ...toTodoItems(due).filter((todo) => !currentTodos.some((item) => item.id === todo.id)),
+        ...currentTodos,
+      ]);
+    };
+    moveDue();
+    const interval = window.setInterval(moveDue, 1000);
+    return () => window.clearInterval(interval);
   }, [currentTodoDate, scheduledTodos, setTodos]);
 
-  const scheduleTodo = useCallback((title: string, date: string): ScheduledTodo => {
-    const todo = { id: createTodoId(), title, date, createdAt: Date.now() };
+  const scheduleTodo = useCallback((title: string, date: string, remindAt?: number): ScheduledTodo => {
+    const todo = { id: createTodoId(), title, date, createdAt: Date.now(), ...(remindAt === undefined ? {} : { remindAt, reminded: false }) };
     setScheduledTodos((current) => sortScheduledTodos([...current, todo]));
     return todo;
   }, []);

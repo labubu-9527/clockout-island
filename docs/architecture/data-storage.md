@@ -4,8 +4,8 @@
 | --- | --- |
 | 文档名称 | 数据存放位置 |
 | 制作人 | XiaoZhu |
-| 日期 | 2026-11-20 |
-| 版本号 | v1.1.0 |
+| 日期 | 2026-11-21 |
+| 版本号 | v1.2.0 |
 
 | 数据 | 位置 | 负责方 |
 |---|---|---|
@@ -82,3 +82,9 @@ DSH（issue #51）：`agent_status/dsh_sessions.rs` 只读 `%APPDATA%/dsh-deskto
 仓库内 `artifacts/plugins/` 为忽略的 zip 与 plugins-index.json 构建产物；本地测试数据在 node_modules/.cache/plugin-tests/。插件 crate 的 target 不入库。
 
 索引下载/解析诊断写入同样约 1 MiB 上限的 `plugin-logs/catalog.log`；不记录 URL 认证信息。索引失败统一返回 `plugin_index_unavailable`，设置页按当前语言显示简短状态和重试，不回显底层错误。
+
+## 音乐布局与待办提醒补充（2026-11-21）
+
+音乐布局保存在现有 `focusd-island-settings.musicLayout`，并参与外观预设；默认 `SideBySide`，读取验证五种预设，不新增存储key。
+
+一句话提醒的截止时间 `remindAt`（epoch毫秒）与一次投递标记 `reminded` 跟随待办对象保存在现有今日待办、计划待办与归档JSON内。到点标记在既有状态保存链路持久化，重启后恢复；旧项没有字段则不提醒，非法值忽略。计划转今日与日切保留ID和时间，普通日期计划仍沿用原行为。详见 [quick-reminders.md](../quick-reminders.md) 和 [contracts.md](contracts.md)。

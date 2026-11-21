@@ -5,6 +5,9 @@ export type TodoItem = {
   title: string;
   completed: boolean;
   createdAt: number;
+  /** Local reminder instant in epoch milliseconds; absent in older stored tasks. */
+  remindAt?: number;
+  reminded?: boolean;
   /** The update reminder, derived from the updater state and never stored. */
   kind?: "update";
 };
@@ -16,6 +19,9 @@ export type ScheduledTodo = {
   /** Local date, YYYY-MM-DD. */
   date: string;
   createdAt: number;
+  /** Local reminder instant in epoch milliseconds; absent in older stored tasks. */
+  remindAt?: number;
+  reminded?: boolean;
 };
 
 export type TodoArchive = {

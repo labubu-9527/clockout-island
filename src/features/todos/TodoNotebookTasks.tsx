@@ -1,3 +1,6 @@
+import { useReducer } from "react";
+import { QuickReminderPreview } from "./QuickReminderPreview";
+import { parseQuickReminder } from "./quickReminder";
 import { useTodoDrag } from "./useTodoDrag";
 import { useTodoReorderMotion } from "./useTodoReorderMotion";
 import { Plus } from "lucide-react";
@@ -60,6 +63,8 @@ export function TodoNotebookTasks({
   onReorderTodo: (sourceId: string, index: number) => void;
 }) {
   const t = useTranslation();
+  const [, refreshPreview] = useReducer((revision: number) => revision + 1, 0);
+  const reminder = parseQuickReminder(draft);
   const listRef = useTodoListHeight(displayedTodos, onListHeightChange);
   const canReorderTodos = enableTodoReorder;
   const listClassName = [
@@ -86,22 +91,29 @@ export function TodoNotebookTasks({
 
   return (
     <>
-      <form
-        className="todo-form todo-form--dated"
-        onSubmit={(event) => {
-          event.preventDefault();
-          onAddTodo();
-        }}
-      >
-        <Plus size={16} strokeWidth={2.2} aria-hidden="true" />
-        <input
-          value={draft}
-          placeholder={inputPlaceholder}
-          aria-label={t.notebook.addTaskHint}
-          onChange={(event) => onDraftChange(event.currentTarget.value)}
-        />
-        <TodoDatePicker value={draftDate} today={currentDate} disabled={false} onChange={onDraftDateChange} />
-      </form>
+      <div className="todo-compose">
+        <form
+          className="todo-form todo-form--dated"
+          onSubmit={(event) => {
+            event.preventDefault();
+            // A valid absolute draft may have expired since the last keystroke.
+            refreshPreview();
+            if (parseQuickReminder(draft).kind !== "error") onAddTodo();
+          }}
+        >
+          <Plus size={16} strokeWidth={2.2} aria-hidden="true" />
+          <input
+            value={draft}
+            aria-invalid={reminder.kind === "error"}
+            aria-describedby={reminder.kind !== "task" ? "todo-reminder-preview" : undefined}
+            placeholder={inputPlaceholder}
+            aria-label={t.notebook.addTaskHint}
+            onChange={(event) => onDraftChange(event.currentTarget.value)}
+          />
+          <TodoDatePicker value={draftDate} today={currentDate} disabled={false} onChange={onDraftDateChange} />
+        </form>
+        <QuickReminderPreview draft={draft} />
+      </div>
       <div ref={listRef} className={listClassName} role="list">
         {displayedTodos.length === 0 ? (
           <div className="todo-empty">

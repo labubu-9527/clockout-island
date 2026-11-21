@@ -1,3 +1,4 @@
+import { isPendingReminder } from "./reminders";
 import { useCallback, useEffect, useRef } from "react";
 import { getLocalDateString } from "../../utils/date";
 import { getTodoSignature } from "./markdown";
@@ -41,10 +42,10 @@ export function useTodoRollover({
       const lastSavedSignature = loadLastSavedSignature();
       const carryOverCreatedAt = Date.now();
       const carriedTodos = todos
-        .filter((todo) => !todo.completed && (carryOverIncompleteTodos || timerTodoIds.includes(todo.id)))
+        .filter((todo) => !todo.completed && (carryOverIncompleteTodos || timerTodoIds.includes(todo.id) || isPendingReminder(todo)))
         .map((todo, index) => ({
           ...todo,
-          id: timerTodoIds.includes(todo.id) ? todo.id : createTodoId(),
+          id: timerTodoIds.includes(todo.id) || isPendingReminder(todo) ? todo.id : createTodoId(),
           completed: false,
           createdAt: carryOverCreatedAt + index,
         }));

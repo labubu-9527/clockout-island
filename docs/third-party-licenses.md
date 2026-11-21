@@ -4,8 +4,8 @@
 | -------- | -------------------- |
 | 文档名称 | Third-party licenses |
 | 制作人   | XiaoZhu              |
-| 日期     | 2026-11-20           |
-| 版本号   | v1.3.0               |
+| 日期     | 2026-11-21           |
+| 版本号   | v1.4.0               |
 
 ## DotIsle interface and island halo
 
@@ -18,6 +18,8 @@ The settings layout and music panel in this project use [Heiamer/DotIsle](https:
 | `lyric-native/src/surface.rs::Surface::paint`, `renderer.rs::material_surface`   | `referenceMusicSurface.ts`, `MusicSurface.css`: material-specific neutral/tinted planes, frost and glass rim     |
 | `dotisle-themes/src/cover_color.rs`, `dynamic_color.rs`                          | `referenceCoverPalette.ts`, `useArtworkPalette.ts`: Celebi quantization, scoring, HCT palettes and dynamic roles |
 | `dotisle-glow/src/engine.rs`, `lib.rs`, `lyric-core/src/shared_motion.rs`        | `islandEffects.ts`, `IslandGlow.tsx/css`: five strokes, breathing, peak envelope and closed-form springs         |
+
+Additional source ports: lyric-core/src/music_layout.rs supplies the five music layouts, artwork sizes and 230ms transitions in musicLayouts.ts/MusicLayouts.css; dotisle-todos/src/quick_reminder.rs supplies the explicit reminder grammar in quickReminder.ts, extended with bilingual input and existing todo delivery.
 
 The source is licensed as follows:
 

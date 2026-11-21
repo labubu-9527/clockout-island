@@ -53,12 +53,24 @@ export function useIslandTodos({ settings, navigation, quiet }: IslandTodosOptio
     }
   }, [settings.todoTimerReminderSound]);
 
+  const quickReminderState = useRef({ enabled: settings.todoEnabled, quiet });
+  useLayoutEffect(() => { quickReminderState.current = { enabled: settings.todoEnabled, quiet }; });
+  const onQuickReminder = useCallback(async (isCurrent: () => boolean) => {
+    if (!settings.todoEnabled || quiet) return false;
+    const visible = await isIslandVisible();
+    if (!visible || !quickReminderState.current.enabled || quickReminderState.current.quiet || !isCurrent()) return false;
+    playSound(reminderSound, "quick reminder");
+    openIslandPage("todo");
+    return true;
+  }, [openIslandPage, quiet, settings.todoEnabled]);
+
   const { todos, activeTodoId, activeTodoIds, timer, timers, todoPageMode, notebookProps } = useTodos({
     carryOverIncompleteTodos: settings.carryOverIncompleteTodos,
     todoTimerEnabled: settings.todoTimerEnabled,
     rotateTodos: settings.rotateTodos,
     onStartTodo: collapseIsland,
     onTimerExpired,
+    onQuickReminder,
     timerReminder: reminderOn,
     onTimerReminder,
     onMissingSaveDirectory: openSavePathSettings,

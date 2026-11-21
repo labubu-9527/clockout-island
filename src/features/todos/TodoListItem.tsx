@@ -1,3 +1,4 @@
+import { TodoReminderTime } from "./TodoReminderTime";
 import { useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { Check, GripVertical, Trash2 } from "lucide-react";
 import { useTranslation } from "../../i18n";
@@ -109,9 +110,10 @@ export function TodoListItem({
           onClick={() => onStartEdit(todo)}
         >
           {todo.title}
+          <TodoReminderTime remindAt={todo.remindAt} reminded={todo.reminded} />
         </button>
       ) : (
-        <span className="todo-title">{todo.title}</span>
+        <span className="todo-title">{todo.title}<TodoReminderTime remindAt={todo.remindAt} reminded={todo.reminded} /></span>
       )}
       {isTodayMode && (
         <>
