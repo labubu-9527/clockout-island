@@ -22,6 +22,7 @@ mod office_im;
 mod wechat_reminders;
 mod win32;
 mod weather;
+mod wireless;
 
 use tauri::WindowEvent;
 
@@ -143,6 +144,7 @@ pub fn run() {
             ; clipboard_window
             ; app_log
             ; weather
+            ; wireless
         ))
         .build(context)
         .map(|app| {

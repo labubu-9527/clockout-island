@@ -20,6 +20,10 @@ import { fileURLToPath } from "node:url";
 
 /** Each page with the query that starts its automated checks. */
 export const PAGES = [
+  "todo-reminder-once.html",
+  "swipe-up-to-hide.html?check=1",
+  "wireless-battery.html",
+  "music-canvas.html",
   "music-modules-settings.html",
   "music-modules-settings.html?lang=zh-CN",
   "todo-quick-reminder.html",

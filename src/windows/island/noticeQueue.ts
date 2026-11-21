@@ -1,7 +1,9 @@
 import type { MessagePreview } from "../../features/messages/messagePreview";
 import type { DeviceNotice } from "../../features/device-notices/model";
+import type { WirelessDevice } from "../../features/wireless/model";
 
-export type NoticePayload = { kind: "message"; preview: MessagePreview } | { kind: "device"; notice: DeviceNotice };
+export type NoticePayload = { kind: "message"; preview: MessagePreview } | { kind: "device"; notice: DeviceNotice }
+  | { kind: "wireless"; device: WirelessDevice };
 export type QueuedNotice = {
   id: string;
   payload: NoticePayload;
@@ -32,6 +34,11 @@ export function deviceNotice(notice: DeviceNotice): QueuedNotice {
     priority: 1, remainingMs: 2000, waitUntil: notice.at + 2000 };
 }
 
+export function wirelessNotice(device: WirelessDevice, now: number): QueuedNotice {
+  return { id: JSON.stringify(["wireless", device.id, device.batteryPercent, now]), payload: { kind: "wireless", device },
+    priority: 1, remainingMs: 3000, waitUntil: now + 30_000 };
+}
+
 export function createNoticeQueue(now: number): NoticeQueue {
   return { active: null, pending: [], seen: {}, at: now, holding: false };
 }
@@ -49,7 +56,7 @@ export function advanceNoticeQueue(state: NoticeQueue, {
   const seen = Object.fromEntries(Object.entries(state.seen).filter(([, until]) => until > now));
   let active = state.active ? { ...state.active } : null;
   let pending = state.pending.filter(entry => entry.waitUntil > now && isValid(entry));
-  if (active && (!state.holding || active.payload.kind === "device")) {
+  if (active && (!state.holding || active.payload.kind !== "message")) {
     active.remainingMs -= Math.max(0, now - state.at);
   }
   if (active && (active.remainingMs <= 0 || !isValid(active))) active = null;
@@ -68,6 +75,10 @@ export function advanceNoticeQueue(state: NoticeQueue, {
       continue;
     }
     if (known || entry.waitUntil <= now) continue;
+    if (entry.payload.kind === "wireless") {
+      const deviceId = entry.payload.device.id;
+      pending = pending.filter(item => item.payload.kind !== "wireless" || item.payload.device.id !== deviceId);
+    }
     if (entry.payload.kind === "device") {
       const kind = entry.payload.notice.kind;
       if (active && active.priority > entry.priority) continue;

@@ -15,6 +15,7 @@ export function normalizeBehaviorSettings(settings: LegacyIslandSettings | null 
     islandShape: oneOf(["notch", "pill"] as const, settings?.islandShape === "capsule" ? "pill" : settings?.islandShape, "notch"),
     ...visibility,
     positionLocked: settings?.positionLocked === true,
+    swipeUpToHide: settings?.swipeUpToHide === true,
     rotateTodos: settings?.rotateTodos === true,
     showIdleTodoCount: settings?.showIdleTodoCount !== false,
     todoRotationSeconds: wholeSeconds(settings?.todoRotationSeconds, TODO_ROTATION_SECONDS, TODO_ROTATION_SECONDS.default),

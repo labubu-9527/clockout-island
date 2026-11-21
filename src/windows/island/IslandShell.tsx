@@ -66,6 +66,7 @@ type IslandShellProps = {
   tuckStyle: TuckStyle;
   topEdgeShoulders: boolean;
   positionLocked: boolean;
+  onSwipeHide?: () => void;
   /** Moved away from its default place by a drag or the margin; a capsule floats without that. */
   isDetached: boolean;
   islandShape?: IslandShape;
@@ -102,6 +103,7 @@ type IslandShellProps = {
   cpuEnabled?: boolean;
   memoryEnabled?: boolean;
   weatherBadge?: ReactNode;
+  wirelessBadge?: ReactNode;
   clockIndicator?: ReactNode;
   petIndicator?: ReactNode;
   /** Hide the badge on a fixed narrow island so a long todo and its countdown still fit. */
@@ -148,6 +150,7 @@ export function IslandShell({
   tuckStyle,
   topEdgeShoulders,
   positionLocked,
+  onSwipeHide,
   isDetached,
   islandShape = "notch",
   showTitle,
@@ -174,6 +177,7 @@ export function IslandShell({
   cpuEnabled = true,
   memoryEnabled = true,
   weatherBadge,
+  wirelessBadge,
   clockIndicator,
   petIndicator,
   compactCollapsed,
@@ -290,6 +294,7 @@ export function IslandShell({
           isExpanded={isExpanded}
           isTucked={isTucked}
           positionLocked={positionLocked}
+          onSwipeHide={onSwipeHide}
           showTitle={showTitle}
           showCollapsedText={showCollapsedText}
           collapsedLabel={collapsedLabel}
@@ -312,6 +317,7 @@ export function IslandShell({
           cpuEnabled={cpuEnabled}
           memoryEnabled={memoryEnabled}
           weatherBadge={weatherBadge}
+          wirelessBadge={wirelessBadge}
           clockIndicator={clockIndicator}
           petIndicator={petIndicator}
           compactCollapsed={compactCollapsed}

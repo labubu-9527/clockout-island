@@ -1,6 +1,7 @@
 export type SettingsPositionText = {
   title: string;
   moveHint: string;
+  swipeUpToHide: string;
   lock: string;
   lockHint: string;
   /** Row that puts the island back where it starts. */
@@ -9,6 +10,7 @@ export type SettingsPositionText = {
 };
 
 export const zhCN: SettingsPositionText = {
+  swipeUpToHide: "上推收起到屏幕边缘",
   title: "位置",
   lock: "锁定小岛位置",
   lockHint: "开启后无法通过拖动移动小岛，仍可使用复位。",
@@ -18,6 +20,7 @@ export const zhCN: SettingsPositionText = {
 };
 
 export const en: SettingsPositionText = {
+  swipeUpToHide: "Swipe up to hide at the screen edge",
   title: "Position",
   lock: "Lock island position",
   lockHint: "Prevent moving the island by dragging. Reset remains available.",

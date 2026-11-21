@@ -19,9 +19,10 @@ import { MediaNotice, MediaNoticeButton, useMediaNotice } from "./MediaNotice";
 import { MusicPlayerToolbar } from "./MusicPlayerToolbar";
 import { musicLayoutVariables, type MusicLayout } from "./musicLayouts";
 import "./MusicLayouts.css";
+import "./MusicCustomLayout.css";
 import { normalizeMusicCustomLayout, type MusicCustomLayout } from "../appearance";
 import { musicModuleGeometry } from "./musicModuleGeometry";
-import { MusicCustomLayout as CustomMusicContent } from "./MusicCustomLayout";
+import { MusicCustomLayout as CustomMusicContent, placeMusicElement } from "./MusicCustomLayout";
 
 const NO_LYRICS = { lyricsFolder: "", lyricsOnline: false, lyricsOffsetMs: 0 };
 
@@ -87,7 +88,8 @@ export function MusicPlayerPanel({
   const trackDuration = mediaState.durationMs > 0 ? mediaState.durationMs : lyricsDurationMs;
   const fontScale = (lyricsSettings.islandFontPercent ?? 100) / 100;
   const geometry = musicModuleGeometry(custom, { fontScale, hasLyrics: Boolean(lyrics?.length), hasProgress: trackDuration > 0 });
-  const customHeight = customEnabled ? geometry.height : null;
+  const free = customEnabled && custom.elements?.length ? geometry : undefined;
+  const customHeight = customEnabled ? geometry.height + (commandError ? 24 : 0) : null;
   useLayoutEffect(() => { onContentHeight?.(customHeight); }, [customHeight, onContentHeight]);
   useLayoutEffect(() => () => { onContentHeight?.(null); }, [onContentHeight]);
 
@@ -110,30 +112,33 @@ export function MusicPlayerPanel({
   </div>;
   const progress = <MusicProgress mediaState={mediaState} durationMs={trackDuration} onSeek={onSeek} />;
   const translationHidden = customEnabled && !custom.modules.some(slot => slot.kind === "translation" && slot.visible);
-  const toolbar = <MusicPlayerToolbar mediaState={mediaState} hasTranslation={!translationHidden && Boolean(lyrics?.some(line => line.translation))}
+  const toolbar = <MusicPlayerToolbar geometry={free} mediaState={mediaState} hasTranslation={!translationHidden && Boolean(lyrics?.some(line => line.translation))}
     translationDisabledHint={translationHidden ? t.music.modules.hiddenTranslation : undefined}
     showTranslation={showTranslation} onTranslationChange={setShowTranslation} onOpenSettings={onOpenSettings}
     transport={<div className="music-player__controls">
-      <button className="music-control-button" type="button" aria-label={t.music.previousTrack} disabled={prevDisabled} onClick={onPrevious}>
+      {placeMusicElement(free, 'previous', <button className="music-control-button" type="button" aria-label={t.music.previousTrack} disabled={prevDisabled} onClick={onPrevious}>
         <SkipBack size={22} strokeWidth={1.5} fill="currentColor" />
-      </button>
-      <button className="music-control-button music-control-button--primary" type="button"
+      </button>)}
+      {placeMusicElement(free, 'play', <button className="music-control-button music-control-button--primary" type="button"
         aria-label={isPlaying ? t.music.pause : t.music.play} aria-busy={isTrackChanging} onClick={onPlayPause}>
         {isTrackChanging ? <RefreshCcw className="music-control-button__track-change" size={22} strokeWidth={2} />
           : isPlaying ? <Pause size={26} strokeWidth={1.5} fill="currentColor" />
             : <Play size={26} strokeWidth={1.5} fill="currentColor" className="music-control-button__play-icon" />}
-      </button>
-      <button className="music-control-button" type="button" aria-label={t.music.nextTrack} disabled={nextDisabled} onClick={onNext}>
+      </button>)}
+      {placeMusicElement(free, 'next', <button className="music-control-button" type="button" aria-label={t.music.nextTrack} disabled={nextDisabled} onClick={onNext}>
         <SkipForward size={22} strokeWidth={1.5} fill="currentColor" />
-      </button>
+      </button>)}
     </div>} />;
-  const customHeader = <header className="music-player__head">
-    {custom.showCover && <div className="music-player__cover" aria-hidden="true"><div className="music-player__artwork">
+  const cover = <div className="music-player__cover" aria-hidden="true"><div className="music-player__artwork">
       {mediaState.thumbnail ? <img src={mediaState.thumbnail} alt="" draggable={false} /> : <Music2 size={24} aria-hidden="true" />}
-    </div></div>}
-    <div className="music-player__meta"><span className="music-player__track">{mediaState.title}</span>
-      <span className="music-player__artist">{artist}</span></div>
-    {notice.player && <div className="music-player__aside"><MediaNoticeButton open={notice.open} onClick={notice.toggle} /></div>}
+    </div></div>;
+  const title = <span className="music-player__track">{mediaState.title}</span>;
+  const artistName = <span className="music-player__artist">{artist}</span>;
+  const noticeButton = notice.player && <div className="music-player__aside"><MediaNoticeButton open={notice.open} onClick={notice.toggle} /></div>;
+  const customHeader = <header className="music-player__head">
+    {custom.showCover && cover}
+    <div className="music-player__meta">{title}{artistName}</div>
+    {noticeButton}
   </header>;
   const customLyric = (rowMode: "primary" | "secondary") => lyrics && <div className="music-player__lyrics">
     <LyricsView lines={lyrics} mediaState={mediaState} offsetMs={lyricsSettings.lyricsOffsetMs + songOffsetMs}
@@ -148,7 +153,12 @@ export function MusicPlayerPanel({
           <img src={mediaState.thumbnail} alt="" draggable={false} />
         </div>
       )}
-      {customEnabled ? <CustomMusicContent geometry={geometry} content={{ header: customHeader, lyrics: customLyric("primary"),
+      {customEnabled ? <CustomMusicContent geometry={geometry} free={free && <>
+        {placeMusicElement(free, 'cover', cover)}{placeMusicElement(free, 'title', title)}
+        {placeMusicElement(free, 'artist', artistName)}{placeMusicElement(free, 'lyrics', customLyric("primary"))}
+        {placeMusicElement(free, 'translation', customLyric("secondary"))}{placeMusicElement(free, 'status', playbackStatus)}
+        {placeMusicElement(free, 'progress', progress)}{toolbar}{noticeButton}
+      </>} content={{ header: customHeader, lyrics: customLyric("primary"),
         translation: customLyric("secondary"), status: playbackStatus, progress, controls: toolbar }} /> : hasTrack ? (
         <header className="music-player__head">
           <div className="music-player__cover" aria-hidden="true">

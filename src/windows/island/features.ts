@@ -17,13 +17,14 @@ export type IslandFeatures = {
   feishu?: boolean;
   wecom?: boolean;
   weather?: boolean;
+  wireless?: boolean;
   /** The AI Agent switch; off hides the Agent page. */
   agents: boolean;
   /** Translation is on and set to open as an island page rather than its own window. */
   translation: boolean;
 };
 
-const PAGE_ORDER: IslandPage[] = ["todo", "music", "clipboard", "shelf", "qq", "agents", "translation", "weather"];
+const PAGE_ORDER: IslandPage[] = ["todo", "music", "clipboard", "shelf", "qq", "agents", "translation", "weather", "wireless"];
 const SOURCE_ORDER: MessageSource[] = ["wechat", "qq", "qqMail", "dingtalk", "feishu", "wecom", "plugin"];
 
 export function isPageEnabled(page: IslandPage, features: IslandFeatures): boolean {

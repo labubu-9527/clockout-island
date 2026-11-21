@@ -8,16 +8,18 @@ import type { DeviceNoticeSettings } from "../../features/device-notices/model";
 import { isOfficeSource } from "../../features/messages/messagePreview";
 
 /** Source lifetimes are independent of their legacy short preview windows. */
-export function noticeSourceValidity({ qq, wechat, mail, plugins, office, devices }: {
+export function noticeSourceValidity({ qq, wechat, mail, plugins, office, devices, wireless }: {
   qq: QQNotificationsController;
   wechat: WeChatRemindersController;
   mail: MailController;
   plugins: OwnedNotification[];
   office: OfficeImSnapshot;
   devices: DeviceNoticeSettings;
+  wireless?: { enabled: boolean; ids: string[] };
 }) {
   return (entry: QueuedNotice) => {
     if (entry.payload.kind === "device") return devices[entry.payload.notice.kind];
+    if (entry.payload.kind === "wireless") return wireless?.enabled === true && wireless.ids.includes(entry.payload.device.id);
     const preview = entry.payload.preview;
     if (preview.source === "qq") return qq.snapshot.enabled && qq.hasPending
       && qq.snapshot.items.some(item => item.id === preview.messageId);

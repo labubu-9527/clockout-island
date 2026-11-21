@@ -1,9 +1,16 @@
-import { invoke, type Channel } from "@tauri-apps/api/core";
-import { getCurrentWindow } from "@tauri-apps/api/window";
+import { invoke, isTauri, type Channel } from "@tauri-apps/api/core";
+import { currentMonitor, getCurrentWindow } from "@tauri-apps/api/window";
 import { listen, type EventCallback, type UnlistenFn } from "@tauri-apps/api/event";
 import type { IslandCornerShape, IslandMonitor, TuckStyle } from "../../features/appearance/types";
 import type { IslandPosition } from "./storage";
 import type { IslandMode, NativeGlassState } from "./types";
+
+/** Convert the monitor's physical top to a WebView client Y (CSS pixels). */
+export async function getMonitorTopClientY() {
+  if (!isTauri()) return null;
+  const [monitor, origin] = await Promise.all([currentMonitor(), getCurrentWindow().innerPosition()]);
+  return monitor ? (monitor.position.y - origin.y) / window.devicePixelRatio : null;
+}
 
 // Mirrors TOP_ATTACHMENT_CHANGED_EVENT in src-tauri/src/island/top_edge.rs.
 export const TOP_ATTACHMENT_CHANGED_EVENT = "island-top-attachment-changed";

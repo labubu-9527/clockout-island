@@ -16,7 +16,9 @@ export function SettingsSearchBox({ onNavigate }: { onNavigate: (entry: Settings
     document.addEventListener("pointerdown", outside);
     return () => document.removeEventListener("pointerdown", outside);
   }, []);
-  const entries = useMemo(() => buildSettingsSearchEntries({ ...t.settings, weather: t.weather, clock: t.clock, deviceNotices: t.deviceNotices, mail: t.mail, wechat: t.wechat, qq: t.qq }, t.settings.categories), [t]);
+  const entries = useMemo(() => buildSettingsSearchEntries({ ...t.settings, weather: t.weather, clock: t.clock, deviceNotices: t.deviceNotices,
+    wireless: t.wireless, musicCanvas: t.music.canvas, musicModules: t.music.modules,
+    mail: t.mail, wechat: t.wechat, qq: t.qq }, t.settings.categories), [t]);
   const results = findSettings(entries, query);
   const choose = (entry: SettingsSearchEntry) => { onNavigate(entry); setOpen(false); };
   return <div className="settings-search" ref={container}>

@@ -6,6 +6,7 @@ import type { Actor } from "./actor";
 import type { DemoContent } from "./demoData";
 
 export const PAGE_BUTTONS: Record<IslandPage, string> = {
+  wireless: ".dot-button--wireless",
   weather: "天气",
   todo: ".dot-button--todo",
   music: ".dot-button--music",

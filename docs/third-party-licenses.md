@@ -5,7 +5,7 @@
 | 文档名称 | Third-party licenses |
 | 制作人   | XiaoZhu              |
 | 日期     | 2026-11-21           |
-| 版本号   | v1.5.0               |
+| 版本号   | v1.6.0               |
 
 ## DotIsle interface and island halo
 
@@ -21,7 +21,9 @@ The settings layout and music panel in this project use [Heiamer/DotIsle](https:
 
 Additional source ports: lyric-core/src/music_layout.rs supplies the five music layouts, artwork sizes and 230ms transitions in musicLayouts.ts/MusicLayouts.css; dotisle-todos/src/quick_reminder.rs supplies the explicit reminder grammar in quickReminder.ts, extended with bilingual input and existing todo delivery.
 
-The module model, mandatory Header/Controls visibility and vertical stacking rules from `lyric-core/src/custom_layout.rs` are adapted in `musicCustomLayout.ts`, `musicModuleGeometry.ts` and `MusicCustomLayout.tsx/css`. The settings editor adds accessible ordering controls and reuses this project?s existing player capabilities.
+The module model, mandatory Header/Controls visibility and vertical stacking rules from `lyric-core/src/custom_layout.rs` are adapted in `musicCustomLayout.ts`, `musicModuleGeometry.ts` and `MusicCustomLayout.tsx/css`. The settings editor adds accessible ordering controls and reuses this project's existing player capabilities.
+
+Further adaptations from the same pinned commit: `lyric-native/src/gestures.rs` supplies axis locking, threshold/velocity dismissal and damped drag in `windows/island/swipeUpToHide.ts`; `dotisle-widgets/src/wireless_battery.rs` supplies connected-device enumeration, PnP/BLE battery reads and bounded scan rules in `src-tauri/src/wireless/` and `win32/wireless.rs`; `lyric-core/src/custom_layout.rs` supplies the 400-DIP placement model used by `MusicCanvasEditor` and the shared music element geometry. Platform resource ownership, frontend components, persistence compatibility and notification integration follow this project's architecture.
 
 The source is licensed as follows:
 

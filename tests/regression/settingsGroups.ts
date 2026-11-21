@@ -4,7 +4,7 @@ import { act } from "react";
 import { MAIL_OTP_ENABLED } from "../../src/features/releaseFlags.ts";
 
 const GROUPS: Record<string, string[]> = {
-  general: ["启动与语言", "时间格式", "展开与收起", "位置", "贴边隐藏", "游戏模式"],
+  general: ["启动与语言", "时间格式", "无线设备电量", "展开与收起", "位置", "贴边隐藏", "游戏模式"],
   appearance: ["主题", "颜色", "文字", "大小", "圆角", "岛上的排列", "系统状态提醒", "岛屿展示优先级", "贴边隐藏", "外观预设"],
   todos: ["任务", "番茄钟", "折叠岛屿", "保存路径"],
   clipboard: ["记录内容", "显示与窗口", "快捷键", "存储位置", "文件中转"],
@@ -47,7 +47,7 @@ export async function checkGroups(category: string, panel: HTMLElement, check: (
     const tuck = rowsOf(panel, "贴边隐藏");
     check(titles(tuck).join() === "闲置时贴边隐藏,收起后贴边,Agent 运行时不贴边,显示歌词时不贴边,待办计时时不贴边"
       && tuck.slice(1).every((row) => row.classList.contains("settings-row--indent")), "General: auto-tuck with its delay and when not to tuck, all indented under it");
-    check(titles(rowsOf(panel, "位置")).join() === "回到默认位置,锁定小岛位置", "General: the position rows come last");
+    check(titles(rowsOf(panel, "位置")).join() === "回到默认位置,锁定小岛位置,上推收起到屏幕边缘", "General: position and swipe hiding share the position group");
   } else if (category === "todos") {
     check(titles(rowsOf(panel, "任务")).join() === "自动将未完成任务写入下一天,拖动调整顺序,一次显示几条", "Todos: the list options share a group");
     check(titles(rowsOf(panel, "番茄钟")).join() === "启用番茄钟", "Todos: the focus timer has its own group (reminders hidden while it is off)");

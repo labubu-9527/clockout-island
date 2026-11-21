@@ -4,7 +4,7 @@ import { normalizeSettings } from "../../src/features/appearance/settings.ts";
 
 test("legacy system slot expands in place and deduplicates independent slots", () => {
   const settings = normalizeSettings({ collapsedLayout: ["music", "system", "text", "mail", "shelf", "agents"] });
-  assert.deepEqual(settings.collapsedLayout, ["music", "cpu", "memory", "text", "mail", "shelf", "agents", "weather", "clock", "pet"]);
+  assert.deepEqual(settings.collapsedLayout, ["music", "cpu", "memory", "text", "mail", "shelf", "agents", "weather", "clock", "pet", "wireless"]);
   assert.deepEqual(normalizeSettings({ collapsedLayout: ["memory", "system", "cpu"] }).collapsedLayout.slice(0, 2), ["memory", "cpu"]);
 });
 
@@ -28,7 +28,7 @@ test("clock and pet gain slots without changing existing order and have independ
   const settings = normalizeSettings({ collapsedLayout: ["weather", "text"] });
   assert.equal(settings.clockEnabled, true);
   assert.equal(settings.petEnabled, true);
-  assert.deepEqual(settings.collapsedLayout.slice(-2), ["clock", "pet"]);
+  assert.deepEqual(settings.collapsedLayout.slice(-3), ["clock", "pet", "wireless"]);
   assert.deepEqual(settings.collapsedLayout.slice(0, 2), ["weather", "text"]);
   const changed = normalizeSettings({ clockEnabled: false, petEnabled: false, clockHour12: true, clockPeriod: "detailed", clockShowSeconds: true });
   assert.equal(changed.clockEnabled, false);

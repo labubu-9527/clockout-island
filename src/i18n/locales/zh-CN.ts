@@ -21,6 +21,7 @@ import * as settings from "../sections/settings/index.ts";
 
 const zhCN: Translations = {
   deviceNotices: deviceNotices.zhCN,
+  wireless: wireless.zhCN,
   clock: clock.zhCN,
   islandPet: islandPet.zhCN,
   localeLabel: "简体中文",
@@ -57,3 +58,4 @@ const zhCN: Translations = {
 };
 
 export default zhCN;
+import * as wireless from "../sections/wireless.ts";

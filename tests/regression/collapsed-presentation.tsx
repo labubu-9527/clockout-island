@@ -37,6 +37,7 @@ mockIPC((command, payload) => {
     case "agent_sessions_in_front": case "agent_approval_pending": case "get_qq_mail_state": return [];
     case "get_agent_status": return { codex: { phase: "idle", updatedAt: 0 }, claudeCode: { phase: "idle", updatedAt: 0 }, updatedAt: 0, statusPath: "" };
     case "get_system_status": return { cpuPercent: 12, memoryPercent: 58, updatedAt: Date.now() };
+    case "get_wireless_devices": return [{ id: 'fixture-wireless', name: 'Fixture headphones', kind: 'headphones', batteryPercent: 70, updatedAt: Date.now() }];
     case "get_foreground_fullscreen": return { active: false, onIslandMonitor: false };
     case "set_island_interaction": interaction = payload as Record<string, unknown>; return "disabled";
     case "get_island_top_attachment": case "plugin:window|is_visible": return true;
@@ -146,6 +147,29 @@ try {
   media = { ...media, playbackStatus: "paused", updatedAt: Date.now() };
   await wait(2600);
   check(!document.querySelector(".music-wave-button"), "paused music hides the waveform even with its visibility switch enabled");
+  const beforeWireless = JSON.parse(localStorage.getItem('focusd-island-settings')!);
+  await act(async () => {
+    localStorage.setItem('focusd-island-wireless-enabled', 'true');
+    window.dispatchEvent(new StorageEvent('storage', { key: 'focusd-island-wireless-enabled' }));
+  });
+  await wait(400);
+  check(document.querySelector('.wireless-badge')?.textContent?.includes('70%'), 'wireless opt-in reaches the real collapsed battery badge');
+  await patch({ collapsedSlotVisibility: { ...beforeWireless.collapsedSlotVisibility, wireless: false } });
+  check(!document.querySelector('.wireless-badge'), 'wireless visibility hides its badge without disabling the feature');
+  await patch({ collapsedSlotVisibility: { ...beforeWireless.collapsedSlotVisibility, wireless: true } });
+  await act(async () => document.querySelector<HTMLButtonElement>('.wireless-badge')!.click());
+  await wait(850);
+  check(document.querySelector('.island--expanded.island--wireless .wireless-panel')?.textContent?.includes('Fixture headphones'),
+    'wireless badge opens its live island page with real snapshot data');
+  await act(async () => {
+    localStorage.setItem('focusd-island-wireless-enabled', 'false');
+    window.dispatchEvent(new StorageEvent('storage', { key: 'focusd-island-wireless-enabled' }));
+  });
+  await wait(100);
+  check(!document.querySelector('.island--wireless, .dot-button--wireless'), 'disabling wireless removes its navigation and leaves the disabled page');
+  await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
+  await patch(beforeWireless);
+  await wait(700);
   await act(async () => {
     localStorage.setItem("focusd-island-weather-settings", JSON.stringify({ enabled: true }));
     window.dispatchEvent(new StorageEvent("storage", { key: "focusd-island-weather-settings" }));

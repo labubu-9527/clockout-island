@@ -21,6 +21,7 @@ src/
 │   ├── agent-status/        # AI 代理状态；sounds/ 为 Agent 音效：内置音效播放、设置 → 声音页、导入音效包
 │   ├── appearance/          # 外观设置、布局编辑器、预设；岛屿设置（focusd-island-settings）的范围在 settingsLimits.ts、首次启动值在 settingsDefaults.ts、读取按领域在 normalizeLayout / Agent / BehaviorSettings.ts，新设置加在这几个文件里，settings.ts 只做入口
 │   ├── weather/             # 天气：类型化 IPC、配置/预报缓存、自动位置缓存与同步、请求 hook、设置、紧凑面板/七日曲线/徽章
+│   ├── wireless/            # 已连接蓝牙设备电量：只读IPC、独立开关、可见时快照、列表/徽章与低电量阈值
 │   ├── clock/               # 本地时间格式、可见时的叶子更新与通用页时间格式设置
 │   ├── device-notices/      # 锁定键、麦克风及受支持触控板的变化差分、两秒提醒与独立偏好
 │   ├── island-pet/          # 岛仔状态优先级、原始表情序列与矢量姿态动画；不监听原生系统状态

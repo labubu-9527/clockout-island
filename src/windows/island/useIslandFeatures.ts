@@ -1,5 +1,6 @@
 import { listenWeatherOpen } from "../../features/weather/api";
 import { useWeatherSettings } from "../../features/weather/storage";
+import { useWirelessEnabled } from "../../features/wireless/storage";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import type { IslandSettings } from "../../features/appearance/types";
 import type { MessageView } from "../../features/messages/Messages";
@@ -39,6 +40,7 @@ export function useIslandFeatures({
   openIslandPage,
 }: IslandFeatureOptions) {
   const weatherEnabled = useWeatherSettings().enabled;
+  const wirelessEnabled = useWirelessEnabled();
   useEffect(() => {
     let disposed = false;
     let unlisten: (() => void) | undefined;
@@ -56,6 +58,7 @@ export function useIslandFeatures({
     feishu: office.feishu,
     wecom: office.wecom,
     weather: weatherEnabled,
+    wireless: wirelessEnabled,
     todo: settings.todoEnabled,
     music: settings.musicEnabled,
     clipboard: clipboardEnabled,
@@ -65,7 +68,7 @@ export function useIslandFeatures({
     qqMail: settings.mailEnabled,
     agents: settings.agentStatusEnabled,
     translation: settings.translationEnabled && settings.translationTarget === "island",
-  }), [weatherEnabled, clipboardEnabled, qqEnabled, settings.agentStatusEnabled, settings.mailEnabled, settings.musicEnabled, settings.shelfEnabled, settings.todoEnabled, settings.translationEnabled, settings.translationTarget, wechatEnabled, hasPluginMessages, office.dingtalk, office.feishu, office.wecom]);
+  }), [wirelessEnabled, weatherEnabled, clipboardEnabled, qqEnabled, settings.agentStatusEnabled, settings.mailEnabled, settings.musicEnabled, settings.shelfEnabled, settings.todoEnabled, settings.translationEnabled, settings.translationTarget, wechatEnabled, hasPluginMessages, office.dingtalk, office.feishu, office.wecom]);
 
   useEffect(() => {
     const next = islandPageFor(page, features, settings.clipboardDetached);

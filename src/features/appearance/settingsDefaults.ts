@@ -34,6 +34,7 @@ export const DEFAULT_SETTINGS: IslandSettings = {
   expandedScale: 1,
   marginY: 0,
   positionLocked: false,
+  swipeUpToHide: false,
   islandMonitor: "primary",
   islandCornerRadius: DEFAULT_ISLAND_CORNER_RADIUS,
   collapsedCornerRadius: COLLAPSED_CORNER_RADIUS.default,

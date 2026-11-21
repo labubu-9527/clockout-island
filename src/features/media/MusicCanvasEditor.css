@@ -1,0 +1,35 @@
+.music-editor { padding: 12px; }
+.music-editor__canvas {
+  position: relative; width: 100%; max-width: 400px; margin: 0 auto;
+  background: var(--color-white-a06); border-radius: var(--corner-lg); user-select: none;
+}
+.music-editor__canvas button {
+  position: absolute; display: flex; align-items: center; justify-content: flex-start;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis; border: 0; border-radius: 4px;
+  background: transparent; color: inherit; padding: 0 3px; cursor: grab; touch-action: none;
+  font: inherit; font-size: calc(12px * var(--editor-scale));
+}
+.music-editor__canvas button:has(svg) { justify-content: center; }
+.music-editor__canvas [data-editor-element="cover"], .music-editor__canvas [data-editor-element="play"] {
+  background: var(--color-white-a12); border-radius: var(--corner-lg);
+}
+.music-editor__canvas [data-editor-element="favorite"] { opacity: 0.5; }
+.music-editor__canvas [data-editor-element="title"], .music-editor__canvas [data-editor-element="lyrics"] {
+  font-size: calc(17px * var(--editor-scale)); font-weight: 600;
+}
+.music-editor__canvas [aria-pressed="true"], .music-editor__canvas button:focus-visible {
+  outline: 2px solid var(--settings-accent, var(--color-accent)); outline-offset: -2px; z-index: 1;
+}
+.music-editor__canvas button:active { cursor: grabbing; }
+.music-editor__progress { display: flex; flex-wrap: wrap; justify-content: space-between; width: 100%; }
+.music-editor__progress i { flex-basis: 100%; border-radius: 4px; height: 4px; background: var(--color-white-a12); margin-bottom: 4px; }
+.music-editor__progress i::before { content: ''; display: block; width: 21%; height: 100%; background: currentColor; }
+.music-editor__inspector { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.music-editor__inspector label { display: flex; align-items: center; gap: 3px; font-size: 12px; }
+.music-editor__inspector input { width: 52px; }
+.music-editor__inspector select { max-width: 100%; }
+.music-editor__inspector :is(input,select,button) { font: inherit; color: inherit; background: var(--color-white-a06);
+  border: 1px solid var(--color-white-a12); border-radius: 4px; padding: 3px; }
+.music-editor__inspector option { background: var(--settings-surface, Canvas); color: var(--text-1, CanvasText); }
+.music-editor__inspector button { display: grid; place-items: center; }
+.music-editor__inspector :focus-visible { outline: 2px solid var(--settings-accent, var(--color-accent)); }

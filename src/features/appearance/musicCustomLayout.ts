@@ -2,7 +2,32 @@
 export const MUSIC_MODULES = ['header', 'lyrics', 'translation', 'status', 'progress', 'controls'] as const;
 export type MusicModule = typeof MUSIC_MODULES[number];
 export type MusicModuleSlot = { kind: MusicModule; visible: boolean };
-export type MusicCustomLayout = { version: 1; enabled: boolean; showCover: boolean; modules: MusicModuleSlot[] };
+export const MUSIC_ELEMENTS = ['cover', 'title', 'artist', 'lyrics', 'translation', 'status', 'progress',
+  'mode', 'favorite', 'volume', 'previous', 'play', 'next', 'translate', 'settings'] as const;
+export type MusicElement = typeof MUSIC_ELEMENTS[number];
+export type MusicPlacement = { element: MusicElement; x: number; y: number; width?: number };
+export type MusicCustomLayout = { version: 1; enabled: boolean; showCover: boolean; modules: MusicModuleSlot[]; elements?: MusicPlacement[] };
+export const DESIGN_WIDTH = 400;
+export const MAX_ELEMENT_Y = 600;
+export const canResizeMusicElement = (element: MusicElement) =>
+  ['title', 'artist', 'lyrics', 'translation', 'status', 'progress'].includes(element);
+
+function normalizeElements(value: unknown): MusicPlacement[] {
+  const result: MusicPlacement[] = [];
+  if (!Array.isArray(value)) return result;
+  for (const item of value as unknown[]) {
+    if (!item || typeof item !== 'object') continue;
+    const { x, y, width, element: name } = item as Record<string, unknown>;
+    const element = MUSIC_ELEMENTS.find(id => id === name);
+    if (!element || typeof x !== 'number' || typeof y !== 'number' || !Number.isFinite(x)
+      || !Number.isFinite(y) || result.some(p => p.element === element)) continue;
+    const size = canResizeMusicElement(element) && typeof width === 'number' && Number.isFinite(width)
+      ? Math.max(24, Math.min(DESIGN_WIDTH, Math.round(width))) : undefined;
+    result.push({ element, x: Math.max(0, Math.min(DESIGN_WIDTH - (size ?? 1), Math.round(x))),
+      y: Math.max(0, Math.min(MAX_ELEMENT_Y, Math.round(y))), ...(size !== undefined && { width: size }) });
+  }
+  return result;
+}
 
 export const isRequiredMusicModule = (kind: MusicModule) => kind === 'header' || kind === 'controls';
 
@@ -24,7 +49,9 @@ export function normalizeMusicCustomLayout(value: unknown): MusicCustomLayout {
     modules.push({ kind, visible: isRequiredMusicModule(kind) || slot.visible !== false });
   }
   for (const kind of MUSIC_MODULES) if (!modules.some(slot => slot.kind === kind)) modules.push({ kind, visible: true });
-  return { version: 1, enabled: record.enabled === true, showCover: record.showCover !== false, modules };
+  const elements = normalizeElements(record.elements);
+  return { version: 1, enabled: record.enabled === true, showCover: record.showCover !== false, modules,
+    ...(elements.length ? { elements } : {}) };
 }
 
 /** Offset-based movement works for keyboard/buttons and arbitrary drop targets alike. */

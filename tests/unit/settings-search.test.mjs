@@ -2,6 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildSettingsSearchEntries, findSettings } from "../../src/windows/settings/settingsSearch.ts";
 
+test('wireless battery and canvas controls route to their own settings pages', () => {
+  const entries = buildSettingsSearchEntries({ wireless: { title: 'Wireless battery' }, musicCanvas: { title: 'Free layout editor' }, musicModules: { title: 'Custom arrangement' } }, {});
+  assert.equal(findSettings(entries, 'Wireless')[0]?.category, 'general');
+  assert.equal(findSettings(entries, 'Free layout')[0]?.category, 'music');
+  assert.equal(findSettings(entries, 'Custom arrangement')[0]?.category, 'music');
+});
+
 test("settings search matches descriptions across categories and keeps navigation targets", () => {
   const entries = buildSettingsSearchEntries({ appearance: { materialTitle: "材质", materialHint: "让桌面透过磨砂玻璃" },
     behavior: { title: "启动", hint: "登录后自动启动" }, appearanceExtra: {},

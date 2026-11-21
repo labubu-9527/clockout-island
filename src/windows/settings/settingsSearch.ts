@@ -11,6 +11,7 @@ const ROOT_CATEGORIES: Record<string, SettingsCategory> = {
   lyrics: "music", musicSources: "music", diagnostics: "music", clipboard: "clipboard", fileShelf: "clipboard",
   translation: "translation", agent: "agents", sounds: "agents", plugins: "plugins", project: "about",
   weather: "weather", deviceNotices: "appearance", clock: "general", mail: "messages", wechat: "messages", qq: "messages",
+  wireless: "general", musicCanvas: "music", musicModules: "music",
 };
 const MODULE_CATEGORIES: Record<string, SettingsCategory> = { todo: "todos", music: "music", agents: "agents", mail: "messages", shelf: "clipboard", translation: "translation", clipboard: "clipboard", hint: "music" };
 function appearanceTab(root: string, path: string): AppearanceTab {

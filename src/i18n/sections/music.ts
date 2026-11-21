@@ -1,4 +1,5 @@
 export type MusicText = {
+  canvas: { title: string; artist: string; track: string; width: string; reset: string; selection: string; resetAll: string };
   modules: {
     title: string; enabled: string; description: string; cover: string; reset: string; required: string; reorder: string; hiddenTranslation: string;
     move: (name: string) => string; moveUp: (name: string) => string; moveDown: (name: string) => string;
@@ -54,6 +55,7 @@ export type MusicText = {
 };
 
 export const zhCN: MusicText = {
+  canvas: {title: '音乐布局画布', artist: '歌手', track: '歌曲标题', width: '宽度', reset: '重置所选元素', selection: '选择元素', resetAll: '重置画布位置'},
   modules: {
     title: '音乐模块自定义', enabled: '启用自定义排列', cover: '显示专辑封面', reset: '恢复默认', required: '必须保留',
     hiddenTranslation: '译文与下一句模块已在音乐设置中关闭',
@@ -126,6 +128,7 @@ export const zhCN: MusicText = {
 };
 
 export const en: MusicText = {
+  canvas: {title: 'Music layout canvas', artist: 'Artist', track: 'Track title', width: 'Width', reset: 'Reset selected element', selection: 'Select element', resetAll: 'Reset canvas positions'},
   modules: {
     title: 'Custom music modules', enabled: 'Enable custom arrangement', cover: 'Show album artwork', reset: 'Reset modules', required: 'Required',
     hiddenTranslation: 'The secondary lyrics module is disabled in Music settings',

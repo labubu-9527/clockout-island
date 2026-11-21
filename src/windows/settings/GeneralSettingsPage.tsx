@@ -1,4 +1,5 @@
 import { ClockSettings } from "../../features/clock/ClockSettings";
+import { WirelessSettings } from "../../features/wireless/WirelessSettings";
 import { useTranslation, type LocaleCode } from "../../i18n";
 import { SettingsGroup } from "../../components/settings/SettingsGroup";
 import { BehaviorSettingsSection } from "../../features/appearance/BehaviorSettingsSection";
@@ -43,6 +44,7 @@ export function GeneralSettingsPage({
         onLocaleChange={onLocaleChange}
       />
       <ClockSettings {...rows} />
+      <WirelessSettings />
       <SettingsGroup title={t.settings.expand.title}>
         <ExpandRows {...rows} />
       </SettingsGroup>

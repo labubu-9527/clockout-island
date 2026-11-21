@@ -3,12 +3,15 @@ import { Heart, Languages, Repeat, Repeat1, Settings2, Shuffle, Volume2, VolumeX
 import { useTranslation } from "../../i18n";
 import { cycleMediaRepeat, setMediaVolume, toggleMediaShuffle, type MediaState } from "./api";
 import "./MusicPlayerToolbar.css";
+import type { MusicModuleGeometry } from "./musicModuleGeometry";
+import { placeMusicElement } from "./MusicCustomLayout";
 
 /** Capability-aware secondary actions around the primary transport. */
-export function MusicPlayerToolbar({ mediaState, transport, hasTranslation, showTranslation, onTranslationChange, onOpenSettings, translationDisabledHint }: {
+export function MusicPlayerToolbar({ mediaState, transport, hasTranslation, showTranslation, onTranslationChange, onOpenSettings, translationDisabledHint, geometry }: {
   mediaState: MediaState; transport: ReactNode; hasTranslation: boolean; showTranslation: boolean;
   onTranslationChange: (show: boolean) => void; onOpenSettings: () => void;
   translationDisabledHint?: string;
+  geometry?: MusicModuleGeometry;
 }) {
   const t = useTranslation();
   const text = t.music.toolbar;
@@ -70,30 +73,33 @@ export function MusicPlayerToolbar({ mediaState, transport, hasTranslation, show
       } finally { volumePending.current = false; }
     })();
   };
+  const volumeRect = geometry?.elements.find(rect => rect.element === 'volume');
+  const popupStyle = geometry && volumeRect ? { top: Math.min(geometry.height - 72,
+    volumeRect.y > 76 ? volumeRect.y - 72 : volumeRect.y + volumeRect.height), bottom: 'auto' } : undefined;
   return <div className="music-player__toolbar">
     <div className="music-player__tools">
-      <span title={canMode ? modeLabel : text.unsupportedMode}>
+      {placeMusicElement(geometry, 'mode', <span title={canMode ? modeLabel : text.unsupportedMode}>
         <button className="music-icon-button" type="button" data-music-action="mode" aria-label={`${text.mode}: ${modeLabel}`}
           disabled={!canMode} aria-pressed={Boolean(state.shuffleActive || state.repeatMode === "track")} onClick={mode}>
           <ShuffleIcon size={19} strokeWidth={1.8} />
         </button>
-      </span>
-      <span title={text.unsupportedFavorite}><button className="music-icon-button" type="button" data-music-action="favorite"
-        aria-label={`${text.favorite}: ${text.unsupportedFavorite}`} disabled><Heart size={19} strokeWidth={1.8} /></button></span>
-      <button className="music-icon-button" type="button" data-music-action="volume" aria-label={text.volume}
+      </span>)}
+      {placeMusicElement(geometry, 'favorite', <span title={text.unsupportedFavorite}><button className="music-icon-button" type="button" data-music-action="favorite"
+        aria-label={`${text.favorite}: ${text.unsupportedFavorite}`} disabled><Heart size={19} strokeWidth={1.8} /></button></span>)}
+      {placeMusicElement(geometry, 'volume', <button className="music-icon-button" type="button" data-music-action="volume" aria-label={text.volume}
         disabled={!canVolume} title={canVolume ? text.volume : text.unavailableVolume}
         aria-expanded={volumeOpen && canVolume} aria-controls={volumeId} onClick={() => setVolumeOpen(!volumeOpen)}>
         {volume > 0 ? <Volume2 size={19} strokeWidth={1.8} /> : <VolumeX size={19} strokeWidth={1.8} />}
-      </button>
+      </button>)}
     </div>
     {transport}
     <div className="music-player__tools music-player__tools--end">
-      <span title={translationDisabledHint ?? (hasTranslation ? text.translation : text.noTranslation)}><button className="music-icon-button" type="button"
+      {placeMusicElement(geometry, 'translate', <span title={translationDisabledHint ?? (hasTranslation ? text.translation : text.noTranslation)}><button className="music-icon-button" type="button"
         data-music-action="translation" aria-label={text.translation} aria-pressed={showTranslation && hasTranslation}
-        disabled={!hasTranslation} onClick={() => onTranslationChange(!showTranslation)}><Languages size={19} strokeWidth={1.8} /></button></span>
-      <button className="music-icon-button" type="button" aria-label={t.music.openSettings} onClick={onOpenSettings}><Settings2 size={19} strokeWidth={1.8} /></button>
+        disabled={!hasTranslation} onClick={() => onTranslationChange(!showTranslation)}><Languages size={19} strokeWidth={1.8} /></button></span>)}
+      {placeMusicElement(geometry, 'settings', <button className="music-icon-button" type="button" aria-label={t.music.openSettings} onClick={onOpenSettings}><Settings2 size={19} strokeWidth={1.8} /></button>)}
     </div>
-    {volumeOpen && canVolume && <div className="music-player__volume" id={volumeId} onKeyDown={event => { if (event.key === "Escape") setVolumeOpen(false); }}>
+    {volumeOpen && canVolume && <div className="music-player__volume" id={volumeId} style={popupStyle} onKeyDown={event => { if (event.key === "Escape") setVolumeOpen(false); }}>
       <label htmlFor={`${volumeId}-range`}>{text.volume}<output>{Math.round(volume * 100)}%</output></label>
       <input id={`${volumeId}-range`} type="range" min="0" max="1" step="0.01" value={volume}
         onChange={event => setDraftVolume(Number(event.target.value))} onPointerUp={commitVolume} onKeyUp={commitVolume} onBlur={commitVolume} />

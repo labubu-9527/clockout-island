@@ -6,6 +6,7 @@ import { ModuleSwitchSection } from "./ModuleSwitchSection";
 import { MediaCompatibilitySection } from "../../features/media/MediaCompatibilitySection";
 import { MusicLayoutSettings } from "../../features/media/MusicLayoutSettings";
 import { MusicModuleSettings } from "../../features/media/MusicModuleSettings";
+import { MusicCanvasEditor } from "../../features/media/MusicCanvasEditor";
 
 /** Settings → Music: the module switch, which player the island follows, and where lyrics come from. */
 export function MusicSettingsPage({
@@ -27,6 +28,9 @@ export function MusicSettingsPage({
       {settings.musicEnabled && <MusicSourcePrioritySection />}
       {settings.musicEnabled && <MusicLayoutSettings settings={settings} onSettingsChange={onSettingsChange} />}
       {settings.musicEnabled && <MusicModuleSettings settings={settings} onSettingsChange={onSettingsChange} />}
+      {settings.musicEnabled && settings.musicCustomLayout.enabled && <MusicCanvasEditor
+        layout={settings.musicCustomLayout} fontScale={settings.islandFontPercent / 100}
+        onChange={musicCustomLayout => onSettingsChange({...settings, musicCustomLayout})} />}
       {settings.musicEnabled && <LyricsSettingsSection settings={settings} onSettingsChange={onSettingsChange} />}
       {settings.musicEnabled && <MediaCompatibilitySection />}
     </>

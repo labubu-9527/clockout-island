@@ -251,7 +251,7 @@ if (!automated) {
     };
     await drag(".dot-button--todo", ".dot-button--clipboard");
     const savedOrder = JSON.parse(localStorage.getItem("focusd-island-settings") ?? "{}").pageOrder as string[] | undefined;
-    check(dotOrder().join() === "music,clipboard,todo,shelf,translation" && savedOrder?.join() === "music,clipboard,todo,shelf,translation,weather" && island().className === pageBefore,
+    check(dotOrder().join() === "music,clipboard,todo,shelf,translation" && savedOrder?.join() === "music,clipboard,todo,shelf,translation,weather,wireless" && island().className === pageBefore,
       `拖动页面圆点可以调整顺序并保存，拖完不切页（${dotOrder().join()}）`);
     await drag(".dot-button--todo", ".dot-button--music");
     check(dotOrder()[0] === "todo", "圆点可以拖回原来的位置");
@@ -339,7 +339,7 @@ if (!automated) {
     await click('[aria-label="页面按钮"] button:last-child');
     const savedStyle = JSON.parse(localStorage.getItem("focusd-island-settings") ?? "{}").pageButtonStyle;
     check(document.querySelectorAll(".dot-button--icon svg, .island__agent-button svg.lucide-bot").length === 6 &&
-      document.querySelectorAll(".agent-page-preview__dots svg").length === 6 && savedStyle === "icon", "六个页面入口切换为图标，外观预览和保存同步");
+      document.querySelectorAll(".agent-page-preview__dots svg").length === 7 && savedStyle === "icon", "已启用页面切换为图标，外观预览保留全部七项排序并同步保存");
     await click('[aria-label="页面按钮"] button:first-child');
     const priority = () => [...document.querySelectorAll<HTMLElement>(".reorder-list__item")].map((item) => item.dataset.reorderId);
     check(priority().join() === "agent,lyrics,todo", "外观页列出收起时的显示顺序：Agent 任务、歌词、待办");
@@ -357,8 +357,8 @@ if (!automated) {
       });
     }
     const savedLayout = JSON.parse(localStorage.getItem("focusd-island-settings") ?? "{}").collapsedLayout as string[] | undefined;
-    check(savedLayout?.join() === "music,text,mail,shelf,agents,cpu,memory,weather,clock,pet" && (media !== "paused" && media !== "none" ? barOrder().startsWith("island__text-slot,music-wave-button") : !barOrder().includes("music-wave-button")),
-      `岛上的排列：音乐波形移到文字左边，收起的岛也跟着变（${barOrder()}）`);
+    check(savedLayout?.join() === "music,text,mail,shelf,agents,cpu,memory,weather,clock,wireless,pet" && (media !== "paused" && media !== "none" ? barOrder().startsWith("island__text-slot,music-wave-button") : !barOrder().includes("music-wave-button")),
+      `岛上的排列：音乐波形移到文字左边，收起的岛也跟着变（${barOrder()}；${savedLayout?.join()}；${media}）`);
     await click(".settings-sidebar__item[data-category='general']");
     const lockSwitch = () => [...document.querySelectorAll<HTMLElement>(".settings-row")]
       .find((row) => row.querySelector(".settings-row__title")?.textContent === "锁定小岛位置")!.querySelector<HTMLInputElement>("[role='switch']")!;
@@ -372,7 +372,7 @@ if (!automated) {
       button.setPointerCapture = () => {};
       button.hasPointerCapture = () => false;
       await act(async () => {
-        button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, pointerId: 9, button: 0, buttons: 1, clientX: 20, ctrlKey }));
+        button.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, isPrimary: true, pointerId: 9, button: 0, buttons: 1, clientX: 20, ctrlKey }));
         button.dispatchEvent(new PointerEvent("pointermove", { bubbles: true, pointerId: 9, button: 0, buttons: 1, clientX: 40, ctrlKey }));
         button.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, pointerId: 9, button: 0 }));
       });

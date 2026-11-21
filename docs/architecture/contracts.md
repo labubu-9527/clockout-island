@@ -5,7 +5,7 @@
 | 文档名称 | 对外契约清单 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-21 |
-| 版本号 | v1.6.0 |
+| 版本号 | v1.7.0 |
 
 2026-11-20 兼容补充：已有 `collapsedLayout` 的 `pet` 值继续容错读取与保留，展示改为固定前导位置，设置中只保留其显示开关。`messageSourceVisibility` 增加 `dingtalk`、`feishu`、`wecom`，旧配置缺失时默认显示；不改变已有来源开关。远端 `islandShape: "capsule"` 兼容读取为本地 `"pill"`，原生统一负责 6px 间距。`set_island_interaction` 折叠宽度允许最小 96px，以支持按实际可见内容收缩；手动设置仍至少 240px，通知预览仍至少 240px。
 
@@ -264,8 +264,18 @@ Rust crate/可执行文件 `fly-island`、`fly_island_lib`、应用标识 `com.f
 
 一句话明确时间语法在提交前预览，提交时重新验证，以时间语法优先于日期选择器。普通输入保持原处理。相对时长最多7天；过去时刻、缺标题、非法日期/时刻不提交。Markdown保持原可读导出格式，不作为提醒恢复载体。
 
+## 上推隐藏、无线设备与自由布局（2026-11-21）
+
+`focusd-island-settings.swipeUpToHide`为布尔值，默认false，仅显式true开启。`collapsedLayout`、`collapsedSlotVisibility`和`pageOrder`增加`wireless`，旧排列去重后补到末尾，显示偏好默认true但模块默认关闭；最后页面允许保存`wireless`，停用后回退可用页。
+
+新增localStorage `focusd-island-wireless-enabled`，仅字符串`true`开启，默认关闭；同窗口事件`wireless-enabled-changed`和跨窗口storage事件同步。设备id、名称、电量、扫描错误与告警去重状态不持久化。
+
+新增命令`get_wireless_devices({ refresh?: boolean }) -> WirelessDevice[]`，设备结构为`{ id: string, name: string, kind: string, batteryPercent: number | null, updatedAt: number }`，updatedAt为epoch毫秒，电量0–100，null表示未知；kind为mouse/keyboard/gamepad/headphones/speaker/device。id用于物理设备去重，不能作为产品名展示。refresh跳过30秒缓存但复用正在进行的扫描；完整扫描20秒、单异步操作最多3秒。接口失败返回错误，不把失败伪装为空设备列表。
+
+`musicCustomLayout`继续为version1，新增可选`elements: { element, x, y, width? }[]`。element允许cover/title/artist/lyrics/translation/status/progress/mode/favorite/volume/previous/play/next/translate/settings，坐标使用400宽设计空间，x为0–399并按有效宽度约束、y为0–600；只有标题/歌手/歌词/副句/状态/进度可保存24–400宽度。非有限数值、未知及重复元素忽略，超界值夹取；无有效坐标时省略字段。缺字段继续堆叠，旧读者可忽略elements。坐标纳入外观预设，旧IPC及窗口标签不变。
+
 ## 音乐模块自定义（2026-11-21）
 
 现有 `focusd-island-settings` 增加 `musicCustomLayout`，格式为 `{ version: 1, enabled: boolean, showCover: boolean, modules: { kind, visible }[] }`。默认关闭、显示封面、六组全部显示，默认顺序为 `header / lyrics / translation / status / progress / controls`；歌曲信息 `header` 与播放控制 `controls` 强制可见。
 
-读取时去重、忽略未知模块、缺项补到末尾；非对象或不支持的版本回退默认，缺版本按v1兼容，非法开关按默认处理。纳入外观预设；关闭自定义只恢复当前预设，不删除保存顺序。布局几何与实时高度不持久化，无新增key、IPC或事件。
+读取时去重、忽略未知模块、缺项补到末尾；非对象或不支持的版本回退默认，缺版本按v1兼容，非法开关按默认处理。纳入外观预设；关闭自定义只恢复当前预设，不删除保存顺序。派生几何与实时高度不持久化；用户保存的elements坐标按上节存储，模块排序本身不新增key、IPC或事件。

@@ -5,7 +5,7 @@
 | 文档名称 | 数据存放位置 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-21 |
-| 版本号 | v1.3.0 |
+| 版本号 | v1.4.0 |
 
 | 数据 | 位置 | 负责方 |
 |---|---|---|
@@ -88,6 +88,12 @@ DSH（issue #51）：`agent_status/dsh_sessions.rs` 只读 `%APPDATA%/dsh-deskto
 音乐布局保存在现有 `focusd-island-settings.musicLayout`，并参与外观预设；默认 `SideBySide`，读取验证五种预设，不新增存储key。
 
 一句话提醒的截止时间 `remindAt`（epoch毫秒）与一次投递标记 `reminded` 跟随待办对象保存在现有今日待办、计划待办与归档JSON内。到点标记在既有状态保存链路持久化，重启后恢复；旧项没有字段则不提醒，非法值忽略。计划转今日与日切保留ID和时间，普通日期计划仍沿用原行为。详见 [quick-reminders.md](../quick-reminders.md) 和 [contracts.md](contracts.md)。
+
+## 手势、无线电量与画布坐标（2026-11-21）
+
+上推隐藏偏好`swipeUpToHide`沿用settings键，默认false；临时拖动/回弹不保存。无线模块由`features/wireless/storage.ts`管理`focusd-island-wireless-enabled`，默认false；徽章可见性和页面顺序沿用settings。扫描快照、错误、设备标识和低电量阈值去重均只在内存中，退出后清除，不写日志或凭据。
+
+`musicCustomLayout.elements`在既有version1配置中按需保存15种元素的位置及六种可调整元素的宽度，横向使用400设计空间，纵向逻辑像素；不存在该字段时保留模块堆叠。重置全部位置删除该字段，恢复模块默认几何；关闭自定义不删除坐标。字段校验和原生命令详见[contracts.md](contracts.md)。
 
 ## 音乐模块自定义（2026-11-21）
 

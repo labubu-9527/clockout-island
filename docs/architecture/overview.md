@@ -5,7 +5,11 @@
 | 文档名称 | 架构总览 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-21 |
-| 版本号 | v1.4.0 |
+| 版本号 | v1.5.0 |
+
+手势、无线电量和画布（2026-11-21）：`windows/island/swipeUpToHide.ts`为纯状态机，`useWindowDragGesture`分流上推与原生拖动，通过已有monitor API换算上沿；隐藏复用navigation。`features/wireless`拥有类型化IPC、独立开关和按可见性轮询的快照；原生`wireless`管理单工作线程/超时/缓存，`win32/wireless`封装PnP属性，`wireless/scan`处理经典/BLE枚举和标准电量读取，资源作用域释放。窗口层`useIslandWirelessNotices`做低电量去重和队列投递，新增无线页和可排序徽章。
+
+音乐`MusicCanvasEditor`在设置页编辑位置，`appearance/musicCustomLayout`归一化可选坐标，`musicModuleGeometry`同时提供模块行和15个元素矩形；真实播放器通过`placeMusicElement`复用相同坐标，工具栏保留真实控制能力并约束音量弹层。设置搜索纳入无线、模块和画布文案。
 
 音乐模块自定义（2026-11-21）：`appearance/musicCustomLayout.ts`定义版本化配置、规范化与排序；`media/MusicModuleSettings`提供开关和无障碍排序，`musicModuleGeometry.ts`计算可见模块高度，`MusicCustomLayout`组合现有歌词、进度和工具栏。窗口层`useMusicContentHeight`接收实际内容高度，`expandedHeight`加导航及边距并遵守原生220px下限；关闭或卸载自定义布局时清除临时高度。
 

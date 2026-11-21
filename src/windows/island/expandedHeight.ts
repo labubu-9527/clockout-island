@@ -134,7 +134,7 @@ export function getExpandedIslandHeight({
       : Math.min(todoListMax, BASE_EXPANDED_ISLAND_HEIGHT + (todoListHeight === null
         ? Math.max(0, visibleTodoRows - TODO_GROW_START_ROWS) * TODO_ROW_HEIGHT
         : Math.max(0, todoListHeight - (TODO_GROW_START_ROWS * TODO_ROW_HEIGHT - 6))))
-    : page === "weather"
+    : page === "weather" || page === "wireless"
       ? Math.min(380, maxPanelHeight)
     : page === "music"
       ? (musicCustomLayout?.enabled && hasMusicTrack

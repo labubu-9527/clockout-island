@@ -1,7 +1,8 @@
-import { CloudSun, Clipboard, FolderInput, Languages, ListChecks, Music2, type LucideIcon } from "lucide-react";
+import { Bluetooth, CloudSun, Clipboard, FolderInput, Languages, ListChecks, Music2, type LucideIcon } from "lucide-react";
 import type { PageDot } from "./types";
 
 export const PAGE_ICONS: Record<PageDot, LucideIcon> = {
+  wireless: Bluetooth,
   weather: CloudSun,
   todo: ListChecks,
   music: Music2,

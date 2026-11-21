@@ -5,7 +5,7 @@ import type { IslandPage } from "./types";
 export const LAST_PAGE_KEY = "focusd-island-last-page";
 
 // Clipboard and settings open in their own windows when detached, so they are not remembered.
-const REMEMBERED_PAGES: readonly IslandPage[] = ["todo", "music", "shelf", "qq", "agents", "translation", "weather"];
+const REMEMBERED_PAGES: readonly IslandPage[] = ["todo", "music", "shelf", "qq", "agents", "translation", "weather", "wireless"];
 
 export function normalizeLastPage(value: unknown): IslandPage {
   return REMEMBERED_PAGES.find((page) => page === value) ?? "todo";

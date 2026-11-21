@@ -34,6 +34,7 @@ pub(crate) mod taskbar_edge;
 pub(crate) mod uia_list;
 pub(crate) mod uia_tabs;
 pub(crate) mod window;
+pub(crate) mod wireless;
 
 pub(crate) mod media_plugin_registry;
 pub(crate) mod media_plugin_elevation;

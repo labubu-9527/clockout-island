@@ -83,6 +83,7 @@ export function IslandHeader({
   // Translation has one while it is on, also when it opens in its own window.
   const dots = pageOrder.filter((dot) => (dot === "translation" ? onOpenTranslator !== null : features[dot]));
   const dotLabels = {
+    wireless: t.wireless.title,
     weather: t.island.pageNames.weather,
     todo: t.island.todoList,
     music: t.island.music,

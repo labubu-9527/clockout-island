@@ -110,7 +110,7 @@ if (!automated) {
       // Appearance 16 -> 19: the page text colour row and the whole-look presets (empty state + name row).
       // General: v3.2.6 adds Ctrl + wheel and game mode's "still show notifications"; appearance +3 open and collapsed corners; clipboard +1 storage folder.
       // Appearance includes the four independently requested system-device reminder switches.
-      const maxRows = category === "agents" ? 13 : category === "general" ? 20 : category === "appearance" ? 64 : category === "clipboard" ? 9 : 8;
+      const maxRows = category === "agents" ? 13 : category === "general" ? 22 : category === "appearance" ? 64 : category === "clipboard" ? 9 : 8;
       if (category === "appearance") {
         const row = [...panel.querySelectorAll<HTMLElement>(".settings-row")].find((item) => item.textContent?.includes("贴边圆角"))!;
         const toggle = row.querySelector<HTMLInputElement>("[role='switch']")!;

@@ -76,7 +76,8 @@ try {
   visible = true; enabled = false; await mount(); await advance(1);
   check(sounds === 0 && !items()[0].reminded, "Disabled todos defer notification");
   enabled = true; await mount(); await advance(1);
-  check(sounds === 1 && opens === 1 && items()[0].reminded, "Due reminder sounds and opens the real todo page exactly once");
+  check(sounds === 1 && opens === 1 && items()[0].reminded,
+    `Due reminder sounds and opens the real todo page exactly once (${sounds}/${opens}/${items()[0].reminded}; ${JSON.stringify(items())})`);
   await restart(); await advance(1);
   check(sounds === 1, "Restart preserves delivered marker");
   await type("1分钟后取消"); await add();

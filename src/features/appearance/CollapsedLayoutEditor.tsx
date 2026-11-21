@@ -1,6 +1,7 @@
 import { useWeatherSettings } from "../weather/storage";
+import { useWirelessEnabled } from "../wireless/storage";
 import { useCallback, type KeyboardEvent, type ReactNode } from "react";
-import { AudioLines, Clock, CloudSun, Cpu, MemoryStick, Inbox, Mail } from "lucide-react";
+import { AudioLines, Bluetooth, Clock, CloudSun, Cpu, MemoryStick, Inbox, Mail } from "lucide-react";
 import { IslandPet } from "../island-pet";
 import { usePointerReorder } from "../../components/reorder/usePointerReorder";
 import { SettingsToggleRow } from "../../components/settings/SettingsToggleRow";
@@ -24,6 +25,7 @@ function slotsOn(settings: IslandSettings): Record<CollapsedSlot, boolean> {
     cpu: settings.cpuEnabled,
     memory: settings.memoryEnabled,
     weather: true,
+    wireless: true,
     clock: settings.clockEnabled,
     pet: settings.petEnabled,
   };
@@ -47,10 +49,10 @@ export function CollapsedLayoutEditor({
 }) {
   const t = useTranslation();
   const text = t.settings.appearance.collapsedIsland.layout;
-  const slotLabels = { ...text.slots, clock: t.clock.name, pet: t.islandPet.title };
+  const slotLabels = { ...text.slots, clock: t.clock.name, pet: t.islandPet.title, wireless: t.wireless.title };
   const layout = settings.collapsedLayout;
   const movableLayout: CollapsedSlot[] = layout.filter((slot) => slot !== "pet");
-  const available = { ...slotsOn(settings), weather: useWeatherSettings().enabled };
+  const available = { ...slotsOn(settings), weather: useWeatherSettings().enabled, wireless: useWirelessEnabled() };
   const on = (slot: CollapsedSlot) => available[slot] && settings.collapsedSlotVisibility[slot];
   const reorder = useCallback(
     (collapsedLayout: CollapsedSlot[]) => onSettingsChange({ ...settings, collapsedLayout: [...collapsedLayout.filter(slot => slot !== "pet"), "pet"] }),
@@ -76,6 +78,7 @@ export function CollapsedLayoutEditor({
     cpu: <><Cpu size={12} strokeWidth={1.6} absoluteStrokeWidth />12%</>,
     memory: <><MemoryStick size={12} strokeWidth={1.6} absoluteStrokeWidth />48%</>,
     weather: <CloudSun size={15} strokeWidth={1.6} absoluteStrokeWidth />,
+    wireless: <Bluetooth size={15} strokeWidth={1.6} absoluteStrokeWidth />,
     clock: <Clock size={15} strokeWidth={1.6} absoluteStrokeWidth />,
     pet: <IslandPet state="idle" active={false} showTooltip={false} />,
   };
@@ -83,7 +86,7 @@ export function CollapsedLayoutEditor({
   return (
     <SettingsGroup
       title={text.title}
-      action={<SettingsLinkButton disabled={isDefault} onClick={() => reorder([...COLLAPSED_SLOTS])}>{text.reset}</SettingsLinkButton>}
+      action={<SettingsLinkButton disabled={isDefault} onClick={() => onSettingsChange({ ...settings, collapsedLayout: [...COLLAPSED_SLOTS] })}>{text.reset}</SettingsLinkButton>}
       footer={text.footer}
     >
       <div className="collapsed-layout">

@@ -1,76 +1,89 @@
-import { useCallback, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { useCallback, useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { getMonitorTopClientY } from "./api";
+import { moveSwipe, shouldHide, startSwipe } from "./swipeUpToHide";
 
-/**
- * Starts a native window drag once the primary pointer moves 3px from where
- * it was pressed; `didDragRef` lets the following click be ignored.
- */
-export function useWindowDragGesture(disabled: boolean, onWindowDragStart: () => void) {
+type Press = {
+  id: number;
+  handle: HTMLElement;
+  island: HTMLElement | null;
+  swipe: ReturnType<typeof startSwipe>;
+  ceiling: Promise<number | null> | null;
+};
+
+export function useWindowDragGesture(disabled: boolean, onWindowDragStart: () => void, onHide?: () => void) {
   const didDragRef = useRef(false);
-  const windowDragRef = useRef<{
-    pointerId: number;
-    startX: number;
-    startY: number;
-  } | null>(null);
+  const press = useRef<Press | null>(null);
+  const generation = useRef(0);
+  const rebound = useRef<Animation | null>(null);
 
-  const prepareWindowDrag = useCallback(
-    (event: ReactPointerEvent<HTMLElement>) => {
-      didDragRef.current = false;
-      windowDragRef.current = null;
-      if (event.button !== 0 || disabled) {
-        return;
-      }
-
-      const target = event.target;
-      if (
-        target instanceof Element &&
-        target.closest(
-          "button:not(.island__open-button), input, textarea, select, a, [contenteditable='true'], [data-window-drag='false']",
-        )
-      ) {
-        return;
-      }
-
-      windowDragRef.current = {
-        pointerId: event.pointerId,
-        startX: event.clientX,
-        startY: event.clientY,
-      };
-      event.currentTarget.setPointerCapture(event.pointerId);
-    },
-    [disabled],
-  );
-
-  const handleWindowDragMove = useCallback(
-    (event: ReactPointerEvent<HTMLElement>) => {
-      const drag = windowDragRef.current;
-      if (disabled) {
-        windowDragRef.current = null;
-        return;
-      }
-      if (!drag || drag.pointerId !== event.pointerId || event.buttons !== 1) {
-        return;
-      }
-
-      if (
-        Math.hypot(event.clientX - drag.startX, event.clientY - drag.startY) < 3
-      ) {
-        return;
-      }
-
-      windowDragRef.current = null;
-      didDragRef.current = true;
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-        event.currentTarget.releasePointerCapture(event.pointerId);
-      }
-      event.preventDefault();
-      onWindowDragStart();
-    },
-    [disabled, onWindowDragStart],
-  );
-
-  const cancelWindowDrag = useCallback(() => {
-    windowDragRef.current = null;
+  const clear = useCallback(() => {
+    rebound.current?.cancel();
+    rebound.current = null;
+    const active = press.current;
+    press.current = null;
+    if (!active) return;
+    active.island?.style.removeProperty("translate");
+    if (active.handle.hasPointerCapture(active.id)) active.handle.releasePointerCapture(active.id);
   }, []);
+  const cancel = useCallback(() => { generation.current++; clear(); }, [clear]);
+  useEffect(() => {
+    window.addEventListener("blur", cancel);
+    return () => { window.removeEventListener("blur", cancel); cancel(); };
+  }, [cancel, disabled, onHide]);
 
-  return { didDragRef, prepareWindowDrag, handleWindowDragMove, cancelWindowDrag };
+  const onPointerDown = (event: ReactPointerEvent<HTMLElement>) => {
+    if (event.button !== 0 || !event.isPrimary) return;
+    cancel();
+    didDragRef.current = false;
+    const target = event.target;
+    if ((disabled && !onHide) || !(target instanceof Element) ||
+      target.closest("button:not(.island__open-button), input, textarea, select, a, [contenteditable='true'], [data-window-drag='false']")) return;
+    if (window.getSelection()?.containsNode(target, true) && !window.getSelection()?.isCollapsed) return;
+    press.current = {
+      id: event.pointerId, handle: event.currentTarget, island: target.closest<HTMLElement>(".island"),
+      swipe: startSwipe(event.clientX, event.clientY, event.timeStamp),
+      ceiling: onHide ? getMonitorTopClientY().catch(() => null) : null,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+  const onPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    const active = press.current;
+    if (!active || active.id !== event.pointerId || event.buttons !== 1) return;
+    const { swipe } = active;
+    const action = onHide ? moveSwipe(swipe, event.clientX, event.clientY, event.timeStamp)
+      : Math.hypot(event.clientX - swipe.x, event.clientY - swipe.y) >= 3 ? "drag" : "pending";
+    if (action === "pending") return;
+    didDragRef.current = true;
+    event.preventDefault();
+    if (action === "drag") {
+      clear();
+      if (!disabled) onWindowDragStart();
+    } else if (active.island) active.island.style.translate = `0 ${swipe.offset}px`;
+  };
+  const onPointerUp = (event: ReactPointerEvent<HTMLElement>) => {
+    const active = press.current;
+    if (!active || active.id !== event.pointerId) return;
+    clear();
+    if (!active.swipe.active || !onHide) return;
+    const { clientX, clientY, timeStamp } = event;
+    moveSwipe(active.swipe, clientX, clientY, timeStamp);
+    if (shouldHide(active.swipe, timeStamp, false)) { onHide(); return; }
+    if (active.island && active.swipe.offset && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      rebound.current = active.island.animate(
+        [{ translate: `0 ${active.swipe.offset}px` }, { translate: "0 0" }],
+        { duration: 160, easing: "cubic-bezier(0.2, 0.8, 0.3, 1)" },
+      );
+    }
+    const token = generation.current;
+    void active.ceiling?.then(top => {
+      if (generation.current === token && top !== null && shouldHide(active.swipe, timeStamp, clientY <= top + 0.5)) {
+        clear();
+        onHide();
+      }
+    });
+  };
+  const cancelPointer = (event: ReactPointerEvent<HTMLElement>) => {
+    if (press.current?.id === event.pointerId) cancel();
+  };
+  return { didDragRef, drag: { onPointerDown, onPointerMove, onPointerUp, onPointerCancel: cancelPointer, onLostPointerCapture: cancelPointer } };
 }

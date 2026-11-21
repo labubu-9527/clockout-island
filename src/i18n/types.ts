@@ -22,6 +22,7 @@ export type LocaleCode = "zh-CN" | "en";
 
 export type Translations = {
   deviceNotices: DeviceNoticesText;
+  wireless: WirelessText;
   clock: ClockText;
   islandPet: IslandPetText;
   /** Native language name shown in the locale picker. */
@@ -55,3 +56,4 @@ export type Translations = {
 
   settings: SettingsText;
 };
+import type { WirelessText } from "./sections/wireless";

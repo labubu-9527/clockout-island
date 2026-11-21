@@ -1,0 +1,14 @@
+.wireless-badge, .wireless-panel button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 3px;
+  border: 0; background: transparent; color: inherit; cursor: pointer;
+}
+.wireless-panel { min-width: 0; max-height: 100%; overflow: auto; padding: 8px 12px; scrollbar-width: none; }
+.wireless-panel::-webkit-scrollbar { display: none; }
+.wireless-panel header, .wireless-panel li { display: flex; align-items: center; gap: 8px; }
+.wireless-panel header { justify-content: space-between; }
+.wireless-panel button { padding: 5px; }
+.wireless-panel p { font-size: 12px; overflow-wrap: anywhere; }
+.wireless-panel ul { list-style: none; padding: 0; margin: 0; }
+.wireless-panel li { padding: 5px 0; font-size: 13px; }
+.wireless-panel li span { flex: 1; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.wireless-panel li b { font-variant-numeric: tabular-nums; }

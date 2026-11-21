@@ -43,6 +43,7 @@ type IslandCollapsedBarProps = {
   isExpanded: boolean;
   isTucked: boolean;
   positionLocked: boolean;
+  onSwipeHide?: () => void;
   showTitle: boolean;
   showCollapsedText: boolean;
   collapsedLabel: string;
@@ -75,6 +76,7 @@ type IslandCollapsedBarProps = {
   cpuEnabled?: boolean;
   memoryEnabled?: boolean;
   weatherBadge?: ReactNode;
+  wirelessBadge?: ReactNode;
   clockIndicator?: ReactNode;
   petIndicator?: ReactNode;
   /** A fixed narrow island has no room for the badge beside a long todo and its countdown. */
@@ -103,6 +105,7 @@ export function IslandCollapsedBar({
   isExpanded,
   isTucked,
   positionLocked,
+  onSwipeHide,
   showTitle,
   showCollapsedText,
   collapsedLabel,
@@ -125,6 +128,7 @@ export function IslandCollapsedBar({
   cpuEnabled = true,
   memoryEnabled = true,
   weatherBadge,
+  wirelessBadge,
   clockIndicator,
   petIndicator,
   compactCollapsed,
@@ -137,8 +141,9 @@ export function IslandCollapsedBar({
   const t = useTranslation();
   // A pending update shows a red dot even collapsed, so it is not missed.
   const updatePending = useUpdatePending();
-  const { didDragRef, prepareWindowDrag, handleWindowDragMove, cancelWindowDrag } =
-    useWindowDragGesture(isTucked || positionLocked, onWindowDragStart);
+  const { didDragRef, drag } = useWindowDragGesture(
+    isTucked || positionLocked, onWindowDragStart, isTucked || isExpanded ? undefined : onSwipeHide,
+  );
   const isMusicPlaying = mediaState.playbackStatus === "playing";
   const lyricMode = showMusic && isMusicPlaying && Boolean(mediaState.title) && !preview && !quotaAlert;
   const timerMode = Boolean(todoTimer) && !lyricMode && !preview && !quotaAlert;
@@ -168,8 +173,7 @@ export function IslandCollapsedBar({
 
   const leadingPet = slotVisibility.pet !== false && petIndicator ? (
     <button className="island__agent-light" type="button" aria-label={t.agent.sessions.title}
-      onPointerDown={prepareWindowDrag} onPointerMove={handleWindowDragMove}
-      onPointerUp={cancelWindowDrag} onPointerCancel={cancelWindowDrag}
+      {...drag}
       onClick={(event) => {
         if (event.detail === 0 || !didDragRef.current) onOpenPage("agents");
       }}>{petIndicator}</button>
@@ -183,7 +187,7 @@ export function IslandCollapsedBar({
       <MessageNoticeReader preview={preview} scrolls={noticeReader.scrolls} onOpen={() => openPreview(preview)}
         onRetry={qqMail.retryPreviewContent}
         onCopyOtp={qqMail.copyOtp} copiedOtp={qqMail.copiedOtp}
-        drag={{ onPointerDown: prepareWindowDrag, onPointerMove: handleWindowDragMove, onPointerUp: cancelWindowDrag, onPointerCancel: cancelWindowDrag }} />
+        drag={drag} />
       {messageRail}
     </div>
   );
@@ -200,10 +204,7 @@ export function IslandCollapsedBar({
             : t.messages.expand(collapsedLabel)}
           aria-expanded={preview ? undefined : isExpanded}
           aria-controls={preview ? undefined : "island-panel"}
-          onPointerDown={prepareWindowDrag}
-          onPointerMove={handleWindowDragMove}
-          onPointerUp={cancelWindowDrag}
-          onPointerCancel={cancelWindowDrag}
+          {...drag}
           onClick={(event) => {
             if (event.detail === 0 || !didDragRef.current) {
               if (preview) {
@@ -308,6 +309,7 @@ export function IslandCollapsedBar({
       <span className="island-system-status">MEM {systemStatus.updatedAt === 0 ? "--" : systemStatus.memoryPercent}%</span>
     ),
     weather: !compactCollapsed && weatherBadge,
+    wireless: !compactCollapsed && wirelessBadge,
     clock: !compactCollapsed && clockIndicator,
     pet: null,
   };

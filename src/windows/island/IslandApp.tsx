@@ -3,6 +3,7 @@ import { getMessageRailItems } from "../../features/messages/messageRailItems";
 import { usePluginNotifications } from "../../features/messages/pluginNotifications";
 import { useWeather } from "../../features/weather/useWeather";
 import { WeatherBadge } from "../../features/weather/WeatherBadge";
+import { WirelessBadge } from "../../features/wireless/WirelessBadge";
 import { ClockIndicator } from "../../features/clock";
 import { IslandPet, resolvePetState } from "../../features/island-pet";
 import { useMemo } from "react";
@@ -91,7 +92,7 @@ export function IslandApp() {
     critical: Boolean(quotaAlert) || agentSession?.phase === "waiting" });
   const { qqNotifications, wechatReminders, qqMail, preview, hasMessagePreview } = notices;
   const { todos, activeTodoId, activeTodoIds, timer, timers, todoPageMode, todoListHeight, notebookProps } = useIslandTodos({ settings, navigation, quiet: game.quiet });
-  const deviceNotice = useIslandDeviceNotice(settings, game.tuck ? null : notices.deviceChange);
+  const deviceNotice = useIslandDeviceNotice(settings, game.tuck ? null : notices.deviceChange, game.tuck ? null : notices.wirelessChange);
 
   const songPlaying = settings.musicEnabled && media.mediaState.playbackStatus === "playing" && Boolean(media.mediaState.title);
   const cover = settings.collapsedShowCover && songPlaying ? media.mediaState.thumbnail : null;
@@ -152,6 +153,7 @@ export function IslandApp() {
       clockWidth: settings.clockEnabled && slotVisible("clock") ? getClockPetWidth({ ...settings, petEnabled: false }) + 8 : 0,
       statusCount: Number(settings.cpuEnabled && slotVisible("cpu")) + Number(settings.memoryEnabled && slotVisible("memory")),
       weather: weather.settings.enabled && slotVisible("weather"),
+      wireless: features.wireless && slotVisible("wireless"),
       shelf: settings.shelfEnabled && settings.shelfShowCount && fileShelf.items.length > 0 && slotVisible("shelf"),
       music: features.music && media.mediaState.playbackStatus === "playing" && slotVisible("music"), agents: (!features.agents || activeAgentSessionCount > 0) && slotVisible("agents"),
       messages: collapsedMessages.length, lyricMode, musicWidth: compactMusic.geometry.width, timer: Boolean(collapsedTimer) && !preview && !quotaAlert,
@@ -279,6 +281,7 @@ export function IslandApp() {
         tuckStyle={settings.tuckStyle}
         topEdgeShoulders={settings.topEdgeShoulders}
         positionLocked={settings.positionLocked}
+        onSwipeHide={settings.swipeUpToHide ? minimizeToEdge : undefined}
         isDetached={isPositionDetached || settings.marginY > 0}
         islandShape={renderedSettings.islandShape}
         showTitle={settings.showTitle}
@@ -302,6 +305,7 @@ export function IslandApp() {
         features={features}
         shelfCount={settings.shelfEnabled && settings.shelfShowCount ? fileShelf.items.length : null}
         weatherBadge={<WeatherBadge weather={weather} onOpen={() => openEnabledPage("weather")} />}
+        wirelessBadge={<WirelessBadge devices={notices.wirelessDevices} onOpen={() => openEnabledPage("wireless")} />}
         clockIndicator={<ClockIndicator settings={settings} active={mode === "collapsed" && !isTucked} />}
         petIndicator={settings.petEnabled && <IslandPet active={mode === "collapsed" && !isTucked}
           state={resolvePetState({ notice: hasMessagePreview, agentAttention: settings.agentStatusEnabled && agentVisualState === "attention",

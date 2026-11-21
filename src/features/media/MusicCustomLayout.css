@@ -27,3 +27,15 @@
 .music-player--custom .music-custom .lyrics-view__line:first-child { display: block; }
 .music-player--custom .music-custom .lyrics-view__line--current { font-size: calc(17px * var(--island-font-scale, 1)); }
 .music-player--custom .music-player__error { position: relative; inset: auto; flex: none; }
+.music-free__element { position: absolute; min-width: 0; }
+.music-player--custom .music-free :is(.music-player__toolbar,.music-player__tools,.music-player__controls) {
+  display: contents; position: static;
+}
+.music-player--custom .music-free .music-free__element :is(.music-icon-button,.music-control-button),
+.music-free__element > span:has(> button) { display: grid; place-items: center; width: 100%; height: 100%; }
+.music-player--custom .music-free .music-player__cover, .music-player--custom .music-free .music-player__artwork {
+  width: 100%; height: 100%;
+}
+.music-free__element > .music-player__artist { display: block; }
+.music-free__element:has(:focus-visible) { z-index: 2; }
+.music-free .music-player__action-error { top: 0; bottom: auto; z-index: 4; }

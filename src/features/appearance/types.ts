@@ -55,9 +55,9 @@ export type CollapsedItem = "agent" | "lyrics" | "todo";
  * the new-mail badge, files on the shelf, the music waveform, running Agent sessions (or the tuck
  * dot). Icons before the text sit on its left.
  */
-export type CollapsedSlot = "text" | "mail" | "shelf" | "music" | "agents" | "cpu" | "memory" | "weather" | "clock" | "pet";
+export type CollapsedSlot = "text" | "mail" | "shelf" | "music" | "agents" | "cpu" | "memory" | "weather" | "clock" | "pet" | "wireless";
 /** The page dots in the expanded island's header, which the user can drag into any order. */
-export type PageDot = "todo" | "music" | "clipboard" | "shelf" | "translation" | "weather";
+export type PageDot = "todo" | "music" | "clipboard" | "shelf" | "translation" | "weather" | "wireless";
 
 export type IslandSettings = IslandEffectsSettings & {
   topEdgeLayoutVersion: 1;
@@ -78,6 +78,7 @@ export type IslandSettings = IslandEffectsSettings & {
   marginY: number;
   /** Prevent moving the island by dragging; explicit position reset still works. */
   positionLocked: boolean;
+  swipeUpToHide: boolean;
   islandMonitor: IslandMonitor;
   /** Bottom corner radius (px) of the expanded island; its detached and inner panel radii follow it. */
   islandCornerRadius: number;

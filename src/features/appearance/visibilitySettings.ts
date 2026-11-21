@@ -2,7 +2,7 @@ import type { CollapsedSlot, IslandSettings, LegacyIslandSettings, MessageSource
 
 export const DEFAULT_SLOT_VISIBILITY: Record<CollapsedSlot, boolean> = {
   text: true, mail: true, shelf: true, music: true, agents: true,
-  cpu: true, memory: true, weather: true, clock: true, pet: true,
+  cpu: true, memory: true, weather: true, clock: true, pet: true, wireless: true,
 };
 export const DEFAULT_MESSAGE_VISIBILITY: Record<MessageSource, boolean> = {
   qq: true, wechat: true, qqMail: true, plugin: true, dingtalk: true, feishu: true, wecom: true,

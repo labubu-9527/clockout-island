@@ -21,6 +21,7 @@ import * as settings from "../sections/settings/index.ts";
 
 const en: Translations = {
   deviceNotices: deviceNotices.en,
+  wireless: wireless.en,
   clock: clock.en,
   islandPet: islandPet.en,
   localeLabel: "English",
@@ -54,3 +55,4 @@ const en: Translations = {
 };
 
 export default en;
+import * as wireless from "../sections/wireless.ts";

@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { MessagePreview } from "../../features/messages/messagePreview";
 import type { DeviceNotice } from "../../features/device-notices/model";
-import { advanceNoticeQueue, createNoticeQueue, deviceNotice, messageNotice, type QueuedNotice } from "./noticeQueue";
+import type { WirelessDevice } from "../../features/wireless/model";
+import { advanceNoticeQueue, createNoticeQueue, deviceNotice, messageNotice, wirelessNotice, type QueuedNotice } from "./noticeQueue";
 import { isIslandVisible, listenIslandHover } from "./api";
 import { hasIslandSelection } from "./useHoverFocus";
 
@@ -43,6 +44,7 @@ export function useNoticeQueue(options: {
     advance([messageNotice(preview, duration, Date.now())]);
   }, [advance]);
   const acceptDevice = useCallback((notice: DeviceNotice) => advance([deviceNotice(notice)]), [advance]);
+  const acceptWireless = useCallback((device: WirelessDevice) => advance([wirelessNotice(device, Date.now())]), [advance]);
 
   // Revalidate on real source updates, without rerendering the island for the display clock.
   useEffect(() => { advance(); });
@@ -80,5 +82,5 @@ export function useNoticeQueue(options: {
       document.removeEventListener("selectionchange", selection);
     };
   }, [advance]);
-  return { active: options.enabled ? active : null, acceptMessage, acceptDevice };
+  return { active: options.enabled ? active : null, acceptMessage, acceptDevice, acceptWireless };
 }

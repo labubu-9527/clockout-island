@@ -124,6 +124,11 @@ export function PositionRows({ settings, onSettingsChange, onResetPosition }: Ro
         checked={settings.positionLocked}
         onChange={(positionLocked) => onSettingsChange({ ...settings, positionLocked })}
       />
+      <SettingsToggleRow
+        title={position.swipeUpToHide}
+        checked={settings.swipeUpToHide}
+        onChange={(swipeUpToHide) => onSettingsChange({ ...settings, swipeUpToHide })}
+      />
     </>
   );
 }

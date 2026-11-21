@@ -1,5 +1,6 @@
 import type { SessionRemoval } from "../../features/agent-status/useHiddenSessions";
 import { WeatherPanel } from "../../features/weather/WeatherPanel";
+import { WirelessPanel } from "../../features/wireless/WirelessPanel";
 import type { WeatherController } from "../../features/weather/useWeather";
 import type { ReactNode } from "react";
 import { MessagesPanel } from "../../features/messages/Messages";
@@ -122,6 +123,7 @@ export function IslandPages({
         </div>
       )}
       {page === "weather" && weather && <WeatherPanel weather={weather} />}
+      {page === "wireless" && mode === "expanded" && <WirelessPanel />}
       {page === "music" && (
         <MusicPlayerPanel
           customLayout={settings.musicCustomLayout}
