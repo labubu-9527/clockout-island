@@ -47,6 +47,7 @@ import { useIdleUpdateInstall } from "../../features/updater/useIdleUpdateInstal
 import { useIslandTranslation } from "./useIslandTranslation";
 import { useMessageView } from "./useMessageView";
 import { useSettingsPageHeight } from "./useSettingsPageHeight";
+import { useMusicContentHeight } from "./useMusicContentHeight";
 import { useIslandPickerOpen } from "../../lib/islandPicker";
 import { TODO_DATE_PICKER_EXPANDED_ISLAND_HEIGHT, alignCollapsedIslandWidth, getClockPetWidth } from "./layout";
 import { collapsedPresentationLayout } from "./collapsedPresentation";
@@ -71,6 +72,7 @@ export function IslandApp() {
   const detachedSettings = useSettingsPresentation();
   const { openSettings, changePresentation } = useSettingsNavigation(openIslandPage, setPage);
   const { settingsContentHeight, reportSettingsHeight } = useSettingsPageHeight();
+  const { musicContentHeight, reportMusicContentHeight } = useMusicContentHeight();
   // Quiet while a full-screen app (usually a game) is in front, if game mode asks for it.
   const game = useGameMode(settings, { mode, isTucked, collapseIsland, tuckIsland, revealIsland });
   useIdleUpdateInstall(mode === "collapsed", game.quiet);
@@ -176,6 +178,9 @@ export function IslandApp() {
     todoListHeight,
     hasMediaCommandError: Boolean(media.mediaCommandError),
       musicLayout: settings.musicLayout,
+      musicCustomLayout: settings.musicCustomLayout,
+      musicContentHeight,
+      hasMusicTrack: Boolean(media.mediaState.title),
     messageSource,
     isReadingMail: qqMail.wantsTallPanel,
     maxPanelHeight: settings.maxPanelHeight,
@@ -331,6 +336,7 @@ export function IslandApp() {
           detachedSettings={detachedSettings}
           onDetachedSettingsChange={(value) => void changePresentation(value)}
           onSettingsHeight={reportSettingsHeight}
+          onMusicContentHeight={reportMusicContentHeight}
           features={features}
           qqMail={qqMail}
           qqNotifications={qqNotifications}

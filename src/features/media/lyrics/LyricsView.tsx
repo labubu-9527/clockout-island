@@ -29,8 +29,9 @@ function SungWords({ words, positionMs, playing }: { words: LyricWord[]; positio
  * the one before and the one after. A line with a translation shows it under itself in place
  * of the next line. `offsetMs` moves the lyrics later (positive) or earlier.
  */
-export function LyricsView({ lines, mediaState, offsetMs, onPosition, wordFillEnabled = true, showTranslation = true }: {
+export function LyricsView({ lines, mediaState, offsetMs, onPosition, wordFillEnabled = true, showTranslation = true, rowMode = "all" }: {
   lines: LyricLine[]; mediaState: MediaState; offsetMs: number; onPosition?: (ms: number) => void; wordFillEnabled?: boolean; showTranslation?: boolean;
+  rowMode?: "all" | "primary" | "secondary";
 }) {
   const t = useTranslation();
   const { index, position, playing } = useLyricClock(lines, mediaState, offsetMs);
@@ -51,13 +52,13 @@ export function LyricsView({ lines, mediaState, offsetMs, onPosition, wordFillEn
 
   return (
     <div className="lyrics-view" aria-label={t.music.lyricsLabel}>
-      {row(index - 1, "lyrics-view__line--side", text(index - 1))}
-      {row(index, "lyrics-view__line--current", words ? <SungWords key={`${mediaState.updatedAt}:${offsetMs}`} words={words} positionMs={position} playing={playing} /> : current)}
-      {showTranslation && index >= 0 && lines[index].translation ? (
+      {rowMode === "all" && row(index - 1, "lyrics-view__line--side", text(index - 1))}
+      {rowMode !== "secondary" && row(index, "lyrics-view__line--current", words ? <SungWords key={`${mediaState.updatedAt}:${offsetMs}`} words={words} positionMs={position} playing={playing} /> : current)}
+      {rowMode !== "primary" && (showTranslation && index >= 0 && lines[index].translation ? (
         row(index, "lyrics-view__line--translation", lines[index].translation, true)
       ) : (
         row(index + 1, "lyrics-view__line--side", text(index + 1))
-      )}
+      ))}
     </div>
   );
 }

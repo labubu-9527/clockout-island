@@ -6,6 +6,7 @@ import { TODO_VISIBLE_ROWS, CLIPBOARD_VISIBLE_ROWS, COLLAPSED_CORNER_RADIUS, COL
 import type { IslandSettings, LegacyIslandSettings, Material } from "./types";
 import { normalizeIslandEffects } from "./islandEffects.ts";
 import { normalizeMusicLayout } from "./musicLayout.ts";
+import { normalizeMusicCustomLayout } from "./musicCustomLayout.ts";
 
 function normalizeSize(value: unknown, limits: { min: number; max: number; default: number; step?: number }) {
   if (typeof value !== "number" || !Number.isFinite(value)) return limits.default;
@@ -34,6 +35,7 @@ export function normalizeLayoutSettings(settings: LegacyIslandSettings | null | 
   return {
     ...normalizeIslandEffects(settings),
     musicLayout: normalizeMusicLayout(settings?.musicLayout),
+    musicCustomLayout: normalizeMusicCustomLayout(settings?.musicCustomLayout),
     topEdgeLayoutVersion: 1,
     fontFamily: settings?.fontFamily === "pixel" ? "pixel" : "system",
     islandFontPercent: normalizeSize(settings?.islandFontPercent, ISLAND_FONT_PERCENT),

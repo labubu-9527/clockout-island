@@ -43,6 +43,7 @@ export { DEFAULT_SETTINGS } from "./settingsDefaults.ts";
  */
 export const APPEARANCE_SETTING_KEYS = [
   "musicLayout",
+  "musicCustomLayout",
   "musicGlowEnabled", "timerGlowEnabled", "updateGlowEnabled", "musicGlowMode", "motionMode",
   "motionDuration", "motionCollapseDuration", "motionCurve", "springMass", "springStiffness", "springDamping",
   "pillCornerRadius",

@@ -12,6 +12,7 @@ import { IslandCollapsedBar } from "../../src/windows/island/IslandCollapsedBar"
 import { MessageRail } from "../../src/features/messages/MessageRail";
 import { IslandPet } from "../../src/features/island-pet";
 import { collapsedPresentationLayout } from "../../src/windows/island/collapsedPresentation";
+import { defaultMusicCustomLayout } from "../../src/features/appearance";
 
 Object.assign(globalThis, { isTauri: true, IS_REACT_ACT_ENVIRONMENT: true });
 const original = new Map(Object.entries(localStorage).filter(([key]) => key.startsWith("focusd-island-")));
@@ -120,6 +121,17 @@ try {
   check(document.querySelector('.music-player--layout-Immersive')
     && parseFloat(document.querySelector<HTMLElement>('.stage')!.style.getPropertyValue('--expanded-island-height')) === musicHeight + 16,
     'saved immersive layout reaches the actual player and reserves its extra height');
+  const customMusic = { ...defaultMusicCustomLayout(), enabled: true, showCover: false };
+  customMusic.modules = customMusic.modules.map(slot => ({ ...slot, visible: slot.kind === 'header' || slot.kind === 'controls' }));
+  await patch({ musicCustomLayout: customMusic });
+  await wait(650);
+  const customContent = document.querySelector<HTMLElement>('.music-custom')!;
+  check(customContent && parseFloat(document.querySelector<HTMLElement>('.stage')!.style.getPropertyValue('--expanded-island-height')) === 86 + customContent.offsetHeight,
+    'custom visible content determines the actual island height without preset padding');
+  check(document.querySelector('.music-custom__module[data-music-module="controls"]')!.getBoundingClientRect().bottom
+    <= document.querySelector('.island')!.getBoundingClientRect().bottom - 10,
+    'minimal custom controls remain inside the physical island');
+  await patch({ musicCustomLayout: { ...customMusic, enabled: false } });
   await patch({ musicLayout: 'SideBySide' });
   await act(async () => document.querySelector<HTMLButtonElement>('.dot-button--todo')!.click());
   await wait(900);

@@ -33,6 +33,7 @@ type MessageView = ReturnType<typeof useMessageView>;
 type AgentAlerts = ReturnType<typeof useIslandAgentAlerts>;
 
 type IslandPagesProps = {
+  onMusicContentHeight?: (height: number | null) => void;
   weather?: WeatherController;
   page: ReturnType<typeof useIslandNavigation>["page"];
   mode: ReturnType<typeof useIslandNavigation>["mode"];
@@ -64,6 +65,7 @@ type IslandPagesProps = {
 
 /** The expanded island's page panels; the one for `page` shows. */
 export function IslandPages({
+  onMusicContentHeight,
   weather,
   page,
   mode,
@@ -122,6 +124,8 @@ export function IslandPages({
       {page === "weather" && weather && <WeatherPanel weather={weather} />}
       {page === "music" && (
         <MusicPlayerPanel
+          customLayout={settings.musicCustomLayout}
+          onContentHeight={onMusicContentHeight}
           layout={settings.musicLayout}
           mediaState={mediaState}
           isTrackChanging={isMediaTrackChanging}

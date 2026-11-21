@@ -5,7 +5,7 @@
 | 文档名称 | Third-party licenses |
 | 制作人   | XiaoZhu              |
 | 日期     | 2026-11-21           |
-| 版本号   | v1.4.0               |
+| 版本号   | v1.5.0               |
 
 ## DotIsle interface and island halo
 
@@ -20,6 +20,8 @@ The settings layout and music panel in this project use [Heiamer/DotIsle](https:
 | `dotisle-glow/src/engine.rs`, `lib.rs`, `lyric-core/src/shared_motion.rs`        | `islandEffects.ts`, `IslandGlow.tsx/css`: five strokes, breathing, peak envelope and closed-form springs         |
 
 Additional source ports: lyric-core/src/music_layout.rs supplies the five music layouts, artwork sizes and 230ms transitions in musicLayouts.ts/MusicLayouts.css; dotisle-todos/src/quick_reminder.rs supplies the explicit reminder grammar in quickReminder.ts, extended with bilingual input and existing todo delivery.
+
+The module model, mandatory Header/Controls visibility and vertical stacking rules from `lyric-core/src/custom_layout.rs` are adapted in `musicCustomLayout.ts`, `musicModuleGeometry.ts` and `MusicCustomLayout.tsx/css`. The settings editor adds accessible ordering controls and reuses this project?s existing player capabilities.
 
 The source is licensed as follows:
 

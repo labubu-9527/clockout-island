@@ -5,7 +5,7 @@
 | 文档名称 | 对外契约清单 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-21 |
-| 版本号 | v1.5.0 |
+| 版本号 | v1.6.0 |
 
 2026-11-20 兼容补充：已有 `collapsedLayout` 的 `pet` 值继续容错读取与保留，展示改为固定前导位置，设置中只保留其显示开关。`messageSourceVisibility` 增加 `dingtalk`、`feishu`、`wecom`，旧配置缺失时默认显示；不改变已有来源开关。远端 `islandShape: "capsule"` 兼容读取为本地 `"pill"`，原生统一负责 6px 间距。`set_island_interaction` 折叠宽度允许最小 96px，以支持按实际可见内容收缩；手动设置仍至少 240px，通知预览仍至少 240px。
 
@@ -263,3 +263,9 @@ Rust crate/可执行文件 `fly-island`、`fly_island_lib`、应用标识 `com.f
 `TodoItem` / `ScheduledTodo` 新增可选 `remindAt`（有效Unix epoch毫秒）和 `reminded`（布尔值）。沿用 `focusd-island-todos`、`focusd-island-scheduled-todos` 和归档键；没有时间字段的旧项仍是普通待办/按日计划。非法时间丢弃提醒字段；规范化、计划转今日、跨日保留有效字段。已完成、已删除、已提醒项不再次投递；静默、待办禁用或托盘隐藏时保留待提醒状态，恢复后补提醒；应用退出期间不运行提醒，重启后补发尚未投递的已到期项。
 
 一句话明确时间语法在提交前预览，提交时重新验证，以时间语法优先于日期选择器。普通输入保持原处理。相对时长最多7天；过去时刻、缺标题、非法日期/时刻不提交。Markdown保持原可读导出格式，不作为提醒恢复载体。
+
+## 音乐模块自定义（2026-11-21）
+
+现有 `focusd-island-settings` 增加 `musicCustomLayout`，格式为 `{ version: 1, enabled: boolean, showCover: boolean, modules: { kind, visible }[] }`。默认关闭、显示封面、六组全部显示，默认顺序为 `header / lyrics / translation / status / progress / controls`；歌曲信息 `header` 与播放控制 `controls` 强制可见。
+
+读取时去重、忽略未知模块、缺项补到末尾；非对象或不支持的版本回退默认，缺版本按v1兼容，非法开关按默认处理。纳入外观预设；关闭自定义只恢复当前预设，不删除保存顺序。布局几何与实时高度不持久化，无新增key、IPC或事件。

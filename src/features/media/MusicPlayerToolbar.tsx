@@ -5,9 +5,10 @@ import { cycleMediaRepeat, setMediaVolume, toggleMediaShuffle, type MediaState }
 import "./MusicPlayerToolbar.css";
 
 /** Capability-aware secondary actions around the primary transport. */
-export function MusicPlayerToolbar({ mediaState, transport, hasTranslation, showTranslation, onTranslationChange, onOpenSettings }: {
+export function MusicPlayerToolbar({ mediaState, transport, hasTranslation, showTranslation, onTranslationChange, onOpenSettings, translationDisabledHint }: {
   mediaState: MediaState; transport: ReactNode; hasTranslation: boolean; showTranslation: boolean;
   onTranslationChange: (show: boolean) => void; onOpenSettings: () => void;
+  translationDisabledHint?: string;
 }) {
   const t = useTranslation();
   const text = t.music.toolbar;
@@ -87,7 +88,7 @@ export function MusicPlayerToolbar({ mediaState, transport, hasTranslation, show
     </div>
     {transport}
     <div className="music-player__tools music-player__tools--end">
-      <span title={hasTranslation ? text.translation : text.noTranslation}><button className="music-icon-button" type="button"
+      <span title={translationDisabledHint ?? (hasTranslation ? text.translation : text.noTranslation)}><button className="music-icon-button" type="button"
         data-music-action="translation" aria-label={text.translation} aria-pressed={showTranslation && hasTranslation}
         disabled={!hasTranslation} onClick={() => onTranslationChange(!showTranslation)}><Languages size={19} strokeWidth={1.8} /></button></span>
       <button className="music-icon-button" type="button" aria-label={t.music.openSettings} onClick={onOpenSettings}><Settings2 size={19} strokeWidth={1.8} /></button>

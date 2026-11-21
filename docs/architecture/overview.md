@@ -5,7 +5,9 @@
 | 文档名称 | 架构总览 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-21 |
-| 版本号 | v1.3.0 |
+| 版本号 | v1.4.0 |
+
+音乐模块自定义（2026-11-21）：`appearance/musicCustomLayout.ts`定义版本化配置、规范化与排序；`media/MusicModuleSettings`提供开关和无障碍排序，`musicModuleGeometry.ts`计算可见模块高度，`MusicCustomLayout`组合现有歌词、进度和工具栏。窗口层`useMusicContentHeight`接收实际内容高度，`expandedHeight`加导航及边距并遵守原生220px下限；关闭或卸载自定义布局时清除临时高度。
 
 音乐布局与提醒（2026-11-21）：`appearance/musicLayout.ts`定义可保存的五布局与归一化，通过`appearance/index.ts`公开；`media/musicLayouts.ts`与`MusicLayouts.css`适配参考几何，设置页、播放器和展开高度共用选项。`todos/quickReminder.ts`只解析明确时间前缀，`QuickReminderPreview`显示预览，`useTodoReminders`独立轮询投递，`useScheduledTodos`按时间把计划移到今日；现有`useIslandTodos`拥有是否静默/隐藏与声音、开页决策，提醒字段沿用现有JSON保存链路。
 

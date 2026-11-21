@@ -5,6 +5,8 @@ import type { AgentSessionView } from "../../features/appearance/types";
 import { getShelfLayout } from "../../features/file-shelf/fileShelf";
 import type { IslandPage } from "./types";
 import { musicLayoutMetrics, type MusicLayout } from "../../features/media/musicLayouts";
+import type { MusicCustomLayout } from "../../features/appearance";
+import { musicModuleGeometry } from "../../features/media/musicModuleGeometry";
 
 // The shelf page fits what it holds (FileShelfPanel.css, FileShelfItem.css, FileShelfBar.css):
 // the island's padding, header and gap (86) around the panel's padding (22); then one 118px row
@@ -44,6 +46,9 @@ export function getSettingsExpandedHeight(contentHeight: number | null) {
 }
 
 type ExpandedHeightInput = {
+  musicCustomLayout?: MusicCustomLayout;
+  musicContentHeight?: number | null;
+  hasMusicTrack?: boolean;
   musicLayout?: MusicLayout;
   page: IslandPage;
   todoPageMode: TodoPageMode;
@@ -78,6 +83,9 @@ type ExpandedHeightInput = {
  * layouts keep their fixed heights.
  */
 export function getExpandedIslandHeight({
+  musicCustomLayout,
+  musicContentHeight = null,
+  hasMusicTrack = true,
   musicLayout = "SideBySide",
   page,
   todoPageMode,
@@ -129,7 +137,9 @@ export function getExpandedIslandHeight({
     : page === "weather"
       ? Math.min(380, maxPanelHeight)
     : page === "music"
-      ? MUSIC_EXPANDED_ISLAND_HEIGHT + musicLayoutMetrics(musicLayout).extraHeight + Math.max(0, fontScale - 1) * 100 + (hasMediaCommandError ? 24 : 0)
+      ? (musicCustomLayout?.enabled && hasMusicTrack
+        ? 86 + (musicContentHeight ?? musicModuleGeometry(musicCustomLayout, { fontScale, hasLyrics: true, hasProgress: true }).height)
+        : MUSIC_EXPANDED_ISLAND_HEIGHT + musicLayoutMetrics(musicLayout).extraHeight + Math.max(0, fontScale - 1) * 100) + (hasMediaCommandError ? 24 : 0)
       : page === "shelf"
         ? Math.min(getShelfExpandedHeight(shelfItems), maxPanelHeight)
       : page === "translation"

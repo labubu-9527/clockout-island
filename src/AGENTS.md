@@ -14,7 +14,7 @@ src/
 │   └── translation/         # 快捷翻译窗口
 ├── features/                # 业务领域，每个领域自包含
 │   ├── todos/               # 待办、每日笔记、归档、Markdown 导出；quickReminder解析明确时间前缀，useTodoReminders投递持久化提醒
-│   ├── media/               # 媒体控制、五种音乐布局、波形、播放器诊断与兼容性设置；lyrics/ 为同步歌词（解析 LRC、跟随进度、点击校准、设置项）
+│   ├── media/               # 媒体控制、五种音乐布局、自定义模块排序/可见性与内容测高、波形、播放器诊断与兼容性设置；lyrics/ 为同步歌词（解析 LRC、跟随进度、点击校准、设置项）
 │   ├── clipboard/           # 剪贴板历史、快捷键
 │   ├── file-shelf/          # 文件中转：拖到岛上的文件（只存路径）、拖出、复制、打开
 │   ├── messages/            # 消息导航与预览；mail/、qq-notifications/、wechat/ 子目录

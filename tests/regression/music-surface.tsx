@@ -10,6 +10,7 @@ import type { MediaState } from "../../src/features/media/api";
 import { MUSIC_LAYOUTS, musicLayoutMetrics, normalizeMusicLayout, type MusicLayout } from "../../src/features/media/musicLayouts";
 import { MusicLayoutSettings } from "../../src/features/media/MusicLayoutSettings";
 import { DEFAULT_SETTINGS, normalizeSettings } from "../../src/features/appearance/settings";
+import { defaultMusicCustomLayout, type MusicCustomLayout } from "../../src/features/appearance";
 
 Object.assign(globalThis, { isTauri: true, IS_REACT_ACT_ENVIRONMENT: true });
 const screenshot = new URLSearchParams(location.search).get("view") === "replica";
@@ -39,11 +40,16 @@ const track: MediaState = { ...DEFAULT_MEDIA_STATE, available: true, title: "A s
 const messages: string[] = [];
 const box = (selector: string) => fixture.querySelector<HTMLElement>(selector)!.getBoundingClientRect();
 function check(value: unknown, label: string) { if (!value) throw new Error(label); messages.push(`PASS ${label}`); }
-async function render(state = track, lyrics = false, error = false, layout: MusicLayout = "SideBySide") {
+let customHeight: number | null = null;
+let played = 0;
+const reportCustomHeight = (height: number | null) => { customHeight = height; };
+async function render(state = track, lyrics = false, error = false, layout: MusicLayout = "SideBySide", customLayout?: MusicCustomLayout) {
   await act(async () => {
-    root.render(<I18nProvider><MusicPlayerPanel layout={layout} mediaState={state} isTrackChanging={false} commandError={error ? "failed" : null}
-      onOpenSettings={() => {}} onPlayPause={() => {}} onNext={() => {}} onPrevious={() => {}} onSeek={() => {}}
-      lyricsSettings={{ lyricsFolder: "", lyricsOnline: lyrics, lyricsOffsetMs: 0 }} /></I18nProvider>);
+    const scale = parseFloat(fixture.style.getPropertyValue('--island-font-scale')) || 1;
+    root.render(<I18nProvider><MusicPlayerPanel layout={layout} customLayout={customLayout} onContentHeight={reportCustomHeight}
+      mediaState={state} isTrackChanging={false} commandError={error ? "failed" : null}
+      onOpenSettings={() => {}} onPlayPause={() => { played++; }} onNext={() => {}} onPrevious={() => {}} onSeek={() => {}}
+      lyricsSettings={{ lyricsFolder: "", lyricsOnline: lyrics, lyricsOffsetMs: 0, islandFontPercent: scale * 100 }} /></I18nProvider>);
     await new Promise((resolve) => setTimeout(resolve, 100));
   });
   await act(async () => { await new Promise((resolve) => setTimeout(resolve, 450)); });
@@ -168,6 +174,7 @@ if (screenshot) {
       `${layout}: missing artwork and lyrics do not displace transport`);
   }
   if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    await render(track);
     check(getComputedStyle(fixture.querySelector(".music-player__atmosphere")!).transitionDuration === "0s", "reduced motion stops atmosphere transitions");
     check(getComputedStyle(fixture.querySelector('.music-player__meta')!).transitionDuration.split(',').every(value => parseFloat(value) === 0),
       'reduced motion stops preset position transitions through the shared style rule');
@@ -176,6 +183,45 @@ if (screenshot) {
   check(!fixture.querySelector(".music-player__atmosphere") && !fixture.querySelector(".music-progress"), "no cover or timeline has no atmosphere or fabricated progress");
   await render(DEFAULT_MEDIA_STATE);
   check(!fixture.querySelector(".music-player__atmosphere") && fixture.querySelector(".music-idle"), "idle removes artwork atmosphere");
+  const custom = { ...defaultMusicCustomLayout(), enabled: true };
+  fixture.style.height = '450px';
+  await render({ ...track, updatedAt: Date.now() }, true, false, 'Immersive', custom);
+  check([...fixture.querySelectorAll<HTMLElement>('[data-music-module]')].map(item => item.dataset.musicModule).join()
+    === custom.modules.map(slot => slot.kind).join(), 'custom music follows the saved module order');
+  check(box('.music-player__artwork').width === 56 && fixture.querySelector('.lyrics-view__line--translation'),
+    `custom header and independent translated line use shared real content (${box('.music-player__artwork').width}px / ${Boolean(fixture.querySelector('.lyrics-view__line--translation'))})`);
+  const fullCustomHeight = customHeight!;
+  const minimal = { ...custom, showCover: false, modules: custom.modules.map(slot => ({ ...slot, visible: slot.kind === 'header' || slot.kind === 'controls' })) };
+  await render(track, true, false, 'LyricRight', minimal);
+  check(!fixture.querySelector('.music-player__cover, .music-player__lyrics, .music-progress, .music-player__status')
+    && customHeight! < fullCustomHeight, 'disabled custom modules and artwork leave no content or reserved height');
+  const beforePlay = played;
+  await act(async () => fixture.querySelector<HTMLButtonElement>('.music-control-button--primary')!.click());
+  check(played === beforePlay + 1, 'custom playback controls still invoke the real caller');
+  fixture.style.height = `${customHeight}px`;
+  fixture.style.overflow = 'hidden';
+  await act(async () => fixture.querySelector<HTMLButtonElement>('[data-music-action="volume"]')!.click());
+  const customVolume = box('.music-player__volume input'), viewport = fixture.getBoundingClientRect();
+  check(customVolume.top >= viewport.top && customVolume.bottom <= viewport.bottom,
+    'minimal custom layout keeps the volume slider inside the clipped island viewport');
+  await act(async () => fixture.querySelector<HTMLButtonElement>('[data-music-action="volume"]')!.click());
+  fixture.style.height = '450px';
+  fixture.style.overflow = '';
+  for (const scale of [1, 1.2, 1.5]) {
+    fixture.style.setProperty('--island-font-scale', String(scale));
+    await render(track, true, false, 'SideBySide', { ...custom, modules: [...custom.modules].reverse() });
+    const modules = [...fixture.querySelectorAll<HTMLElement>('[data-music-module]')].map(item => item.getBoundingClientRect());
+    check(modules.every((item, index) => index === 0 || item.top >= modules[index - 1].bottom + 7), `custom modules do not overlap at ${scale * 100}% font size`);
+    check(box('.lyrics-view__line--current').height <= box('[data-music-module="lyrics"]').height + 1,
+      `primary lyrics fit their independent row at ${scale * 100}% font size`);
+  }
+  fixture.style.setProperty('--island-font-scale', '1');
+  await render({ ...track, durationMs: 0, hasTimeline: false }, false, false, 'SideBySide', custom);
+  check(!fixture.querySelector('[data-music-module="lyrics"], [data-music-module="translation"], [data-music-module="progress"]'),
+    'missing lyrics and duration have no custom placeholder modules');
+  await render(track, true, false, 'LyricFocus', { ...custom, enabled: false });
+  check(!fixture.querySelector('.music-custom') && fixture.querySelector('.music-player--layout-LyricFocus') && customHeight === null,
+    'disabling custom layout restores the selected preset and releases height reporting');
   let selectedLayout = DEFAULT_SETTINGS;
   await act(async () => root.render(<I18nProvider><MusicLayoutSettings settings={selectedLayout}
     onSettingsChange={value => { selectedLayout = value; }} /></I18nProvider>));

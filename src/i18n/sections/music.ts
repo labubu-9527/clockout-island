@@ -1,4 +1,9 @@
 export type MusicText = {
+  modules: {
+    title: string; enabled: string; description: string; cover: string; reset: string; required: string; reorder: string; hiddenTranslation: string;
+    move: (name: string) => string; moveUp: (name: string) => string; moveDown: (name: string) => string;
+    labels: Record<'header' | 'lyrics' | 'translation' | 'status' | 'progress' | 'controls', string>;
+  };
   layout: { title: string; description: string; options: Record<"SideBySide" | "Separated" | "LyricFocus" | "LyricRight" | "Immersive", string> };
   plugin: {
     player: string;
@@ -49,6 +54,14 @@ export type MusicText = {
 };
 
 export const zhCN: MusicText = {
+  modules: {
+    title: '音乐模块自定义', enabled: '启用自定义排列', cover: '显示专辑封面', reset: '恢复默认', required: '必须保留',
+    hiddenTranslation: '译文与下一句模块已在音乐设置中关闭',
+    description: '启用后按下方顺序排列模块；关闭后恢复所选音乐布局。隐藏封面仍保留歌曲信息。',
+    reorder: '拖动手柄或使用上下按钮排序；聚焦手柄后可按 ↑ / ↓ 调整顺序。',
+    move: name => `调整${name}顺序`, moveUp: name => `上移${name}`, moveDown: name => `下移${name}`,
+    labels: { header: '歌曲信息', lyrics: '当前歌词', translation: '译文与下一句', status: '播放状态', progress: '播放进度', controls: '播放控制' },
+  },
   layout: { title: "音乐面板布局", description: "切换封面与歌词的位置，播放进度和控制保持可用", options: {
     SideBySide: "封面并排", Separated: "上下分离", LyricFocus: "歌词居中", LyricRight: "封面右置", Immersive: "沉浸歌词" } },
   toolbar: { playing: "正在播放", paused: "已暂停", mode: "播放模式", normal: "顺序播放", shuffle: "随机播放", repeat: "列表循环", repeatOne: "单曲循环",
@@ -113,6 +126,14 @@ export const zhCN: MusicText = {
 };
 
 export const en: MusicText = {
+  modules: {
+    title: 'Custom music modules', enabled: 'Enable custom arrangement', cover: 'Show album artwork', reset: 'Reset modules', required: 'Required',
+    hiddenTranslation: 'The secondary lyrics module is disabled in Music settings',
+    description: 'Arrange modules in the order below. Turn this off to return to the selected layout. Track information remains when artwork is hidden.',
+    reorder: 'Drag a handle or use the move buttons. Focus a handle and press ↑ / ↓ to reorder.',
+    move: name => `Reorder ${name}`, moveUp: name => `Move ${name} up`, moveDown: name => `Move ${name} down`,
+    labels: { header: 'Track information', lyrics: 'Current lyrics', translation: 'Translation and next line', status: 'Playback status', progress: 'Playback progress', controls: 'Playback controls' },
+  },
   layout: { title: "Music panel layout", description: "Arrange artwork and lyrics while keeping playback controls available", options: {
     SideBySide: "Side by side", Separated: "Separated", LyricFocus: "Centered lyrics", LyricRight: "Artwork on right", Immersive: "Immersive lyrics" } },
   toolbar: { playing: "Playing", paused: "Paused", mode: "Playback mode", normal: "Sequential", shuffle: "Shuffle", repeat: "Repeat all", repeatOne: "Repeat one",

@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from "react";
+import { useLayoutEffect, useState, type CSSProperties } from "react";
 import { Music2, Pause, Play, RefreshCcw, SkipBack, SkipForward } from "lucide-react";
 import { useTranslation } from "../../i18n";
 import type { MediaState } from "./api";
@@ -19,10 +19,15 @@ import { MediaNotice, MediaNoticeButton, useMediaNotice } from "./MediaNotice";
 import { MusicPlayerToolbar } from "./MusicPlayerToolbar";
 import { musicLayoutVariables, type MusicLayout } from "./musicLayouts";
 import "./MusicLayouts.css";
+import { normalizeMusicCustomLayout, type MusicCustomLayout } from "../appearance";
+import { musicModuleGeometry } from "./musicModuleGeometry";
+import { MusicCustomLayout as CustomMusicContent } from "./MusicCustomLayout";
 
 const NO_LYRICS = { lyricsFolder: "", lyricsOnline: false, lyricsOffsetMs: 0 };
 
 type MusicPlayerPanelProps = {
+  customLayout?: MusicCustomLayout;
+  onContentHeight?: (height: number | null) => void;
   layout?: MusicLayout;
   mediaState: MediaState;
   isTrackChanging: boolean;
@@ -36,7 +41,7 @@ type MusicPlayerPanelProps = {
   onSeek?: (positionMs: number) => void;
   onCalibrate?: (positionMs: number) => void;
   /** Where lyrics come from and how far they are moved; without it there are none. */
-  lyricsSettings?: LyricsSettings & { lyricsOffsetMs: number };
+  lyricsSettings?: LyricsSettings & { lyricsOffsetMs: number; islandFontPercent?: number };
 };
 
 /**
@@ -47,6 +52,8 @@ type MusicPlayerPanelProps = {
  * not an empty player.
  */
 export function MusicPlayerPanel({
+  customLayout,
+  onContentHeight,
   layout = "SideBySide",
   mediaState,
   isTrackChanging,
@@ -75,11 +82,20 @@ export function MusicPlayerPanel({
   const [showTranslation, setShowTranslation] = useState(true);
   const source = mediaState.sessions.find((session) => session.id === mediaState.activeSessionId)?.label ?? mediaState.sourceApp;
   const artist = mediaState.artist || t.music.unknownArtist;
+  const custom = normalizeMusicCustomLayout(customLayout);
+  const customEnabled = hasTrack && custom.enabled;
+  const trackDuration = mediaState.durationMs > 0 ? mediaState.durationMs : lyricsDurationMs;
+  const fontScale = (lyricsSettings.islandFontPercent ?? 100) / 100;
+  const geometry = musicModuleGeometry(custom, { fontScale, hasLyrics: Boolean(lyrics?.length), hasProgress: trackDuration > 0 });
+  const customHeight = customEnabled ? geometry.height : null;
+  useLayoutEffect(() => { onContentHeight?.(customHeight); }, [customHeight, onContentHeight]);
+  useLayoutEffect(() => () => { onContentHeight?.(null); }, [onContentHeight]);
 
   const prevDisabled = mediaState.available && !mediaState.canPrevious;
   const nextDisabled = mediaState.available && !mediaState.canNext;
   const className = [
     "music-player",
+    customEnabled ? "music-player--custom" : "",
     `music-player--layout-${layout}`,
     lyrics ? "music-player--lyrics" : "",
     isPlaying ? "music-player--playing" : "",
@@ -92,6 +108,38 @@ export function MusicPlayerPanel({
       wordFillEnabled={lyricsSettings.lyricWordFill === true} showTranslation={showTranslation} onPosition={onLyricPosition} />
     <LyricsOffsetControl offsetMs={songOffsetMs} onChange={setSongOffsetMs} />
   </div>;
+  const progress = <MusicProgress mediaState={mediaState} durationMs={trackDuration} onSeek={onSeek} />;
+  const translationHidden = customEnabled && !custom.modules.some(slot => slot.kind === "translation" && slot.visible);
+  const toolbar = <MusicPlayerToolbar mediaState={mediaState} hasTranslation={!translationHidden && Boolean(lyrics?.some(line => line.translation))}
+    translationDisabledHint={translationHidden ? t.music.modules.hiddenTranslation : undefined}
+    showTranslation={showTranslation} onTranslationChange={setShowTranslation} onOpenSettings={onOpenSettings}
+    transport={<div className="music-player__controls">
+      <button className="music-control-button" type="button" aria-label={t.music.previousTrack} disabled={prevDisabled} onClick={onPrevious}>
+        <SkipBack size={22} strokeWidth={1.5} fill="currentColor" />
+      </button>
+      <button className="music-control-button music-control-button--primary" type="button"
+        aria-label={isPlaying ? t.music.pause : t.music.play} aria-busy={isTrackChanging} onClick={onPlayPause}>
+        {isTrackChanging ? <RefreshCcw className="music-control-button__track-change" size={22} strokeWidth={2} />
+          : isPlaying ? <Pause size={26} strokeWidth={1.5} fill="currentColor" />
+            : <Play size={26} strokeWidth={1.5} fill="currentColor" className="music-control-button__play-icon" />}
+      </button>
+      <button className="music-control-button" type="button" aria-label={t.music.nextTrack} disabled={nextDisabled} onClick={onNext}>
+        <SkipForward size={22} strokeWidth={1.5} fill="currentColor" />
+      </button>
+    </div>} />;
+  const customHeader = <header className="music-player__head">
+    {custom.showCover && <div className="music-player__cover" aria-hidden="true"><div className="music-player__artwork">
+      {mediaState.thumbnail ? <img src={mediaState.thumbnail} alt="" draggable={false} /> : <Music2 size={24} aria-hidden="true" />}
+    </div></div>}
+    <div className="music-player__meta"><span className="music-player__track">{mediaState.title}</span>
+      <span className="music-player__artist">{artist}</span></div>
+    {notice.player && <div className="music-player__aside"><MediaNoticeButton open={notice.open} onClick={notice.toggle} /></div>}
+  </header>;
+  const customLyric = (rowMode: "primary" | "secondary") => lyrics && <div className="music-player__lyrics">
+    <LyricsView lines={lyrics} mediaState={mediaState} offsetMs={lyricsSettings.lyricsOffsetMs + songOffsetMs}
+      wordFillEnabled={lyricsSettings.lyricWordFill === true} showTranslation={showTranslation} rowMode={rowMode} onPosition={onLyricPosition} />
+    {rowMode === "primary" && <LyricsOffsetControl offsetMs={songOffsetMs} onChange={setSongOffsetMs} />}
+  </div>;
 
   return (
     <section className={className} style={style} aria-label={t.music.playerLabel}>
@@ -100,7 +148,8 @@ export function MusicPlayerPanel({
           <img src={mediaState.thumbnail} alt="" draggable={false} />
         </div>
       )}
-      {hasTrack ? (
+      {customEnabled ? <CustomMusicContent geometry={geometry} content={{ header: customHeader, lyrics: customLyric("primary"),
+        translation: customLyric("secondary"), status: playbackStatus, progress, controls: toolbar }} /> : hasTrack ? (
         <header className="music-player__head">
           <div className="music-player__cover" aria-hidden="true">
             {mediaState.thumbnail && <img className="music-player__glow" src={mediaState.thumbnail} alt="" draggable={false} />}
@@ -136,35 +185,8 @@ export function MusicPlayerPanel({
       {commandError && <p className="music-player__error" role="alert">{t.music.controlFailed}</p>}
 
       {/* A player that reports no length (NetEase Cloud Music) borrows the lyrics source's. */}
-      {hasTrack && <MusicProgress mediaState={mediaState} durationMs={mediaState.durationMs > 0 ? mediaState.durationMs : lyricsDurationMs} onSeek={onSeek} />}
-
-      {hasTrack && (
-        <MusicPlayerToolbar mediaState={mediaState} hasTranslation={Boolean(lyrics?.some(line => line.translation))}
-          showTranslation={showTranslation} onTranslationChange={setShowTranslation} onOpenSettings={onOpenSettings}
-          transport={<div className="music-player__controls">
-          <button className="music-control-button" type="button" aria-label={t.music.previousTrack} disabled={prevDisabled} onClick={onPrevious}>
-            <SkipBack size={22} strokeWidth={1.5} fill="currentColor" />
-          </button>
-          <button
-            className="music-control-button music-control-button--primary"
-            type="button"
-            aria-label={isPlaying ? t.music.pause : t.music.play}
-            aria-busy={isTrackChanging}
-            onClick={onPlayPause}
-          >
-            {isTrackChanging ? (
-              <RefreshCcw className="music-control-button__track-change" size={22} strokeWidth={2} />
-            ) : isPlaying ? (
-              <Pause size={26} strokeWidth={1.5} fill="currentColor" />
-            ) : (
-              <Play size={26} strokeWidth={1.5} fill="currentColor" className="music-control-button__play-icon" />
-            )}
-          </button>
-          <button className="music-control-button" type="button" aria-label={t.music.nextTrack} disabled={nextDisabled} onClick={onNext}>
-            <SkipForward size={22} strokeWidth={1.5} fill="currentColor" />
-          </button>
-        </div>} />
-      )}
+      {hasTrack && !customEnabled && progress}
+      {hasTrack && !customEnabled && toolbar}
     </section>
   );
 }

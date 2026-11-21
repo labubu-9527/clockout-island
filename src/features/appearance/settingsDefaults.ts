@@ -11,6 +11,7 @@ import {
 import type { IslandSettings } from "./types";
 import { DEFAULT_MESSAGE_VISIBILITY, DEFAULT_SLOT_VISIBILITY } from "./visibilitySettings.ts";
 import { DEFAULT_ISLAND_EFFECTS } from "./islandEffects.ts";
+import { defaultMusicCustomLayout } from "./musicCustomLayout.ts";
 
 // First-launch settings. A saved setting that lacks a newer field keeps the
 // fallback in normalizeSettings, which for behavior switches is what older
@@ -129,6 +130,7 @@ export const DEFAULT_SETTINGS: IslandSettings = {
   todoEnabled: true,
   musicEnabled: true,
   musicLayout: "SideBySide",
+  musicCustomLayout: defaultMusicCustomLayout(),
   agentStatusEnabled: true,
   agentTitleEnabled: true,
   collapsedPriority: [...COLLAPSED_ITEMS],

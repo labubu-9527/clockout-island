@@ -1,5 +1,6 @@
 import type { IslandEffectsSettings } from "./islandEffects";
 import type { MusicLayout } from "./musicLayout";
+import type { MusicCustomLayout } from "./musicCustomLayout";
 export type TranslationTarget = "window" | "island";
 
 /**
@@ -207,6 +208,7 @@ export type IslandSettings = IslandEffectsSettings & {
   todoEnabled: boolean;
   musicEnabled: boolean;
   musicLayout: MusicLayout;
+  musicCustomLayout: MusicCustomLayout;
   agentStatusEnabled: boolean;
   shelfEnabled: boolean;
   /** Off hides the island's translate button and releases the global translation shortcut. */
