@@ -27,6 +27,7 @@ let interaction: Record<string, unknown> = {};
 mockIPC((command, payload) => {
   switch (command) {
     case "get_media_state": return media;
+    case "get_media_diagnostics": return { players: [] };
     case "get_lyrics": return { source: "lrclib", lrc: "[00:00.00]我本险将心单单向你\n[01:00.00]奈何明月照沟渠" };
     case "get_audio_level": return { active: audioActive, peak: audioActive ? 0.2 : 0 };
     case "get_clipboard_history": return { settings: { enabled: false, captureImages: true, maxItems: 100, shortcut: "Ctrl+Shift+V", shortcutEnabled: false }, items: [] };
@@ -109,6 +110,17 @@ try {
   }
   await patch({ lyricsOnline: false, islandFontPercent: 100 });
   await wait(900);
+  await patch({ expandTrigger: "click", autoCollapseSeconds: 0 });
+  await act(async () => document.querySelector<HTMLButtonElement>('.island__open-button')!.click());
+  await wait(900);
+  check(document.querySelector('.island--expanded.island--music.island--music-surface'), "expanded music keeps its reference surface");
+  await act(async () => document.querySelector<HTMLButtonElement>('.dot-button--todo')!.click());
+  await wait(900);
+  check(document.querySelector('.island--expanded.island--todo') && !document.querySelector('.island--music-surface'),
+    "playing music does not recolor the expanded todo page");
+  await act(async () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })));
+  await wait(900);
+  check(document.querySelector('.island--collapsed.island--music-surface'), "collapsing restores the music surface");
   const musicWidth = width();
   await patch({ petEnabled: false, collapsedSlotVisibility: { text: false, pet: false } });
   check(!document.querySelector(".island__collapsed .island-pet") && width() < musicWidth, "pet switch removes the face and closes its reserved space");

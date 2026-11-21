@@ -220,7 +220,7 @@ export function IslandShell({
   const className = [
     "island",
     musicCapsule ? "island--music-capsule" : "",
-    musicCapsule || isExpanded && page === "music" && mediaState.title ? "island--music-surface" : "",
+    ((!isExpanded && musicCapsule) || (isExpanded && page === "music" && mediaState.title)) ? "island--music-surface" : "",
     `island--${mode}`,
     `island--shape-${islandShape}`,
     `island--${page}`,

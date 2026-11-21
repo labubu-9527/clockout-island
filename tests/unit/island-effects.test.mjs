@@ -36,7 +36,9 @@ test("reference breathing lasts 2400ms, rhythm is bounded, and reduced motion is
   assert.equal(glowStrength("rhythm", 0, 5), 1);
   assert.equal(glowStrength("update", 0), 0.85);
   assert.equal(glowStrength("off", 0, 1, true), 0);
-  assert.equal(glowStrength("rhythm", 1000, 1, true), 0.6);
+  assert.equal(glowStrength("rhythm", 1000, 1, true), 1);
+  assert.equal(glowStrength("rhythm", 1000, 0, true), 0.12);
+  assert.equal(glowStrength("update", 1000, 0, true), 0.85);
   assert.equal(glowStrength("breath", 0, 0, true), glowStrength("breath", 600, 0, true));
 });
 

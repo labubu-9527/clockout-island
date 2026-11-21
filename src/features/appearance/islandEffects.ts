@@ -79,9 +79,9 @@ export function islandGlowKind(settings: IslandEffectsSettings, activity: { musi
 /** Envelope follows output peaks, never microphone samples. */
 export function glowStrength(kind: IslandGlowKind, timeMs: number, envelope = 0, reduceMotion = false) {
   if (kind === "off") return 0;
-  if (reduceMotion) return 0.6;
   if (kind === "update") return 0.85;
   if (kind === "rhythm") return 0.12 + 0.88 * Math.max(0, Math.min(1, envelope));
+  if (reduceMotion) return 0.6;
   return 0.65 + 0.2 * Math.sin(timeMs / 2400 * Math.PI * 2);
 }
 
