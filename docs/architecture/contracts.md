@@ -5,7 +5,7 @@
 | 文档名称 | 对外契约清单 |
 | 制作人 | XiaoZhu |
 | 日期 | 2026-11-22 |
-| 版本号 | v1.8.0 |
+| 版本号 | v1.8.1 |
 
 2026-11-20 兼容补充：已有 `collapsedLayout` 的 `pet` 值继续容错读取与保留，展示改为固定前导位置，设置中只保留其显示开关。`messageSourceVisibility` 增加 `dingtalk`、`feishu`、`wecom`，旧配置缺失时默认显示；不改变已有来源开关。远端 `islandShape: "capsule"` 兼容读取为本地 `"pill"`，原生统一负责 6px 间距。`set_island_interaction` 折叠宽度允许最小 96px，以支持按实际可见内容收缩；手动设置仍至少 240px，通知预览仍至少 240px。
 
@@ -254,7 +254,9 @@ Codex 会话摘要（2026-11-15）：`list_agent_sessions` 可选返回 `lastCom
 
 Gitee `origin` 为 `https://gitee.com/zhu-he666/Clockout-island.git`；维护者GitHub `github`为`https://github.com/labubu-9527/clockout-island.git`，当前master使用`git push github master:main`快进同步自己的main。GitHub `upstream` 保留 `https://github.com/flyl1u/fly-island.git`，master 继续跟踪 upstream/main，不使用 push -u 改写拉取来源。
 
-2026-11-22 用户授权的二开归属变更：设置→关于的仓库/反馈、插件开发文档、默认插件索引、发布脚本和更新端点改为labubu-9527/clockout-island，保留原始项目独立署名链接。NSIS仅改安装列表显示Publisher为labubu-9527，保留旧安装查找路径、应用ID、内部可执行文件名及存储键。已有插件注册表中用户手动配置的indexUrl不覆盖，默认仅适用于未配置值。基础公钥仍为空，本地打包不启用自动更新或生成伪签名；后续维护者需配置自己的签名对和Release清单。
+2026-11-22 用户授权的二开归属变更：设置→关于的仓库/反馈、插件开发文档、默认插件索引、发布脚本和更新端点改为labubu-9527/clockout-island。产品界面不再展示上游入口，原作者与第三方署名保留在许可证和来源声明；历史源码继续通过upstream远端保留。发布说明仅保留本分支1.0.0，移除上游3.x发布说明，不改变更新清单版本比较算法。
+
+bundle.publisher设为labubu-9527，使程序CompanyName和新安装记录归属一致。NSIS界面初始化时，若维护者安装记录为空且旧focusd记录内存在fly-island.exe，则将已有安装位置迁移到新维护者记录，避免旧卸载器失去目录；安装后保存旧位置别名，新卸载器同时清理别名。应用ID、内部可执行文件名及存储键继续保留。已有插件注册表中用户手动配置的indexUrl不覆盖，默认仅适用于未配置值。基础公钥仍为空，本地打包不启用自动更新或生成伪签名；后续维护者需配置自己的签名对和Release清单。
 
 Rust crate/可执行文件 `fly-island`、`fly_island_lib`、应用标识 `com.focusd.island`、现有存储key、主题文件格式与插件清单名保留兼容；更新端点按本节用户授权迁移到二开仓库。旧 FocuSD/Fly Island Codex hook 状态文案都识别为有效配置，旧通知诊断标题继续过滤；默认待办导出目录优先复用已经存在的 FocuSD 或 Fly Island 文件夹，新安装使用岛点下班。源码与素材原作者署名保留。
 

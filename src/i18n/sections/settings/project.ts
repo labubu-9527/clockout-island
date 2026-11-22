@@ -3,8 +3,6 @@ export type SettingsProjectText = {
   appName: string;
   versionChip: (version: string) => string;
   description: string;
-  upstream: string;
-  upstreamHint: string;
   /** The last card of About: resetting every setting, and quitting the island. */
   quit: string;
   quitHint: string;
@@ -13,26 +11,16 @@ export type SettingsProjectText = {
   changelog: string;
   changelogAll: (count: number) => string;
   changelogLess: string;
-  /** The row that opens the WeChat group's code in place; questions and problems go there. */
+  /** Maintainer issue tracker. */
   community: string;
   communityHint: string;
   /** Read out for the red dot on the row until the group is first opened. */
   communityNew: string;
-  communityCodeAlt: string;
-  communityScan: string;
-  communityLoadFailed: string;
   star: string;
   starHint: string;
   /** The sidebar link to the author's site, under About. */
   author: string;
-  /** The row that opens the author's two payment codes in place. */
-  support: string;
-  supportHint: string;
-  supportWechat: string;
-  supportAlipay: string;
-  supportCodeAlt: (app: string) => string;
-  supportThanks: string;
-  openFailed: string;
+    openFailed: string;
   /** The todo the island adds when a new version is found, and its button. */
   update: {
     downloadingUnknown: string;
@@ -79,9 +67,7 @@ export const zhCN: SettingsProjectText = {
   title: "关于小岛",
   appName: "岛点下班",
   versionChip: (version) => `v${version}`,
-  description: "由 labubu-9527 基于 fly-island 二次开发，集中待办、音乐、AI 状态和消息提醒。",
-  upstream: "原始项目与开源许可",
-  upstreamHint: "基于 flyl1u/fly-island，保留 GPL-3.0 与原作者署名",
+  description: "由 labubu-9527 维护，集中待办、音乐、AI 状态和消息提醒。",
   quit: "退出岛屿",
   quitHint: "和托盘菜单里的「退出」一样；要再打开，从开始菜单或桌面快捷方式启动。",
   quitAction: "退出",
@@ -91,18 +77,9 @@ export const zhCN: SettingsProjectText = {
   community: "反馈问题与建议",
   communityHint: "前往 labubu-9527/clockout-island 的 GitHub Issues",
   communityNew: "新",
-  communityCodeAlt: "岛点下班 用户交流群的微信二维码",
-  communityScan: "用微信扫一扫加入。二维码每周更新，过期了重新点开这里就是新的。",
-  communityLoadFailed: "二维码没加载出来，检查一下网络后再点开试试。",
   star: "觉得小岛还不错？",
   starHint: "去 GitHub 给小岛一颗 Star",
   author: "关于作者",
-  support: "打赏作者",
-  supportHint: "觉得好用的话，请作者喝杯咖啡",
-  supportWechat: "微信",
-  supportAlipay: "支付宝",
-  supportCodeAlt: (app) => `${app}收款码`,
-  supportThanks: "用手机扫一扫，金额随意，谢谢你的支持！",
   openFailed: "暂时没能打开浏览器，请再试一次。",
   update: {
     downloadingUnknown: "正在下载…",
@@ -146,9 +123,7 @@ export const en: SettingsProjectText = {
   title: "About the island",
   appName: "Clockout-island",
   versionChip: (version) => `v${version}`,
-  description: "A fork of fly-island maintained by labubu-9527, with todos, music, AI status and notifications.",
-  upstream: "Original project and license",
-  upstreamHint: "Based on flyl1u/fly-island; GPL-3.0 and original attribution retained",
+  description: "Clockout-island, maintained by labubu-9527, with todos, music, AI status and notifications.",
   quit: "Quit the island",
   quitHint: "Same as Quit in the tray menu; start it again from the Start menu or a desktop shortcut.",
   quitAction: "Quit",
@@ -158,18 +133,9 @@ export const en: SettingsProjectText = {
   community: "Report issues and suggestions",
   communityHint: "Open GitHub Issues in labubu-9527/clockout-island",
   communityNew: "New",
-  communityCodeAlt: "WeChat QR code of the Clockout-island community group",
-  communityScan: "Scan with WeChat to join. The code changes every week; if it has expired, open this again for the new one.",
-  communityLoadFailed: "Couldn't load the QR code. Check your connection and open this again.",
   star: "Enjoying your little island?",
   starHint: "Give it a Star on GitHub",
   author: "About the author",
-  support: "Support the author",
-  supportHint: "Buy the author a coffee if you like it",
-  supportWechat: "WeChat Pay",
-  supportAlipay: "Alipay",
-  supportCodeAlt: (app) => `${app} payment code`,
-  supportThanks: "Scan with your phone. Any amount helps — thank you!",
   openFailed: "Couldn't open your browser. Please try again.",
   update: {
     downloadingUnknown: "Downloading…",

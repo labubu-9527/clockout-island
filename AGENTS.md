@@ -52,13 +52,13 @@
 │   ├── src/             # 原生命令、后台服务、窗口管理
 │   ├── examples/        # 手动运行的 QQ / 微信探测程序，不进入发布产物
 │   ├── capabilities/    # Tauri 权限能力配置
-│   ├── nsis/            # NSIS 安装器钩子（installerHooks）：把「已安装的应用」里显示的发布者改写为 labubu-9527
+│   ├── nsis/            # NSIS 安装器钩子：维护者发布者、旧安装位置迁移与卸载hook清理
 │   ├── resources/       # 随安装包附带的第三方文件：网易云进度插件（GPL-3.0，原样附带，含许可证与源码链接）
 │   └── tauri.conf.json  # 窗口、更新、打包配置
 ├── web-demo/            # 官网的小岛实时演示：真实 IslandApp + 演示数据 mock + 模拟鼠标；`pnpm build:web-demo` 构建，官网仓库的 scripts/sync-island-demo.mjs 同步过去
 ├── tests/               # unit/ 前端单元测试、scripts/ 脚本测试（node:test，*.test.mjs）；regression/ 浏览器回归页（*.html + *.tsx）
 ├── scripts/             # release/ 发布、签名与 latest.json 生成；根目录放开发流程脚本：行数检查、浏览器回归页运行器（run-regression.mjs）、dev 前停止运行中的岛屿
-├── docs/                # 专题文档（功能说明放在根目录）；architecture/ 架构，investigations/ 排查记录，releases/ 发布说明（v3 起），assets/ README 配图
+├── docs/                # 专题文档（功能说明放在根目录）；architecture/ 架构，investigations/ 排查记录，releases/ 本分支发布说明（当前1.0.0），assets/ README 配图
 ├── DESIGN.md            # 已确认的界面设计约定：全局方向；各区域的约定在 docs/design/
 └── README*.md           # 中英文项目说明
 ```

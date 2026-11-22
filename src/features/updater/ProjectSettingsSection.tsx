@@ -1,11 +1,11 @@
 import { useSyncExternalStore } from "react";
-import { GitFork, Star } from "lucide-react";
+import { Star } from "lucide-react";
 import { SettingsGroup } from "../../components/settings/SettingsGroup";
 import { useTranslation } from "../../i18n";
 import markUrl from "../../../src-tauri/icons/mark.svg";
 import { CommunityGroup } from "./CommunityGroup";
 import { ProjectLink } from "./ProjectLink";
-import { PROJECT_REPO_URL, UPSTREAM_REPO_URL } from "./projectLinks";
+import { PROJECT_REPO_URL } from "./projectLinks";
 import { getUpdateState, subscribeToUpdate } from "./updaterController";
 import "./ProjectSettingsSection.css";
 
@@ -30,7 +30,7 @@ export function ProjectIdentitySection() {
   );
 }
 
-/** Fork feedback, repository and retained upstream attribution. */
+/** Maintainer feedback and repository. License attribution ships with the app. */
 export function ProjectLinksSection() {
   const text = useTranslation().settings.project;
 
@@ -44,8 +44,6 @@ export function ProjectLinksSection() {
         hint={text.starHint}
         icon={<Star className="project-link__icon" size={18} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />}
       />
-      <ProjectLink href={UPSTREAM_REPO_URL} title={text.upstream} hint={text.upstreamHint}
-        icon={<GitFork className="project-link__icon" size={18} aria-hidden="true" />} />
     </SettingsGroup>
   );
 }

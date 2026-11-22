@@ -5,6 +5,10 @@ import { buildChangelog, compareVersionsDescending, inlineParts, parseReleaseNot
 
 const NOTE = ["## 更新内容", "", "- **待办**：拖动换位", "  - 子项", "  续行", "", "## 下载", "- setup.exe", "", "---", "", "## What's new", "", "- **Todos**: drag", "", "## Downloads", "- setup.exe"].join("\n");
 
+test('fork release directory contains only its current 1.0.0 release', () => {
+  assert.deepEqual(readdirSync('docs/releases').filter(name => /^v.+\.md$/.test(name)), ['v1.0.0.md']);
+});
+
 test("release notes yield only the what's-new bullets, nested and joined", () => {
   assert.deepEqual(parseReleaseNotes(NOTE, "zh-CN"), [{ depth: 0, text: "**待办**：拖动换位" }, { depth: 1, text: "子项 续行" }]);
   assert.deepEqual(parseReleaseNotes(NOTE, "en"), [{ depth: 0, text: "**Todos**: drag" }]);

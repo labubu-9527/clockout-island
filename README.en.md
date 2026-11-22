@@ -9,13 +9,11 @@
     <tr><td>日期</td><td>2026-11-22</td></tr>
     <tr><td>版本号</td><td>v1.0.0</td></tr>
   </table>
-  <p>岛点下班 · A secondary-development fork of Fly Island, maintained by labubu-9527 under GPL-3.0.</p>
+  <p>岛点下班 · A Windows productivity tool maintained by labubu-9527.</p>
 
   <p>An ultra-lightweight Dynamic Island for Windows: WeChat, QQ and mail messages, multi-session AI agents with quota rings, a music player, to-dos, clipboard history, a file shelf and more. It expands when needed and tucks away when done.</p>
 
   <p>
-    <a href="https://island.flyliu.org/">Upstream Live Preview</a>
-    ·
     <a href="https://github.com/labubu-9527/clockout-island/releases/latest">Download Release</a>
     ·
     <a href="https://github.com/labubu-9527/clockout-island/issues">Report an Issue</a>
@@ -26,18 +24,12 @@
   </p>
 
   <p>
-    <img alt="Version" src="https://img.shields.io/github/v/release/labubu-9527/clockout-island?label=version">
+    <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue">
     <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078D4">
     <img alt="Tauri" src="https://img.shields.io/badge/Tauri-2-24C8DB">
     <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB">
     <img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-blue">
   </p>
-
-  <a href="https://island.flyliu.org/">
-    <img src="docs/assets/promo-preview.webp" alt="Clockout-island promo: WeChat messages on the island, approving a Claude Code permission request, Claude and Codex usage, the file shelf, tasks, music and translation" width="860">
-  </a>
-
-  <p><sub>Click to open the upstream live preview and try it without installing (video captions are in Chinese)</sub></p>
 
   <p>If it saves you a few window switches, a ⭐ <b>Star</b> helps more people find it.</p>
 </div>
@@ -48,13 +40,11 @@ Clockout-island is a Windows-first Dynamic Island. WeChat, QQ and mail messages 
 
 It is an ultra-light, frameless, always-on-top island using about 0.2–0.5% of memory. It expands when you need it and tucks away when you are done.
 
-Want to try it first? The [upstream live preview](https://island.flyliu.org/) runs the real island interface with demo data, and you can click around.
-
 ## Why this project exists
 
-The original project was created by [flyl1u and contributors](https://github.com/flyl1u/fly-island). Work and study spread to-dos, music, translation, copied code and chat messages across many apps. Switching between them is slow and distracting.
+Work and study spread to-dos, music, translation, copied code and chat messages across many apps. Switching between them is slow and distracting.
 
-The iPhone's Dynamic Island gathers notifications, timers and media controls into one small place. Fly Island brought that idea to common Windows tasks. Clockout-island continues development as a separate fork, preserving the original authors' attribution.
+Clockout-island brings notifications, tasks, media controls and AI agent status into one small place on your Windows desktop, keeping common actions close and reducing window switching.
 
 > The screenshots below show the Chinese interface. The app also has a full English interface.
 
@@ -130,7 +120,7 @@ Requires Windows 10/11 (x64).
 
 1. Download `Clockout-island_<version>_x64-setup.exe` (for example, `Clockout-island_1.0.0_x64-setup.exe`) from [Releases](https://github.com/labubu-9527/clockout-island/releases/latest) and run it.
 2. The island appears at the top of your screen. Hover over it to start.
-3. Turn on the features you want in Settings. Updates use this fork's release channel when signed updates are published.
+3. Turn on the features you want in Settings. Updates use Clockout-island's release channel when signed updates are published.
 
 <details>
 <summary><b>How do I turn on each feature?</b></summary>
@@ -154,7 +144,7 @@ To-dos, clipboard history and settings stay on your own computer. WeChat and QQ 
 
 ## Support
 
-For bugs, suggestions and usage questions about this fork, open an [Issue](https://github.com/labubu-9527/clockout-island/issues). Include your app version, Windows version and steps to reproduce; redact private information from screenshots and logs. Maintainer: [labubu-9527](https://github.com/labubu-9527).
+For bugs, suggestions and usage questions about Clockout-island, open an [Issue](https://github.com/labubu-9527/clockout-island/issues). Include your app version, Windows version and steps to reproduce; redact private information from screenshots and logs. Maintainer: [labubu-9527](https://github.com/labubu-9527).
 
 ## Contributing
 
@@ -174,15 +164,13 @@ Run `pnpm check` before committing. Repository rules are in [AGENTS.md](AGENTS.m
 
 To build a plugin for the island, follow the [plugin guide](docs/plugins/README.md) and open a PR (with a demo recording, author and contact info). It goes live after review.
 
-Thanks to [@TixXin](https://github.com/TixXin) for the modular architecture proposed in [PR #36](https://github.com/flyl1u/fly-island/pull/36). See the [refactor notes](docs/architecture/refactor-plan.md).
-
 </details>
 
 ## License
 
-This is a secondary-development fork maintained by [labubu-9527](https://github.com/labubu-9527), based on [Fly Island](https://github.com/flyl1u/fly-island) by flyl1u and contributors. This fork starts at version 1.0.0; the historical version numbers below refer to upstream. Original copyright and license notices are preserved.
+Clockout-island is maintained by [labubu-9527](https://github.com/labubu-9527), currently at version 1.0.0. It derives from [Fly Island](https://github.com/flyl1u/fly-island) by flyl1u and contributors. Original copyright and license notices are preserved.
 
-[GPL-3.0](LICENSE): free to use, modify and share; if you distribute a modified version, it must be open source too. Versions 3.0.8 and earlier were released under MIT. Third-party assets follow their own licenses, see the [font notes](src/assets/fonts/README.md) and [NetEase Cloud Music plugin notes](src-tauri/resources/media-plugins/README.md).
+[GPL-3.0](LICENSE): free to use, modify and share; if you distribute a modified version, it must be open source too. Third-party assets follow their own licenses, see the [font notes](src/assets/fonts/README.md) and [NetEase Cloud Music plugin notes](src-tauri/resources/media-plugins/README.md).
 
 Copyright (C) 2026 flyl1u and contributors
 

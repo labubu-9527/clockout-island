@@ -346,7 +346,7 @@ if (!automated) {
       "One click on About clears the red dots for good");
     const linkCard = [...document.querySelectorAll<HTMLElement>(".settings-group__card")].find((card) => card.querySelector(".project-link"));
     const linkTitles = [...(linkCard?.querySelectorAll<HTMLElement>(".project-link__copy strong") ?? [])].map((title) => title.textContent);
-    check(linkTitles.join() === "反馈问题与建议,觉得小岛还不错？,原始项目与开源许可", `About lists fork feedback, repository and upstream attribution (${linkTitles.join()})`);
+    check(linkTitles.join() === "反馈问题与建议,觉得小岛还不错？", `About lists only maintainer feedback and repository (${linkTitles.join()})`);
     const authorLink = document.querySelector<HTMLAnchorElement>(".settings-sidebar a.settings-sidebar__item--link");
     const sidebarItems = [...document.querySelectorAll<HTMLElement>(".settings-sidebar__item")].map((item) => item.textContent);
     check(!authorLink && sidebarItems.slice(-1).join() === "关于与更新", "关于作者入口暂时隐藏，侧栏最后一项是关于与更新");
@@ -354,7 +354,8 @@ if (!automated) {
     check(feedback.href === "https://github.com/labubu-9527/clockout-island/issues", "Fork feedback opens the maintainer issue tracker");
     check(!document.querySelector(".support-author__code, .community-group__code, .support-author__toggle"), "Fork does not show the upstream payment or community QR codes");
     const projectLinks = [...document.querySelectorAll<HTMLAnchorElement>(".project-link")].map(link => link.href);
-    check(projectLinks.includes("https://github.com/labubu-9527/clockout-island") && projectLinks.includes("https://github.com/flyl1u/fly-island"), "Fork repository and upstream attribution remain distinct");
+    check(projectLinks.includes("https://github.com/labubu-9527/clockout-island") && projectLinks.every(url => url.startsWith("https://github.com/labubu-9527/clockout-island")), "Product links belong to the maintainer");
+    check([...document.querySelectorAll('.changelog-entry__version')].map(item => item.textContent).join() === 'v1.0.0', "Only the current fork 1.0.0 changelog is shown");
     const aboutLink = (label: string) =>
       [...document.querySelectorAll<HTMLButtonElement>(".settings-link-button")].find((button) => button.textContent === label);
     await act(async () => { aboutLink("退出")!.click(); });

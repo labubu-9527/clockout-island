@@ -7,9 +7,9 @@
 | 日期 | 2026-11-22 |
 | 版本号 | v1.0.0 |
 
-本文基于 [flyl1u/fly-island 的原始插件指南](https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md) 调整，保留原作者和贡献者署名。本指南的贡献、审核和发布流程适用于 [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island)，由本分支维护者 labubu-9527 负责，遵循仓库 GPL-3.0 许可证。
+本指南适用于 [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island) 的插件开发、贡献、审核与发布，由维护者 labubu-9527 负责。
 
-Adapted from the [original plugin guide by flyl1u and contributors](https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md). Contributions, review and releases described here target [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island), maintained by labubu-9527 under the repository's GPL-3.0 license.
+This guide covers plugin development, contributions, review and releases for [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island), maintained by labubu-9527.
 
 > **插件功能即将上线。** 现在就可以按这份规范开发插件并提交 PR，labubu-9527 审核、适配后统一上线。
 >
@@ -153,3 +153,11 @@ cargo test --manifest-path src-tauri/Cargo.toml
 **Required in the PR:** a public link to a demo recording of the plugin in use inside the real island, the author(s), a public contact, your GitHub profile and the source repository/branch, a plain-language description for the plugin list, a list of changed files and hook points, and your self-test results. labubu-9527 handles the optional-install packaging; submission does not guarantee a merge or immediate release.
 
 The `plugins/` directory and the `api.md` / `specification.md` documents describe the island's existing external data adapter mechanism (quota, sessions and messages from other AI tools). They are a reference for plugins that need external data sources, not the definition of a plugin.
+
+## 许可与来源 / License and attribution
+
+本指南遵循仓库 [GPL-3.0](../../LICENSE) 许可证，改编自 [flyl1u 与贡献者的插件指南](https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md)，保留原作者版权声明。
+
+Licensed under [GPL-3.0](../../LICENSE), adapted from the [plugin guide by flyl1u and contributors](https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md). Original copyright notices are preserved.
+
+Copyright (C) 2026 flyl1u and contributors

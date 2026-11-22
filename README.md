@@ -9,13 +9,11 @@
     <tr><td>日期</td><td>2026-11-22</td></tr>
     <tr><td>版本号</td><td>v1.0.0</td></tr>
   </table>
-  <p>Clockout-island · 基于 Fly Island 二次开发，由 labubu-9527 维护，遵循 GPL-3.0。</p>
+  <p>Clockout-island · 由 labubu-9527 维护的 Windows 桌面效率工具。</p>
 
   <p>Windows灵动岛：微信、QQ、邮箱消息，多会话 AI Agent 与额度环，音乐播放器、待办、剪贴板、文件中转等常用功能，需要时展开，用完收起。</p>
 
   <p>
-    <a href="https://island.flyliu.org/">上游在线预览</a>
-    ·
     <a href="https://github.com/labubu-9527/clockout-island/releases/latest">下载 Release</a>
     ·
     <a href="https://github.com/labubu-9527/clockout-island/issues">反馈 Issue</a>
@@ -26,16 +24,12 @@
   </p>
 
   <p>
-    <img alt="Version" src="https://img.shields.io/github/v/release/labubu-9527/clockout-island?label=version">
+    <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-blue">
     <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078D4">
     <img alt="Tauri" src="https://img.shields.io/badge/Tauri-2-24C8DB">
     <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB">
     <img alt="License" src="https://img.shields.io/badge/license-GPL--3.0-blue">
   </p>
-
-  <a href="https://island.flyliu.org/">
-    <img src="docs/assets/promo-preview.webp" alt="岛点下班 宣传片：微信消息弹到岛上、在岛上批准 Claude Code 权限、查看 Claude 与 Codex 额度、文件中转、待办、音乐与翻译" width="860">
-  </a>
 
   <p>如果它帮你少切了几次窗口，欢迎点个 ⭐ <b>Star</b>，让更多人看到它。</p>
 </div>
@@ -46,13 +40,11 @@
 
 它是一个极轻量、无边框、始终置顶的悬浮岛，内存占用约 0.2%~0.5%，需要时展开，用完收起。
 
-不想安装也可以先玩一下：[上游在线预览](https://island.flyliu.org/)里是真实的岛屿界面配上演示数据，可以直接点。
-
 ## 为什么做它
 
-原项目由 [flyl1u 和贡献者](https://github.com/flyl1u/fly-island) 创建。工作和学习时，待办、音乐、翻译、代码复制粘贴和群聊消息分散在多个软件里。在这些窗口之间来回切换，既慢又分心。
+工作和学习时，待办、音乐、翻译、代码复制粘贴和群聊消息分散在多个软件里。在这些窗口之间来回切换，既慢又分心。
 
-iPhone 的灵动岛把通知、计时、媒体控制收在一个小岛上，缩短了获取信息的路。Fly Island 将这些高频功能收进 Windows 上一个足够轻的地方。岛点下班在此基础上继续二次开发，并保留原作者署名。
+岛点下班把通知、待办、媒体控制和 AI 代理状态收进 Windows 桌面上的一座小岛，让常用操作触手可及，减少来回切换窗口。
 
 ## 平时它就这么小
 
@@ -126,7 +118,7 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 
 1. 到 [Releases](https://github.com/labubu-9527/clockout-island/releases/latest) 下载 `Clockout-island_<版本号>_x64-setup.exe`（例如 `Clockout-island_1.0.0_x64-setup.exe`），双击安装。
 2. 装好后小岛出现在屏幕顶部，鼠标移上去就能用。
-3. 想用哪个功能，到「设置」里打开就行。签名更新发布后，应用通过本分支的发布渠道检查更新。
+3. 想用哪个功能，到「设置」里打开就行。签名更新发布后，应用通过岛点下班的发布渠道检查更新。
 
 <details>
 <summary><b>各功能怎么打开？</b></summary>
@@ -150,7 +142,7 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 
 ## 问题反馈
 
-本分支的使用问题、缺陷和功能建议请提交到 [GitHub Issues](https://github.com/labubu-9527/clockout-island/issues)。请附应用版本、Windows 版本和复现步骤，截图与日志注意隐藏私人信息。维护者：[labubu-9527](https://github.com/labubu-9527)。
+岛点下班的使用问题、缺陷和功能建议请提交到 [GitHub Issues](https://github.com/labubu-9527/clockout-island/issues)。请附应用版本、Windows 版本和复现步骤，截图与日志注意隐藏私人信息。维护者：[labubu-9527](https://github.com/labubu-9527)。
 
 ## 参与开发
 
@@ -170,15 +162,13 @@ pnpm tauri dev
 
 想给小岛做插件，可以按[插件开发规范](docs/plugins/README.md)开发并提交 PR（附演示录屏、作者和联系方式），审核后上线。
 
-感谢 [@TixXin](https://github.com/TixXin) 在 [PR #36](https://github.com/flyl1u/fly-island/pull/36) 中提出的模块化架构方案，详见[改造说明](docs/architecture/refactor-plan.md)。
-
 </details>
 
 ## 开源协议
 
-本项目由 [labubu-9527](https://github.com/labubu-9527) 基于 flyl1u 和贡献者的 [Fly Island](https://github.com/flyl1u/fly-island) 二次开发与维护。本分支从 1.0.0 开始计版本；下述历史版本号指上游版本。原作者版权和许可证声明予以保留。
+本项目由 [labubu-9527](https://github.com/labubu-9527) 维护，当前版本为 1.0.0。源自 flyl1u 和贡献者的 [Fly Island](https://github.com/flyl1u/fly-island)，保留原作者版权和许可证声明。
 
-[GPL-3.0](LICENSE)：可以免费使用、修改和分发；分发修改版时需要同样开源。3.0.8 及以前的版本按 MIT 发布。第三方资源遵循各自的许可证，见[字体说明](src/assets/fonts/README.md)和[网易云插件说明](src-tauri/resources/media-plugins/README.md)。
+[GPL-3.0](LICENSE)：可以免费使用、修改和分发；分发修改版时需要同样开源。第三方资源遵循各自的许可证，见[字体说明](src/assets/fonts/README.md)和[网易云插件说明](src-tauri/resources/media-plugins/README.md)。
 
 Copyright (C) 2026 flyl1u and contributors
 

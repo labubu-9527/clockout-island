@@ -92,6 +92,7 @@
   },
   "bundle": {
     "active": true,
+    "publisher": "labubu-9527",
     "targets": "all",
     "license": "GPL-3.0-only",
     "licenseFile": "../LICENSE",
