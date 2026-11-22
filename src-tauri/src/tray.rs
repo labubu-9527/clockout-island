@@ -53,7 +53,7 @@ pub(crate) fn build_tray(app: &App) -> tauri::Result<()> {
     app.manage(TrayMenu { toggle, shown: Mutex::new(true) });
 
     let mut tray = TrayIconBuilder::new()
-        .tooltip("岛点下班 · Clockout-island")
+        .tooltip("岛点下班")
         .menu(&menu)
         .show_menu_on_left_click(true)
         .on_menu_event(|app, event| match event.id.as_ref() {

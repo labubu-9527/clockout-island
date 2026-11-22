@@ -6,7 +6,7 @@ import { SettingsLinkButton } from "../../components/settings/SettingsLinkButton
 import { SettingsRow } from "../../components/settings/SettingsRow";
 import { useTranslation } from "../../i18n";
 
-const SPEC_URL = "https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md";
+const SPEC_URL = "https://github.com/labubu-9527/clockout-island/blob/main/docs/plugins/README.md";
 
 /** The public development guide is available before plugin execution ships. */
 export function PluginDevelopmentPage() {

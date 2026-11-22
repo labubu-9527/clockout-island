@@ -1,5 +1,12 @@
 # AGENTS.md
 
+| 项目 | 内容 |
+| --- | --- |
+| 文档名称 | 仓库协作规则 |
+| 制作人 | XiaoZhu |
+| 日期 | 2026-11-22 |
+| 版本号 | v1.0.0 |
+
 本文件是仓库的总规则，面向在本仓库工作的 AI 编程代理和协作者。规则按目录就近生效：
 
 - 修改 `src/` 时还须遵守 [src/AGENTS.md](src/AGENTS.md)（前端规则）。
@@ -14,7 +21,7 @@
 
 **岛点下班**（英文名与安装包产品名 `Clockout-island`，npm 包名 `clockout-island`）是 Windows 优先的桌面效率工具，以透明、无边框、始终置顶的 Tauri 悬浮岛形式运行。主要功能：待办、每日笔记与归档，外观设置与预设，媒体控制，剪贴板历史，快捷翻译，QQ 通知、QQ 邮箱和微信提醒，AI 代理状态，以及自动更新。
 
-**命名**：中文产品名为 **岛点下班**，英文名为 **Clockout-island**。Gitee 仓库为 `zhu-he666/Clockout-island`，GitHub 上游仍为 `flyl1u/fly-island`。Rust crate、可执行文件 `fly-island`、已有数据格式及上游链接保留兼容，不进行盲目全局替换。README、文章、发布说明、安装包、界面文案和新代码里都不要再写旧名 FocuSD。旧名只留在不能改的对外契约里（`com.focusd.island`、`focusd-island-*` localStorage key、开机自启值 `FocuSD Island`、`focusd-agent-*` hook 脚本、`FOCUSD_*` 环境变量等，见下文「对外契约」），看到这些不要据此把产品叫成 FocuSD。
+**命名**：中文产品名为 **岛点下班**，英文名为 **Clockout-island**。当前 GitHub 分支仓库为 `labubu-9527/clockout-island`，维护者为 `labubu-9527`，版本从 `1.0.0` 开始。基于 `flyl1u/fly-island` 二次开发，保留原作者版权声明并遵循 GPL-3.0。Git 远程：`origin` 保留 Gitee `zhu-he666/Clockout-island`，`upstream` 保留原 GitHub 仓库 `flyl1u/fly-island`（拉取与 `upstream/main` 跟踪），`github` 指向 `https://github.com/labubu-9527/clockout-island.git`；发布到 `github/main`，不得将本分支发布内容推送到上游。Rust crate、可执行文件 `fly-island`、已有数据格式及上游链接保留兼容，不进行盲目全局替换。README、文章、发布说明、安装包、界面文案和新代码里都不要再写旧名 FocuSD。旧名只留在不能改的对外契约里（`com.focusd.island`、`focusd-island-*` localStorage key、开机自启值 `FocuSD Island`、`focusd-agent-*` hook 脚本、`FOCUSD_*` 环境变量等，见下文「对外契约」），看到这些不要据此把产品叫成 FocuSD。
 
 **配图**：写 README、文章、发布说明时，只用 README 当前引用的图片；仓库外或 git 历史里的旧截图、旧宣传素材都已过时，不要拿来参考。
 
@@ -45,7 +52,7 @@
 │   ├── src/             # 原生命令、后台服务、窗口管理
 │   ├── examples/        # 手动运行的 QQ / 微信探测程序，不进入发布产物
 │   ├── capabilities/    # Tauri 权限能力配置
-│   ├── nsis/            # NSIS 安装器钩子（installerHooks）：把「已安装的应用」里显示的发布者改写为 flyl1u
+│   ├── nsis/            # NSIS 安装器钩子（installerHooks）：把「已安装的应用」里显示的发布者改写为 labubu-9527
 │   ├── resources/       # 随安装包附带的第三方文件：网易云进度插件（GPL-3.0，原样附带，含许可证与源码链接）
 │   └── tauri.conf.json  # 窗口、更新、打包配置
 ├── web-demo/            # 官网的小岛实时演示：真实 IslandApp + 演示数据 mock + 模拟鼠标；`pnpm build:web-demo` 构建，官网仓库的 scripts/sync-island-demo.mjs 同步过去
@@ -106,6 +113,8 @@
 - 窗口 label（`main` / `translation` / `settings` / `clipboard`）和 `?window=` 参数值
 - 应用标识 `com.focusd.island`、开机自启注册表值 `FocuSD Island`、凭据管理器条目、应用数据目录下的文件名（如 `agent-status.json`）
 - 更新端点和 `latest.json` 格式
+
+本次分支归属调整已获用户授权：下载、反馈、仓库和更新端点改为 `labubu-9527/clockout-island`，安装包发布者改为 `labubu-9527`；`latest.json` 格式与更新签名验证保持不变。应用兼容标识 `com.focusd.island`、已有存储与 hook 契约继续保留，不因仓库归属改变而替换。历史 PR、来源署名和第三方许可证链接仍指向各自原始来源。
 
 确实需要变更时，必须在同一个提交里同步修改前后端，提供旧数据的迁移或兼容读取，并在提交说明中写明。
 

@@ -86,7 +86,7 @@ try {
     await act(async () => { failOpen = true; link.click(); });
     check(guide.querySelector("[role='alert']")?.textContent === t.openGuideFailed, "外链失败在原地提供本地化提示");
     await act(async () => { failOpen = false; link.click(); });
-    check(opened === "https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md" && !guide.querySelector("[role='alert']"), "重试用 opener 打开规范总览并清除错误");
+    check(opened === "https://github.com/labubu-9527/clockout-island/blob/main/docs/plugins/README.md" && !guide.querySelector("[role='alert']"), "重试用 opener 打开规范总览并清除错误");
     const fixture = document.getElementById("fixture")!;
     check(guide.scrollWidth <= fixture.clientWidth && link.getBoundingClientRect().right <= fixture.getBoundingClientRect().right + 1,
       "中英文规范入口在窄布局中不溢出");
@@ -112,7 +112,7 @@ try {
     await act(async () => requests[0].reject("old request failed")); await wait();
     check(!document.body.textContent?.includes(t.unavailable), "已失效的旧请求不能覆盖新索引结果");
     await act(async () => document.querySelector<HTMLButtonElement>(`button[aria-label='${t.develop}']`)!.click());
-    check(opened === "https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md", "开发指引使用既有外链 opener");
+    check(opened === "https://github.com/labubu-9527/clockout-island/blob/main/docs/plugins/README.md", "开发指引使用既有外链 opener");
     check(input.getBoundingClientRect().right <= document.getElementById("fixture")!.getBoundingClientRect().right + 1, "中英文窄布局的路径输入框不溢出");
   }
   await act(async () => app.unmount());

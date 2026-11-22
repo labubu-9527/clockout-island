@@ -1,6 +1,6 @@
 ; NSIS installer hooks, wired in through bundle.windows.nsis.installerHooks.
 
-; Show "flyl1u" as the publisher in Windows' installed-apps list.
+; Show "labubu-9527" as the publisher in Windows' installed-apps list.
 ;
 ; bundle.publisher stays unset on purpose: the installer finds the previous
 ; install folder under Software\<publisher>\fly-island (the publisher defaults
@@ -9,7 +9,7 @@
 ; the old uninstaller without a folder. Rewriting only the displayed value
 ; after the template has written its own keeps that lookup intact.
 !macro NSIS_HOOK_POSTINSTALL
-  WriteRegStr SHCTX "${UNINSTKEY}" "Publisher" "flyl1u"
+  WriteRegStr SHCTX "${UNINSTKEY}" "Publisher" "labubu-9527"
 !macroend
 
 ; "Delete the application data" also takes the island's AI hooks out of the Codex and

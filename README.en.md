@@ -2,24 +2,31 @@
   <img src="src-tauri/icons/mark.svg" alt="岛点下班 logo" width="96" height="96">
 
   <h1>Clockout-island</h1>
-  <p>岛点下班 · Based on Fly Island, with continued GitHub upstream synchronization.</p>
+  <table>
+    <tr><th>项目</th><th>内容</th></tr>
+    <tr><td>文档名称</td><td>Clockout-island README (English)</td></tr>
+    <tr><td>制作人</td><td>XiaoZhu</td></tr>
+    <tr><td>日期</td><td>2026-11-22</td></tr>
+    <tr><td>版本号</td><td>v1.0.0</td></tr>
+  </table>
+  <p>岛点下班 · A secondary-development fork of Fly Island, maintained by labubu-9527 under GPL-3.0.</p>
 
   <p>An ultra-lightweight Dynamic Island for Windows: WeChat, QQ and mail messages, multi-session AI agents with quota rings, a music player, to-dos, clipboard history, a file shelf and more. It expands when needed and tucks away when done.</p>
 
   <p>
-    <a href="https://island.flyliu.org/">Live Preview</a>
+    <a href="https://island.flyliu.org/">Upstream Live Preview</a>
     ·
-    <a href="https://github.com/flyl1u/fly-island/releases/latest">Download Release</a>
+    <a href="https://github.com/labubu-9527/clockout-island/releases/latest">Download Release</a>
     ·
-    <a href="https://github.com/flyl1u/fly-island/issues">Report an Issue</a>
+    <a href="https://github.com/labubu-9527/clockout-island/issues">Report an Issue</a>
     ·
-    <a href="#community">Community</a>
+    <a href="#support">Support</a>
     ·
     English · <a href="README.md">中文</a>
   </p>
 
   <p>
-    <img alt="Version" src="https://img.shields.io/github/v/release/flyl1u/fly-island?label=version">
+    <img alt="Version" src="https://img.shields.io/github/v/release/labubu-9527/clockout-island?label=version">
     <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078D4">
     <img alt="Tauri" src="https://img.shields.io/badge/Tauri-2-24C8DB">
     <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB">
@@ -30,7 +37,7 @@
     <img src="docs/assets/promo-preview.webp" alt="Clockout-island promo: WeChat messages on the island, approving a Claude Code permission request, Claude and Codex usage, the file shelf, tasks, music and translation" width="860">
   </a>
 
-  <p><sub>Click to open the live preview and try it without installing (video captions are in Chinese)</sub></p>
+  <p><sub>Click to open the upstream live preview and try it without installing (video captions are in Chinese)</sub></p>
 
   <p>If it saves you a few window switches, a ⭐ <b>Star</b> helps more people find it.</p>
 </div>
@@ -41,13 +48,13 @@ Clockout-island is a Windows-first Dynamic Island. WeChat, QQ and mail messages 
 
 It is an ultra-light, frameless, always-on-top island using about 0.2–0.5% of memory. It expands when you need it and tucks away when you are done.
 
-Want to try it first? The [live preview](https://island.flyliu.org/) runs the real island interface with demo data, and you can click around.
+Want to try it first? The [upstream live preview](https://island.flyliu.org/) runs the real island interface with demo data, and you can click around.
 
-## Why I built this
+## Why this project exists
 
-While working or studying I keep a to-do list in one app, music in another to block out noise and a translation site in a third. I copy and paste code all day and still get pulled into group chats. Switching between all of them is slow and distracting.
+The original project was created by [flyl1u and contributors](https://github.com/flyl1u/fly-island). Work and study spread to-dos, music, translation, copied code and chat messages across many apps. Switching between them is slow and distracting.
 
-The iPhone's Dynamic Island gathers notifications, timers and media controls into one small place. I wanted the same for these high-frequency tasks on Windows, in something light enough to keep open all day. That became fly-island.
+The iPhone's Dynamic Island gathers notifications, timers and media controls into one small place. Fly Island brought that idea to common Windows tasks. Clockout-island continues development as a separate fork, preserving the original authors' attribution.
 
 > The screenshots below show the Chinese interface. The app also has a full English interface.
 
@@ -119,9 +126,11 @@ Leave it running all day: in Task Manager, Clockout-island uses only about 0.3% 
 
 ## Install
 
-1. Download `fly-island_<version>_x64-setup.exe` from [Releases](https://github.com/flyl1u/fly-island/releases/latest) and run it.
+Requires Windows 10/11 (x64).
+
+1. Download `Clockout-island_<version>_x64-setup.exe` (for example, `Clockout-island_1.0.0_x64-setup.exe`) from [Releases](https://github.com/labubu-9527/clockout-island/releases/latest) and run it.
 2. The island appears at the top of your screen. Hover over it to start.
-3. Turn on the features you want in Settings. New versions install automatically.
+3. Turn on the features you want in Settings. Updates use this fork's release channel when signed updates are published.
 
 <details>
 <summary><b>How do I turn on each feature?</b></summary>
@@ -143,13 +152,9 @@ To-dos, clipboard history and settings stay on your own computer. WeChat and QQ 
 
 </details>
 
-## Community
+## Support
 
-Scan the QR code with WeChat to join the user group (mostly Chinese-speaking). You can also find it in the app under Settings → About. English feedback is welcome in [Issues](https://github.com/flyl1u/fly-island/issues).
-
-<p align="center"><img src="docs/assets/wechat-community.jpg" alt="Clockout-island WeChat community QR code" width="280"></p>
-
-<p align="center"><sub>The QR code is valid until November 23. If it has expired, please let us know in an <a href="https://github.com/flyl1u/fly-island/issues">Issue</a>.</sub></p>
+For bugs, suggestions and usage questions about this fork, open an [Issue](https://github.com/labubu-9527/clockout-island/issues). Include your app version, Windows version and steps to reproduce; redact private information from screenshots and logs. Maintainer: [labubu-9527](https://github.com/labubu-9527).
 
 ## Contributing
 
@@ -159,8 +164,8 @@ Scan the QR code with WeChat to join the user group (mostly Chinese-speaking). Y
 You need Windows 10/11, Node.js, pnpm, Rust, Visual Studio C++ Build Tools and the WebView2 Runtime.
 
 ```powershell
-git clone https://gitee.com/zhu-he666/Clockout-island.git
-cd Clockout-island
+git clone https://github.com/labubu-9527/clockout-island.git
+cd clockout-island
 pnpm install
 pnpm tauri dev
 ```
@@ -175,16 +180,18 @@ Thanks to [@TixXin](https://github.com/TixXin) for the modular architecture prop
 
 ## License
 
+This is a secondary-development fork maintained by [labubu-9527](https://github.com/labubu-9527), based on [Fly Island](https://github.com/flyl1u/fly-island) by flyl1u and contributors. This fork starts at version 1.0.0; the historical version numbers below refer to upstream. Original copyright and license notices are preserved.
+
 [GPL-3.0](LICENSE): free to use, modify and share; if you distribute a modified version, it must be open source too. Versions 3.0.8 and earlier were released under MIT. Third-party assets follow their own licenses, see the [font notes](src/assets/fonts/README.md) and [NetEase Cloud Music plugin notes](src-tauri/resources/media-plugins/README.md).
 
 Copyright (C) 2026 flyl1u and contributors
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=flyl1u%2Ffly-island&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=labubu-9527%2Fclockout-island&type=date&legend=top-left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=flyl1u/fly-island&type=date&theme=dark&legend=top-left" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=flyl1u/fly-island&type=date&theme=light&legend=top-left" />
-    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=flyl1u/fly-island&type=date&theme=light&legend=top-left" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=labubu-9527/clockout-island&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=labubu-9527/clockout-island&type=date&theme=light&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=labubu-9527/clockout-island&type=date&theme=light&legend=top-left" />
   </picture>
 </a>

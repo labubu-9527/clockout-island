@@ -2,24 +2,31 @@
   <img src="src-tauri/icons/mark.svg" alt="岛点下班 logo" width="96" height="96">
 
   <h1>岛点下班</h1>
-  <p>Clockout-island · 基于 Fly Island 开发，持续同步 GitHub 上游。</p>
+  <table>
+    <tr><th>项目</th><th>内容</th></tr>
+    <tr><td>文档名称</td><td>岛点下班项目说明</td></tr>
+    <tr><td>制作人</td><td>XiaoZhu</td></tr>
+    <tr><td>日期</td><td>2026-11-22</td></tr>
+    <tr><td>版本号</td><td>v1.0.0</td></tr>
+  </table>
+  <p>Clockout-island · 基于 Fly Island 二次开发，由 labubu-9527 维护，遵循 GPL-3.0。</p>
 
   <p>Windows灵动岛：微信、QQ、邮箱消息，多会话 AI Agent 与额度环，音乐播放器、待办、剪贴板、文件中转等常用功能，需要时展开，用完收起。</p>
 
   <p>
-    <a href="https://island.flyliu.org/">在线预览</a>
+    <a href="https://island.flyliu.org/">上游在线预览</a>
     ·
-    <a href="https://github.com/flyl1u/fly-island/releases/latest">下载 Release</a>
+    <a href="https://github.com/labubu-9527/clockout-island/releases/latest">下载 Release</a>
     ·
-    <a href="https://github.com/flyl1u/fly-island/issues">反馈 Issue</a>
+    <a href="https://github.com/labubu-9527/clockout-island/issues">反馈 Issue</a>
     ·
-    <a href="#用户交流群">用户交流群</a>
+    <a href="#问题反馈">问题反馈</a>
     ·
     <a href="README.en.md">English</a> · 中文
   </p>
 
   <p>
-    <img alt="Version" src="https://img.shields.io/github/v/release/flyl1u/fly-island?label=version">
+    <img alt="Version" src="https://img.shields.io/github/v/release/labubu-9527/clockout-island?label=version">
     <img alt="Platform" src="https://img.shields.io/badge/platform-Windows-0078D4">
     <img alt="Tauri" src="https://img.shields.io/badge/Tauri-2-24C8DB">
     <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB">
@@ -39,13 +46,13 @@
 
 它是一个极轻量、无边框、始终置顶的悬浮岛，内存占用约 0.2%~0.5%，需要时展开，用完收起。
 
-不想安装也可以先玩一下：[在线预览](https://island.flyliu.org/)里是真实的岛屿界面配上演示数据，可以直接点。
+不想安装也可以先玩一下：[上游在线预览](https://island.flyliu.org/)里是真实的岛屿界面配上演示数据，可以直接点。
 
 ## 为什么做它
 
-工作和学习时，我常常要在一个软件里写待办，开着音乐隔绝噪音，查翻译，反复复制粘贴代码，还得时不时看群聊和好友消息。在这些窗口之间来回切换，既慢又分心。
+原项目由 [flyl1u 和贡献者](https://github.com/flyl1u/fly-island) 创建。工作和学习时，待办、音乐、翻译、代码复制粘贴和群聊消息分散在多个软件里。在这些窗口之间来回切换，既慢又分心。
 
-iPhone 的灵动岛把通知、计时、媒体控制收在一个小岛上，缩短了获取信息的路。于是我想：能不能把这些高频功能也收进 Windows 上一个足够轻的地方？岛点下班 就这样诞生了。
+iPhone 的灵动岛把通知、计时、媒体控制收在一个小岛上，缩短了获取信息的路。Fly Island 将这些高频功能收进 Windows 上一个足够轻的地方。岛点下班在此基础上继续二次开发，并保留原作者署名。
 
 ## 平时它就这么小
 
@@ -115,9 +122,11 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 
 ## 下载安装
 
-1. 到 [Releases](https://github.com/flyl1u/fly-island/releases/latest) 下载 `fly-island_版本号_x64-setup.exe`，双击安装。
+支持 Windows 10/11（x64）。
+
+1. 到 [Releases](https://github.com/labubu-9527/clockout-island/releases/latest) 下载 `Clockout-island_<版本号>_x64-setup.exe`（例如 `Clockout-island_1.0.0_x64-setup.exe`），双击安装。
 2. 装好后小岛出现在屏幕顶部，鼠标移上去就能用。
-3. 想用哪个功能，到「设置」里打开就行。之后有新版本会自动更新。
+3. 想用哪个功能，到「设置」里打开就行。签名更新发布后，应用通过本分支的发布渠道检查更新。
 
 <details>
 <summary><b>各功能怎么打开？</b></summary>
@@ -139,13 +148,9 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 
 </details>
 
-## 用户交流群
+## 问题反馈
 
-用微信扫码加入用户群，聊使用体验、反馈问题。应用里「设置 → 关于」也能找到这个二维码。
-
-<p align="center"><img src="docs/assets/wechat-community.jpg" alt="岛点下班 微信交流群二维码" width="280"></p>
-
-<p align="center"><sub>二维码 11 月 23 日前有效，失效了请在 <a href="https://github.com/flyl1u/fly-island/issues">Issue</a> 里说一声。</sub></p>
+本分支的使用问题、缺陷和功能建议请提交到 [GitHub Issues](https://github.com/labubu-9527/clockout-island/issues)。请附应用版本、Windows 版本和复现步骤，截图与日志注意隐藏私人信息。维护者：[labubu-9527](https://github.com/labubu-9527)。
 
 ## 参与开发
 
@@ -155,8 +160,8 @@ AI 要执行命令、改文件时，直接在岛上点「允许」或「拒绝�
 需要 Windows 10/11、Node.js、pnpm、Rust、Visual Studio C++ Build Tools 和 WebView2 Runtime。
 
 ```powershell
-git clone https://gitee.com/zhu-he666/Clockout-island.git
-cd Clockout-island
+git clone https://github.com/labubu-9527/clockout-island.git
+cd clockout-island
 pnpm install
 pnpm tauri dev
 ```
@@ -171,16 +176,18 @@ pnpm tauri dev
 
 ## 开源协议
 
+本项目由 [labubu-9527](https://github.com/labubu-9527) 基于 flyl1u 和贡献者的 [Fly Island](https://github.com/flyl1u/fly-island) 二次开发与维护。本分支从 1.0.0 开始计版本；下述历史版本号指上游版本。原作者版权和许可证声明予以保留。
+
 [GPL-3.0](LICENSE)：可以免费使用、修改和分发；分发修改版时需要同样开源。3.0.8 及以前的版本按 MIT 发布。第三方资源遵循各自的许可证，见[字体说明](src/assets/fonts/README.md)和[网易云插件说明](src-tauri/resources/media-plugins/README.md)。
 
 Copyright (C) 2026 flyl1u and contributors
 
 ## Star History
 
-<a href="https://www.star-history.com/?repos=flyl1u%2Ffly-island&type=date&legend=top-left">
+<a href="https://www.star-history.com/?repos=labubu-9527%2Fclockout-island&type=date&legend=top-left">
   <picture>
-    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=flyl1u/fly-island&type=date&theme=dark&legend=top-left" />
-    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=flyl1u/fly-island&type=date&theme=light&legend=top-left" />
-    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=flyl1u/fly-island&type=date&theme=light&legend=top-left" />
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=labubu-9527/clockout-island&type=date&theme=dark&legend=top-left" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=labubu-9527/clockout-island&type=date&theme=light&legend=top-left" />
+    <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=labubu-9527/clockout-island&type=date&theme=light&legend=top-left" />
   </picture>
 </a>

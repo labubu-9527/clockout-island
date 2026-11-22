@@ -2,7 +2,7 @@
 name = "fly-island"
 version = "1.0.0"
 description = "A compact floating island shell for Windows."
-authors = ["you"]
+authors = ["labubu-9527", "flyl1u and contributors"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

@@ -50,5 +50,5 @@ Results of pnpm check / pnpm build / pnpm test:regression (plus cargo test for R
 - [ ] 联网和读写文件都已声明；没有隐藏的采集、遥测或自动更新。/ Network and file access declared; no hidden collection, telemetry or self-updating.
 - [ ] 没有提交可执行文件、构建产物、账号数据；没有改应用版本号。/ No binaries, build output or account data; app version unchanged.
 
-由 flyl1u 审核并适配成可选安装后随版本上线；提交不保证合并或立即上线。
-flyl1u reviews it and adapts it into an optional install before it ships; submission does not guarantee a merge or immediate release.
+由本分支维护者 labubu-9527 审核并适配成可选安装后随版本上线；提交不保证合并或立即上线。
+Fork maintainer labubu-9527 reviews it and adapts it into an optional install before it ships; submission does not guarantee a merge or immediate release.

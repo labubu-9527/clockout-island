@@ -5,7 +5,7 @@ use tauri::Emitter;
 use super::{manifest::Manifest, packages::IndexEntry, process::Worker, protocol::Contributions, storage::{self, Installed, Registry}};
 
 pub const EVENT: &str = "plugins-changed";
-const DEFAULT_INDEX: &str = "https://github.com/flyl1u/fly-island/releases/latest/download/plugins-index.json";
+const DEFAULT_INDEX: &str = "https://github.com/labubu-9527/clockout-island/releases/latest/download/plugins-index.json";
 
 #[derive(Clone, Default, Serialize)]
 #[serde(rename_all = "camelCase")]

@@ -81,9 +81,9 @@
     "updater": {
       "pubkey": "",
       "endpoints": [
-        "https://github.com/flyl1u/fly-island/releases/latest/download/latest.json",
-        "https://ghfast.top/https://github.com/flyl1u/fly-island/releases/latest/download/latest.json",
-        "https://gh-proxy.com/https://github.com/flyl1u/fly-island/releases/latest/download/latest.json"
+        "https://github.com/labubu-9527/clockout-island/releases/latest/download/latest.json",
+        "https://ghfast.top/https://github.com/labubu-9527/clockout-island/releases/latest/download/latest.json",
+        "https://gh-proxy.com/https://github.com/labubu-9527/clockout-island/releases/latest/download/latest.json"
       ],
       "windows": {
         "installMode": "passive"
@@ -93,7 +93,17 @@
   "bundle": {
     "active": true,
     "targets": "all",
+    "license": "GPL-3.0-only",
+    "licenseFile": "../LICENSE",
+    "copyright": "Copyright (C) 2026 flyl1u and contributors; fork maintained by labubu-9527",
     "resources": {
+      "../LICENSE": "licenses/LICENSE-GPL-3.0.txt",
+      "../docs/third-party-licenses.md": "licenses/THIRD-PARTY-NOTICES.md",
+      "../src/assets/pet/LICENSE": "licenses/LICENSE-island-pet.txt",
+      "../src/assets/fonts/OFL-Fusion-Pixel.txt": "licenses/OFL-Fusion-Pixel.txt",
+      "../src/assets/fonts/LICENSES/galmuri/LICENSE.txt": "licenses/LICENSE-galmuri.txt",
+      "../src/assets/fonts/LICENSES/cubic-11/OFL.txt": "licenses/OFL-cubic-11.txt",
+      "../src/assets/fonts/LICENSES/ark-pixel/OFL.txt": "licenses/OFL-ark-pixel.txt",
       "resources/media-plugins/BetterNCMII.dll": "media-plugins/BetterNCMII.dll",
       "resources/media-plugins/BetterNCMII86.dll": "media-plugins/BetterNCMII86.dll",
       "resources/media-plugins/InfLink-rs.plugin": "media-plugins/InfLink-rs.plugin",

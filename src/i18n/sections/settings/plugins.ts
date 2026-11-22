@@ -19,7 +19,7 @@ export type SettingsPluginMarketText = {
 
 export const zhCN: SettingsPluginsText = {
   plan: "插件开发计划", comingSoon: "插件功能即将上线",
-  invitation: "插件可以改造小岛原有功能，也可以做全新的功能，装上后就是小岛的一部分，默认不安装、按需下载。欢迎基于小岛源码开发并提交 PR，flyl1u 审核适配后上线。",
+  invitation: "插件可以改造小岛原有功能，也可以做全新的功能，装上后就是小岛的一部分，默认不安装、按需下载。欢迎向二开仓库提交 PR，由 labubu-9527 维护审核。",
   guide: "插件开发规范", guideHint: "插件是什么、怎么改造小岛源码、提交 PR 要附的演示和信息，以及审核上线流程。",
   readGuide: "查看规范", openGuideFailed: "没能打开开发规范，请再试一次。",
   empty: "暂无插件", installed: "已安装", available: "可安装", install: "安装", update: "更新",
@@ -47,7 +47,7 @@ export const zhCN: SettingsPluginsText = {
 
 export const en: SettingsPluginsText = {
   plan: "Plugin development", comingSoon: "Plugins are coming soon",
-  invitation: "A plugin upgrades an island feature or adds a new one, and becomes part of the island once installed; plugins are optional and downloaded on demand. Build one from the island's source and open a PR; flyl1u reviews, adapts and ships it.",
+  invitation: "A plugin upgrades an island feature or adds a new one; plugins are optional and downloaded on demand. Open a PR in this fork for review by labubu-9527.",
   guide: "Plugin development guide", guideHint: "What a plugin is, how to change the island's source, the demo and details a PR needs, and how review and release work.",
   readGuide: "Read guide", openGuideFailed: "Could not open the guide. Please try again.",
   empty: "No plugins yet", installed: "Installed", available: "Available", install: "Install", update: "Update",

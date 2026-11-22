@@ -11,17 +11,20 @@ export function ProjectLink({
   hint,
   icon,
   tone,
+  onOpen,
 }: {
   href: string;
   title: string;
   hint: string;
   icon: ReactNode;
   tone?: "star";
+  onOpen?: () => void;
 }) {
   const t = useTranslation();
   const [failed, setFailed] = useState(false);
 
   const open = async (event: ReactMouseEvent<HTMLAnchorElement>) => {
+    onOpen?.();
     if (!isTauri()) return;
 
     event.preventDefault();

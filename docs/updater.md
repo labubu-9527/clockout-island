@@ -1,5 +1,14 @@
 # 应用内更新
 
+| 项目 | 内容 |
+| --- | --- |
+| 文档名称 | Clockout-island 应用内更新 |
+| 制作人 | XiaoZhu |
+| 日期 | 2026-11-22 |
+| 版本号 | v1.0.0 |
+
+二开分支由labubu-9527维护，更新与发布仓库为`labubu-9527/clockout-island`。当前基础配置公钥为空，普通`pnpm tauri build`仅生成手动安装包，应用内更新不可用；下文签名、latest.json和自动更新流程需维护者配置自己的密钥对后才生效。本次打包不生成签名、不上传GitHub Release，也不使用原作者私钥。原作者仓库仅作为源码上游保留。
+
 小岛自己检查新版本，在应用内下载、安装并自动重启。
 
 - **自动更新（默认开启，2026-11-13 起）**：设置 →「关于」→「自动更新」，存在 `focusd-island-auto-update`。开启时，主窗口（`features/updater/updaterController.ts`）启动后检查一次，之后每 6 小时检查一次（单个 `setTimeout`，不轮询）；检查或下载失败按 1、5、30 分钟退避重试，三次后回到 6 小时；后台下载失败时不进入 error，仍停在「有新版本」（带失败原因），待办照常出现，点「更新」时重新下载；每次检查前重新读一遍代理。下载好后，待办列表顶部出现「更新到 vX.Y.Z」的待办；小岛处于收起态（含贴边收起、托盘隐藏）且 2 分钟内没有指针或键盘操作时，`useIdleUpdateInstall` 直接调用安装（NSIS passive），装完由安装器重新打开小岛。展开面板、悬停或打字都会重新计时，游戏勿扰期间不自动安装。
@@ -151,8 +160,8 @@ pnpm tauri signer generate -w $env:USERPROFILE\.tauri\fly-island.key
    - 两个通道的清单都是新版本：
 
      ```powershell
-     curl.exe -sL https://github.com/flyl1u/fly-island/releases/latest/download/latest.json
-     curl.exe -sL https://github.com/flyl1u/fly-island/releases/download/beta-channel/latest.json
+     curl.exe -sL https://github.com/labubu-9527/clockout-island/releases/latest/download/latest.json
+     curl.exe -sL https://github.com/labubu-9527/clockout-island/releases/download/beta-channel/latest.json
      ```
 
      正式版两个都应是新版本；beta 版只有第二个是，第一个仍是上一个正式版。
@@ -168,7 +177,7 @@ CI 也可以复用同样的步骤：在仓库 Secrets 里存 `TAURI_UPDATER_PUBK
 **测试版（beta）有问题**：把 beta 通道的清单换回上一个好的版本。
 
 ```powershell
-$repo = "flyl1u/fly-island"
+$repo = "labubu-9527/clockout-island"
 # 取上一个好版本 Release 里的 latest.json，覆盖到 beta-channel 上
 gh release download v0.3.1-beta.2 --repo $repo --pattern latest.json --dir $env:TEMP\rollback --clobber
 gh release upload beta-channel "$env:TEMP\rollback\latest.json" --repo $repo --clobber
@@ -179,8 +188,8 @@ gh release upload beta-channel "$env:TEMP\rollback\latest.json" --repo $repo --c
 **正式版有问题**：把 GitHub 的 Latest 指回上一个好版本，稳定版用户检查更新就会拿到它的清单（版本不比自己新，所以不会再提示）。
 
 ```powershell
-gh release edit v0.3.0 --repo flyl1u/fly-island --latest
-gh release edit v0.3.2 --repo flyl1u/fly-island --prerelease --latest=false   # 有问题的那个
+gh release edit v0.3.0 --repo labubu-9527/clockout-island --latest
+gh release edit v0.3.2 --repo labubu-9527/clockout-island --prerelease --latest=false   # 有问题的那个
 ```
 
 把有问题的版本改成 Pre-release，是为了它不会被 GitHub 重新当成 Latest。修好后照常 `pnpm release` 一个更高的版本，它会重新成为 Latest。
@@ -195,7 +204,7 @@ gh release edit v0.3.2 --repo flyl1u/fly-island --prerelease --latest=false   # 
 - **一直显示已是最新版本**：确认 release 里的 `latest.json` 的 `version` 高于客户端版本；同一版本号重发不会触发更新。
 - **提示签名校验失败**：`latest.json` 里的 `signature` 必须来自本次安装包的 `.sig` 文件，且签名私钥与构建时注入的公钥配对。
 - **发布后短时间内检查不到**：`releases/latest/download/` 走 CDN，通常几分钟内生效。
-- **只想手动下载安装包**：直接访问 [GitHub Releases](https://github.com/flyl1u/fly-island/releases/latest)；设置 →「关于」里的「检查更新」用于应用内检查、下载和安装。
+- **只想手动下载安装包**：直接访问 [GitHub Releases](https://github.com/labubu-9527/clockout-island/releases/latest)；设置 →「关于」里的「检查更新」用于应用内检查、下载和安装。
 - **不想自动安装**：在「关于」里关掉「自动更新」，之后只在点「检查更新」时检查，下载好后点「立即安装」或待办里的按钮安装。
 
 ## 可下载功能插件

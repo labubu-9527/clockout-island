@@ -31,7 +31,7 @@ const BUNDLE_DIR = `${RELEASE_DIR}/bundle/nsis`;
 const MSI_DIR = `${RELEASE_DIR}/bundle/msi`;
 const MSI_OVERLAY = `${RELEASE_DIR}/msi-version.conf.json`;
 const BETA_CHANNEL_DIR = `${RELEASE_DIR}/beta-channel`;
-const REPO = "flyl1u/fly-island";
+const REPO = "labubu-9527/clockout-island";
 const releaseFeatures = JSON.parse(readFileSync("release-features.json", "utf8"));
 
 const args = process.argv.slice(2);

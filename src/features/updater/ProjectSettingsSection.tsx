@@ -1,12 +1,11 @@
 import { useSyncExternalStore } from "react";
-import { Star } from "lucide-react";
+import { GitFork, Star } from "lucide-react";
 import { SettingsGroup } from "../../components/settings/SettingsGroup";
 import { useTranslation } from "../../i18n";
 import markUrl from "../../../src-tauri/icons/mark.svg";
 import { CommunityGroup } from "./CommunityGroup";
 import { ProjectLink } from "./ProjectLink";
-import { SupportAuthor } from "./SupportAuthor";
-import { PROJECT_REPO_URL } from "./projectLinks";
+import { PROJECT_REPO_URL, UPSTREAM_REPO_URL } from "./projectLinks";
 import { getUpdateState, subscribeToUpdate } from "./updaterController";
 import "./ProjectSettingsSection.css";
 
@@ -31,12 +30,7 @@ export function ProjectIdentitySection() {
   );
 }
 
-/**
- * Settings → About → one group of three rows: the community group (where questions and problems
- * go now), starring the project, and tipping the author. Updates have their own group above
- * (UpdateSettingsSection), past versions are in the changelog below, and the author's site is a
- * link in the sidebar, under About.
- */
+/** Fork feedback, repository and retained upstream attribution. */
 export function ProjectLinksSection() {
   const text = useTranslation().settings.project;
 
@@ -50,7 +44,8 @@ export function ProjectLinksSection() {
         hint={text.starHint}
         icon={<Star className="project-link__icon" size={18} strokeWidth={1.5} absoluteStrokeWidth aria-hidden="true" />}
       />
-      <SupportAuthor />
+      <ProjectLink href={UPSTREAM_REPO_URL} title={text.upstream} hint={text.upstreamHint}
+        icon={<GitFork className="project-link__icon" size={18} aria-hidden="true" />} />
     </SettingsGroup>
   );
 }

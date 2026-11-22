@@ -3,6 +3,8 @@ export type SettingsProjectText = {
   appName: string;
   versionChip: (version: string) => string;
   description: string;
+  upstream: string;
+  upstreamHint: string;
   /** The last card of About: resetting every setting, and quitting the island. */
   quit: string;
   quitHint: string;
@@ -77,15 +79,17 @@ export const zhCN: SettingsProjectText = {
   title: "关于小岛",
   appName: "岛点下班",
   versionChip: (version) => `v${version}`,
-  description: "在屏幕顶部集中待办、剪贴板、音乐、快捷翻译、AI 状态和消息提醒。",
+  description: "由 labubu-9527 基于 fly-island 二次开发，集中待办、音乐、AI 状态和消息提醒。",
+  upstream: "原始项目与开源许可",
+  upstreamHint: "基于 flyl1u/fly-island，保留 GPL-3.0 与原作者署名",
   quit: "退出岛屿",
   quitHint: "和托盘菜单里的「退出」一样；要再打开，从开始菜单或桌面快捷方式启动。",
   quitAction: "退出",
   changelog: "更新日志",
   changelogAll: (count) => `显示全部 ${count} 个版本`,
   changelogLess: "只看最近几个版本",
-  community: "用户交流群",
-  communityHint: "遇到问题、想要新功能，都可以来群里问问、聊聊",
+  community: "反馈问题与建议",
+  communityHint: "前往 labubu-9527/clockout-island 的 GitHub Issues",
   communityNew: "新",
   communityCodeAlt: "岛点下班 用户交流群的微信二维码",
   communityScan: "用微信扫一扫加入。二维码每周更新，过期了重新点开这里就是新的。",
@@ -142,15 +146,17 @@ export const en: SettingsProjectText = {
   title: "About the island",
   appName: "Clockout-island",
   versionChip: (version) => `v${version}`,
-  description: "Todos, clipboard, music, quick translation, AI status, and message alerts, gathered at the top of the screen.",
+  description: "A fork of fly-island maintained by labubu-9527, with todos, music, AI status and notifications.",
+  upstream: "Original project and license",
+  upstreamHint: "Based on flyl1u/fly-island; GPL-3.0 and original attribution retained",
   quit: "Quit the island",
   quitHint: "Same as Quit in the tray menu; start it again from the Start menu or a desktop shortcut.",
   quitAction: "Quit",
   changelog: "Changelog",
   changelogAll: (count) => `Show all ${count} versions`,
   changelogLess: "Show recent versions only",
-  community: "Community group",
-  communityHint: "Questions, ideas or problems? Come ask and chat in the group",
+  community: "Report issues and suggestions",
+  communityHint: "Open GitHub Issues in labubu-9527/clockout-island",
   communityNew: "New",
   communityCodeAlt: "WeChat QR code of the Clockout-island community group",
   communityScan: "Scan with WeChat to join. The code changes every week; if it has expired, open this again for the new one.",

@@ -1,8 +1,19 @@
 # 插件开发规范 / Plugin development guide
 
-> **插件功能即将上线。** 现在就可以按这份规范开发插件并提交 PR，flyl1u 审核、适配后统一上线。
+| 项目 | 内容 |
+| --- | --- |
+| 文档名称 | 插件开发规范 / Plugin development guide |
+| 制作人 | XiaoZhu |
+| 日期 | 2026-11-22 |
+| 版本号 | v1.0.0 |
+
+本文基于 [flyl1u/fly-island 的原始插件指南](https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md) 调整，保留原作者和贡献者署名。本指南的贡献、审核和发布流程适用于 [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island)，由本分支维护者 labubu-9527 负责，遵循仓库 GPL-3.0 许可证。
+
+Adapted from the [original plugin guide by flyl1u and contributors](https://github.com/flyl1u/fly-island/blob/main/docs/plugins/README.md). Contributions, review and releases described here target [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island), maintained by labubu-9527 under the repository's GPL-3.0 license.
+
+> **插件功能即将上线。** 现在就可以按这份规范开发插件并提交 PR，labubu-9527 审核、适配后统一上线。
 >
-> **Plugins are coming soon.** You can build one now and open a PR; flyl1u reviews, adapts and ships it. An English summary is at the end.
+> **Plugins are coming soon.** You can build one now and open a PR; labubu-9527 reviews, adapts and ships it. An English summary is at the end.
 
 ---
 
@@ -30,16 +41,16 @@
 
 ```text
 Fork 仓库 → 本地改造小岛源码 → 在真实小岛里自测、录制演示 → 按模板提 PR
-        → flyl1u 审核 → flyl1u 做适配（改成可按需安装）→ 随版本上线，用户按需下载
+        → labubu-9527 审核 → labubu-9527 做适配（改成可按需安装）→ 随版本上线，用户按需下载
 ```
 
-因为插件改的是小岛本身，**不能直接合并上线**：flyl1u 会在合并时把你的改动适配成「可选安装」的形式，保证没装插件的用户不受影响。所以你只需要专心把功能做好、把演示和信息交代清楚。
+因为插件改的是小岛本身，**不能直接合并上线**：labubu-9527 会在合并时把你的改动适配成「可选安装」的形式，保证没装插件的用户不受影响。所以你只需要专心把功能做好、把演示和信息交代清楚。
 
 ## 三、怎么开发
 
 ### 1. 准备环境
 
-1. Fork [flyl1u/fly-island](https://github.com/flyl1u/fly-island)，克隆到本地。
+1. Fork [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island)，克隆到本地。
 2. 安装 Node.js、pnpm、Rust（版本见仓库里的 `rust-toolchain.toml`）和 Tauri 2 的 Windows 依赖（WebView2、MSVC 生成工具）。
 3. 在仓库根目录运行：
 
@@ -64,7 +75,7 @@ Fork 仓库 → 本地改造小岛源码 → 在真实小岛里自测、录制�
 - **改造已有功能时，就在原功能上改。** 要增强笔记，就改 `src/features/todos/` 里的笔记；要增强剪贴板，就改 `src/features/clipboard/`，不要另做一个平行的版本。
 - **做新功能时，按小岛的结构来放。** 新的领域放在 `src/features/<新功能>/`，岛上的新页面、设置里的新分组都接到现有的页面和设置结构里（参考已有功能怎么接）。无论哪种，都复用现有组件和样式，不要再造一套。
 - **需要独立窗口时，照着现有窗口做。** 参考剪贴板窗口（`?window=clipboard`）：用新的窗口名和 `?window=` 参数，按需创建，用小岛的样式；不要改动已有的四个窗口名。
-- **把改动收拢、做成能关掉的。** 尽量把新增逻辑放在独立的文件或目录里，在原功能里只留少量接入点，并且在 PR 里写清楚「哪几处是接入点」。这样 flyl1u 才能把它改成可选安装，没装时一行都不生效。
+- **把改动收拢、做成能关掉的。** 尽量把新增逻辑放在独立的文件或目录里，在原功能里只留少量接入点，并且在 PR 里写清楚「哪几处是接入点」。这样 labubu-9527 才能把它改成可选安装，没装时一行都不生效。
 - **不破坏没装插件的用户。** 已保存的数据（`localStorage` 里的 `focusd-island-*`、应用数据目录里的文件）、Tauri 命令名、窗口名都不能改；需要新存数据就用新的 key，并能兼容读旧数据。完整清单见 [contracts.md](../architecture/contracts.md)。
 - **看起来就是小岛的一部分。** 用小岛已有的颜色变量和组件，深色 / 浅色、液态玻璃 / 磨砂玻璃都要看一遍；窄窗口下文字和按钮不能溢出。
 - **中英双语。** 所有用户能看到的字（包括按钮的悬停提示、读屏标签）都要有中文和英文。
@@ -91,7 +102,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 ## 四、提交 PR 需要什么
 
-用[插件 PR 模板](../../.github/PULL_REQUEST_TEMPLATE/plugin.md)提交，下面几项**必须填**，缺了不会审核：
+向 [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island/pulls) 使用[插件 PR 模板](../../.github/PULL_REQUEST_TEMPLATE/plugin.md)提交，下面几项**必须填**，缺了不会审核：
 
 | 必填项 | 说明 |
 | --- | --- |
@@ -107,10 +118,10 @@ cargo test --manifest-path src-tauri/Cargo.toml
 
 ## 五、审核和上线
 
-1. **flyl1u 审核**：看功能是否值得做、是否和小岛浑然一体、有没有安全和性能问题。可能会请你修改。
-2. **flyl1u 适配**：把改动整理成「可选安装」的插件形式。这一步由 flyl1u 完成，你不需要关心安装机制怎么实现。
+1. **labubu-9527 审核**：看功能是否值得做、是否和小岛浑然一体、有没有安全和性能问题。可能会请你修改。
+2. **labubu-9527 适配**：把改动整理成「可选安装」的插件形式。这一步由 labubu-9527 完成，你不需要关心安装机制怎么实现。
 3. **随版本上线**：插件默认不安装，出现在「设置 → 插件」的列表里，带上你的名字、简介和演示，用户按需下载。
-4. 提交不保证一定合并或立刻上线；flyl1u 会在 PR 里说明原因。
+4. 提交不保证一定合并或立刻上线；labubu-9527 会在 PR 里说明原因。
 
 ## 六、常见问题
 
@@ -121,7 +132,7 @@ cargo test --manifest-path src-tauri/Cargo.toml
 可以。像剪贴板、翻译那样的独立窗口都行，照着现有窗口的做法来（新的窗口名、按需创建）。但窗口里的界面要用小岛自己的组件和样式，不要另搞一套风格。
 
 **Q：需要我自己实现「下载 / 安装插件」吗？**
-不需要。你只管把功能做好，可选安装的适配由 flyl1u 完成。
+不需要。你只管把功能做好，可选安装的适配由 labubu-9527 完成。
 
 **Q：仓库里 `plugins/` 目录和 `api.md`、`specification.md` 是什么？**
 那是小岛内部已有的一套「外部数据接入」机制（把其他 AI 工具的额度、会话、消息接进 Agent 页）的技术说明和示例。它不是「插件」的定义。如果你的插件正好需要接入外部数据源，可以参考；否则不用看。
@@ -135,10 +146,10 @@ cargo test --manifest-path src-tauri/Cargo.toml
 - Not an unrelated app that merely launches from the island with its own look, and not code bolted on beside the original feature.
 - **Not installed by default.** Users download it on demand in Settings → Plugins; everyone else gets the island unchanged.
 
-**Flow:** fork → modify the island's source → test and record a demo inside the real island → open a PR with the [plugin template](../../.github/PULL_REQUEST_TEMPLATE/plugin.md) → flyl1u reviews and adapts it into an optional install → it ships with a release.
+**Flow:** fork [labubu-9527/clockout-island](https://github.com/labubu-9527/clockout-island) → modify the island's source → test and record a demo inside the real island → open a PR to that repository with the [plugin template](../../.github/PULL_REQUEST_TEMPLATE/plugin.md) → labubu-9527 reviews and adapts it into an optional install → it ships with a release.
 
 **Rules:** follow [AGENTS.md](../../AGENTS.md), [src/AGENTS.md](../../src/AGENTS.md) and [DESIGN.md](../../DESIGN.md). When upgrading a feature, change it in place rather than building a parallel copy; when adding one, put it in `src/features/<name>/` and wire it into the existing pages and settings. A plugin window follows the clipboard window's pattern: a new window label and `?window=` value, created on demand. Either way, keep new logic in its own files with a few clearly listed hook points. Never change saved data keys, Tauri command names or window labels ([contracts.md](../architecture/contracts.md)). Use the island's own components and styles, and provide every visible string in Chinese and English. Declare any network domains or file access, and add no heavy polling. Run `pnpm check`, `pnpm build`, `pnpm test:regression` (and `cargo test` for Rust changes) before submitting.
 
-**Required in the PR:** a public link to a demo recording of the plugin in use inside the real island, the author(s), a public contact, your GitHub profile and the source repository/branch, a plain-language description for the plugin list, a list of changed files and hook points, and your self-test results. flyl1u handles the optional-install packaging; submission does not guarantee a merge or immediate release.
+**Required in the PR:** a public link to a demo recording of the plugin in use inside the real island, the author(s), a public contact, your GitHub profile and the source repository/branch, a plain-language description for the plugin list, a list of changed files and hook points, and your self-test results. labubu-9527 handles the optional-install packaging; submission does not guarantee a merge or immediate release.
 
 The `plugins/` directory and the `api.md` / `specification.md` documents describe the island's existing external data adapter mechanism (quota, sessions and messages from other AI tools). They are a reference for plugins that need external data sources, not the definition of a plugin.

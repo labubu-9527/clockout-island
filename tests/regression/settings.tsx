@@ -346,28 +346,15 @@ if (!automated) {
       "One click on About clears the red dots for good");
     const linkCard = [...document.querySelectorAll<HTMLElement>(".settings-group__card")].find((card) => card.querySelector(".project-link"));
     const linkTitles = [...(linkCard?.querySelectorAll<HTMLElement>(".project-link__copy strong") ?? [])].map((title) => title.textContent);
-    check(linkTitles.join() === "用户交流群,觉得小岛还不错？,打赏作者", `About lists the community group, the star and the tip in one group (${linkTitles.join()})`);
+    check(linkTitles.join() === "反馈问题与建议,觉得小岛还不错？,原始项目与开源许可", `About lists fork feedback, repository and upstream attribution (${linkTitles.join()})`);
     const authorLink = document.querySelector<HTMLAnchorElement>(".settings-sidebar a.settings-sidebar__item--link");
     const sidebarItems = [...document.querySelectorAll<HTMLElement>(".settings-sidebar__item")].map((item) => item.textContent);
     check(!authorLink && sidebarItems.slice(-1).join() === "关于与更新", "关于作者入口暂时隐藏，侧栏最后一项是关于与更新");
-    const communityToggle = element<HTMLButtonElement>(".community-group .support-author__toggle");
-    check(communityToggle.textContent?.includes("遇到问题、想要新功能，都可以来群里问问、聊聊"), "The group row says questions go there");
-    await act(async () => { communityToggle.click(); });
-    check(communityToggle.getAttribute("aria-expanded") === "true"
-      && document.querySelector(".community-group__code img")?.getAttribute("src")?.startsWith("https://island.flyliu.org/community/wechat-group.jpg?t=") === true,
-      "Opening the group shows its code from the website, asked for afresh");
-    await act(async () => { communityToggle.click(); });
-    check(!document.querySelector(".community-group__code"), "Clicking the group again closes the code");
-    const supportToggle = element<HTMLButtonElement>(".support-author:not(.community-group) .support-author__toggle");
-    check(supportToggle.getAttribute("aria-expanded") === "false" && !document.querySelector(".support-author__code"), "Support the author starts closed");
-    await act(async () => { supportToggle.click(); });
-    const codes = [...document.querySelectorAll<HTMLElement>(".support-author__code")];
-    check(supportToggle.getAttribute("aria-expanded") === "true"
-      && codes.map((code) => code.querySelector("figcaption")?.textContent).join() === "微信,支付宝"
-      && codes.every((code) => code.querySelector("img")?.getAttribute("src")?.includes("/assets/donate/")),
-      "Clicking Support the author shows the WeChat and Alipay codes bundled with the app");
-    await act(async () => { supportToggle.click(); });
-    check(!document.querySelector(".support-author__code"), "Clicking it again closes the codes");
+    const feedback = element<HTMLAnchorElement>('.project-link[href="https://github.com/labubu-9527/clockout-island/issues"]');
+    check(feedback.href === "https://github.com/labubu-9527/clockout-island/issues", "Fork feedback opens the maintainer issue tracker");
+    check(!document.querySelector(".support-author__code, .community-group__code, .support-author__toggle"), "Fork does not show the upstream payment or community QR codes");
+    const projectLinks = [...document.querySelectorAll<HTMLAnchorElement>(".project-link")].map(link => link.href);
+    check(projectLinks.includes("https://github.com/labubu-9527/clockout-island") && projectLinks.includes("https://github.com/flyl1u/fly-island"), "Fork repository and upstream attribution remain distinct");
     const aboutLink = (label: string) =>
       [...document.querySelectorAll<HTMLButtonElement>(".settings-link-button")].find((button) => button.textContent === label);
     await act(async () => { aboutLink("退出")!.click(); });
